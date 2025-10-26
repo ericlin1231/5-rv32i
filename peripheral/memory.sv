@@ -13,8 +13,18 @@ module memory #(
   localparam BYTES = WIDTH / 8;
   localparam ADDR_BITS = $clog2(MEM_SIZE);
 
+  string imem_file;
   bit [ADDR_BITS-1:0] offset;
-  logic [7:0] mem[0:MEM_SIZE-1];
+  byte unsigned mem[0:MEM_SIZE-1];
+  initial begin
+    if (!$value$plusargs("IMEM=%s", imem_file))
+      $display("Instruction memory didn't load program file");
+    if (imem_file != "") begin
+      $display("[%m] load %s to instruction memory", imem_file);
+      $readmemh(imem_file, mem);
+    end
+  end
+
   always_ff @(negedge clk) begin
     if (wen) begin
       for (offset = 0; offset < BYTES; offset++) begin

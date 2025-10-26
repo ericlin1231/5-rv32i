@@ -1,2 +1,5 @@
+.direnv/
 obj_dir/
 *.vcd
+*.ron
+*.sucl
