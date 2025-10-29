@@ -7,7 +7,7 @@ PROGRAM_SRCS += $(wildcard program/asm/*.s)
 PROGRAM_SRCS += $(wildcard program/c/*.c)
 PROGRAM_SRCS_HEX := program/hex
 TARGET_PROGRAM ?= add.s
-TARGET_PROGRAM_HEX := $(PROGRAM_SRCS_HEX)/$(TARGET_PROGRAM)
+TARGET_PROGRAM_HEX := $(PROGRAM_SRCS_HEX)/$(basename $(TARGET_PROGRAM)).hex
 
 SIMULATION := sim/sim_$(TOP).cpp
 SIMULATOR := verilator
@@ -17,10 +17,10 @@ WAVE := *.vcd
 VIEWER := surfer
 VIEWER_SCRIPT := script.sucl
 
-sim: $(SRCS) $(SIMULATION) program
+sim: $(SRCS) $(SIMULATION) prog
 	$(SIMULATOR) $(SIMULATOR_OPTS) \
 		-cc $(SRCS) -exe $(SIMULATION) -o $(SIMULATION_BIN)
-	./obj_dir/$(BIN) +IMEM=$(TARGET_PROGRAM_HEX)
+	./obj_dir/$(SIMULATION_BIN) +IMEM=$(TARGET_PROGRAM_HEX)
 	$(VIEWER) -c $(VIEWER_SCRIPT)
 
 prog: $(PROGRAM_SRCS)

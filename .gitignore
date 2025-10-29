@@ -3,3 +3,6 @@ obj_dir/
 *.vcd
 *.ron
 *.sucl
+*.elf
+*.bin
+*.hex
