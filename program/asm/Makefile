@@ -1,23 +1,54 @@
-SRCS := *.s
+.DEFAULT_GOAL := sim
+
 COMPILER := clang
-LINKER := lld
-OBJCOPY := llvm-objcopy
+LINKER   := lld
+OBJDUMP  := llvm-objdump
+OBJCOPY  := llvm-objcopy
+HEXDUMP  := hexdump
 
-ARCH ?= rv32i
-TARGET ?= riscv64-unknown-elf
-LINKSCRIPT ?= link.ld
+TARGET        := riscv32-unknown-elf
+ARCH          := rv32i
+ABI           := ilp32
+LINKER_SCRIPT := link.ld
 
-all: $(SRCS)
-	@$(COMPILER) --target=$(TARGET) -march=$(ARCH)        \
-    	-fuse-ld=$(LINKER) -nostdlib -Wl,-T,$(LINKSCRIPT) \
-		-o $(basename $<).elf $<
-	@llvm-objcopy -O binary --only-section=.text $(basename $<).elf $(basename $<).bin
-	@hexdump -ve '1/1 "%02x\n"' $(basename $<).bin > $(basename $<).hex
-	@mv $(basename $<).elf ../elf
-	@mv $(basename $<).bin ../bin
-	@mv $(basename $<).hex ../hex
+CFLAGS := --target=$(TARGET) -march=$(ARCH) -mabi=$(ABI)
+CFLAGS += -fuse-ld=$(LINKER) -nostdlib
+CFLAGS += -Wl,-T,$(LINKER_SCRIPT)
+OFLAGS := -O binary --only-section=.text*
+HFLAGS := -ve '1/1 "%02x\n"'
 
-clean:
-	@rm *.elf
+ASM_SRCS := $(wildcard *.s)
+ASM_DIR  := ../asm
 
-.PHONY: clean
+BASE := $(basename $(ASM_SRCS))
+
+ELFS    := $(addsuffix .elf, $(BASE))
+ELF_DIR := ../elf
+
+BINS := $(addsuffix .bin, $(BASE))
+
+HEXS      := $(addsuffix .hex, $(BASE))
+HEX_DIR   := ../hex
+BUILD_DIR := $(HEX_DIR)
+
+.PHONY: sim
+sim: $(HEXS) | dir
+	@mv $(HEXS) $(HEX_DIR)
+
+.PHONY: debug
+debug: BUILD_DIR = $(ELF_DIR)
+debug: $(ELFS) | dir
+	@mv $(ELFS) $(ELF_DIR)
+
+%.hex: %.bin
+	$(HEXDUMP) $(HFLAGS) $< > $@
+
+%.bin: %.elf
+	$(OBJCOPY) $(OFLAGS) $< $@
+
+%.elf: %.s
+	$(COMPILER) $(CFLAGS) -o $@ $<
+
+.PHONY: dir
+dir:
+	@mkdir -p $(BUILD_DIR)

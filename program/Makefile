@@ -1,6 +1,13 @@
-SRCS := $(wildcard elf/* bin/* hex/*)
+.DEFAULT_GOAL := all
 
-clean:
-	@rm $(SRCS)
+.PHONY: all
+all:
+	@make -C asm
+
+.PHONY: debug
+debug:
+	@make -C asm debug
 
 .PHONY: clean
+clean:
+	@rm -rf elf hex
