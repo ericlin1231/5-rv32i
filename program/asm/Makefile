@@ -9,11 +9,9 @@ HEXDUMP  := hexdump
 TARGET        := riscv32-unknown-elf
 ARCH          := rv32i
 ABI           := ilp32
-LINKER_SCRIPT := link.ld
 
 CFLAGS := --target=$(TARGET) -march=$(ARCH) -mabi=$(ABI)
-CFLAGS += -fuse-ld=$(LINKER) -nostdlib
-CFLAGS += -Wl,-T,$(LINKER_SCRIPT)
+CFLAGS += -g -fuse-ld=$(LINKER) -nostdlib
 OFLAGS := -O binary --only-section=.text*
 HFLAGS := -ve '1/1 "%02x\n"'
 
@@ -32,22 +30,24 @@ HEX_DIR   := ../hex
 BUILD_DIR := $(HEX_DIR)
 
 .PHONY: sim
+sim: CFLAGS += -Wl,-T,link.ld
 sim: $(HEXS) | dir
 	@mv $(HEXS) $(HEX_DIR)
 
 .PHONY: debug
 debug: BUILD_DIR = $(ELF_DIR)
+debug: CFLAGS += -Wl,-T,link_debug.ld
 debug: $(ELFS) | dir
 	@mv $(ELFS) $(ELF_DIR)
 
 %.hex: %.bin
-	$(HEXDUMP) $(HFLAGS) $< > $@
+	@$(HEXDUMP) $(HFLAGS) $< > $@
 
 %.bin: %.elf
-	$(OBJCOPY) $(OFLAGS) $< $@
+	@$(OBJCOPY) $(OFLAGS) $< $@
 
 %.elf: %.s
-	$(COMPILER) $(CFLAGS) -o $@ $<
+	@$(COMPILER) $(CFLAGS) -o $@ $<
 
 .PHONY: dir
 dir:
