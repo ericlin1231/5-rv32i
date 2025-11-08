@@ -1,6 +1,9 @@
+import defs::*;
+
 module memory #(
     parameter WIDTH = 32,
-    parameter MEM_SIZE = 4096
+    parameter MEM_SIZE = 4096,
+    parameter TYPE = ""
 ) (
     input logic clk,
     input logic ren,

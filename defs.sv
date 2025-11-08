@@ -1,3 +1,10 @@
+package defs;
+
+typedef enum {
+  DISABLE = 0,
+  ENABLE  = 1
+} enable_c;
+
 typedef enum {
   zero = 5'd0,
   ra   = 5'd1,

@@ -6,9 +6,9 @@ OBJDUMP  := llvm-objdump
 OBJCOPY  := llvm-objcopy
 HEXDUMP  := hexdump
 
-TARGET        := riscv32-unknown-elf
-ARCH          := rv32i
-ABI           := ilp32
+TARGET := riscv32-unknown-elf
+ARCH   := rv32i
+ABI    := ilp32
 
 CFLAGS := --target=$(TARGET) -march=$(ARCH) -mabi=$(ABI)
 CFLAGS += -g -fuse-ld=$(LINKER) -nostdlib
@@ -30,7 +30,7 @@ HEX_DIR   := ../hex
 BUILD_DIR := $(HEX_DIR)
 
 .PHONY: sim
-sim: CFLAGS += -Wl,-T,link.ld
+sim: CFLAGS += -Wl,-T,link_sim.ld
 sim: $(HEXS) | dir
 	@mv $(HEXS) $(HEX_DIR)
 

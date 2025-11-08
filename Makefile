@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := sim
 
-TOP ?= top
+TOP  ?= top
 SRCS += test/$(TOP).sv 
 SRCS += $(wildcard peripheral/*.sv)
 SRCS += $(wildcard stages/*.sv)
@@ -20,19 +20,20 @@ QFLAGS := -nographic -smp 1 -machine virt -bios none
 GDB     := gdb
 GDBINIT := gdbinit
 
-SIMULATION := sim/sim_$(TOP).cpp
-SIMULATOR := verilator
+SIMULATION     := sim/sim_$(TOP).cpp
+SIMULATOR      := verilator
 SIMULATOR_OPTS := --sv --top-module $(TOP) --trace --build -j 0
 SIMULATION_BIN := $(notdir $(basename $(SIMULATION)))
-WAVE := *.vcd
-VIEWER := surfer
+
+WAVE          := *.vcd
+VIEWER        := surfer
 VIEWER_SCRIPT := script.sucl
 
 .PHONY: sim
 sim: $(SRCS) $(SIMULATION) prog_sim
 	$(SIMULATOR) $(SIMULATOR_OPTS) \
 		-cc $(SRCS) -exe $(SIMULATION) -o $(SIMULATION_BIN)
-	./obj_dir/$(SIMULATION_BIN) +IMEM=$(PROG_PATH)
+	./obj_dir/$(SIMULATION_BIN) +IMEM=$(PROG_SIM_PATH)
 	$(VIEWER) -c $(VIEWER_SCRIPT)
 
 .PHONY: debug

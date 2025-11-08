@@ -1,3 +1,5 @@
+import defs::*;
+
 module cpu #(
     parameter XLEN = 32,
     parameter ADDR_WIDTH = 32,
@@ -9,6 +11,7 @@ module cpu #(
     input logic rst_n
 );
 
+  /* Instruction Fetch Stage */
   logic [DATA_WIDTH-1:0] instruction_if2buf;
   logic [ADDR_WIDTH-1:0] pc_if2buf;
   IF #(
@@ -27,6 +30,7 @@ module cpu #(
       .pc_o(pc_if2buf)
   );
 
+  /* Instruction Fetch to Instruction Decode Buffer */
   logic [DATA_WIDTH-1:0] instruction_buf2id;
   logic [ADDR_WIDTH-1:0] pc_buf2id;
   IF2ID #(
@@ -41,6 +45,24 @@ module cpu #(
       .instruction_o(instruction_buf2id),
       .pc_o(pc_buf2id)
   );
+
+  /* Instruction Decode Stage */
+  logic [ADDR_WIDTH-1:0] pc_id2buf;
+  ID #(
+      .XLEN(XLEN),
+      .ADDR_WIDTH(ADDR_WIDTH),
+      .DATA_WIDTH(DATA_WIDHT)
+  ) ID_stage (
+      .clk(clk),
+      .instruction_i(instruction_buf2id),
+      .op_o(op_id2buf),
+      .rs1_o(rs1_id2buf),
+      .rs2_o(rs2_id2buf),
+      .funct3_o(funct3_id2buf),
+      .funct7_o(funct7_id2buf)
+  );
+
+  /* Control Logic */
 
 
 endmodule

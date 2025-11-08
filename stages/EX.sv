@@ -1,3 +1,5 @@
+import defs::*;
+
 module EX #(
     parameter XLEN = 32
 ) ();
