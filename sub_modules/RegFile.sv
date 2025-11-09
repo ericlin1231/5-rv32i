@@ -10,7 +10,7 @@ module RegFile (
     output data_t rs2_data_o
 );
     
-    data_t regs [XLEN-1:0];
+    data_t regs [0:31];
     always_ff @(posedge clk)
     begin
         if (!rst_n) regs[0] <= 0;
