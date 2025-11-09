@@ -15,28 +15,24 @@ CFLAGS += -g -fuse-ld=$(LINKER) -nostdlib
 OFLAGS := -O binary --only-section=.text*
 HFLAGS := -ve '1/1 "%02x\n"'
 
-ASM_SRCS := $(wildcard *.s)
-ASM_DIR  := ../asm
-
-BASE := $(basename $(ASM_SRCS))
-
-ELFS    := $(addsuffix .elf, $(BASE))
-ELF_DIR := ../elf
-
-BINS := $(addsuffix .bin, $(BASE))
-
-HEXS      := $(addsuffix .hex, $(BASE))
+ELF_DIR   := ../elf
 HEX_DIR   := ../hex
 BUILD_DIR := $(HEX_DIR)
 
+ASMS := $(wildcard *.s)
+BASE := $(basename $(ASMS))
+ELFS := $(addsuffix .elf, $(BASE))
+BINS := $(addsuffix .bin, $(BASE))
+HEXS := $(addsuffix .hex, $(BASE))
+
 .PHONY: sim
-sim: CFLAGS += -Wl,-T,link_sim.ld
+sim: CFLAGS += -Wl,-Tlink_sim.ld
 sim: $(HEXS) | dir
 	@mv $(HEXS) $(HEX_DIR)
 
 .PHONY: debug
 debug: BUILD_DIR = $(ELF_DIR)
-debug: CFLAGS += -Wl,-T,link_debug.ld
+debug: CFLAGS += -Wl,-Tlink_debug.ld
 debug: $(ELFS) | dir
 	@mv $(ELFS) $(ELF_DIR)
 
