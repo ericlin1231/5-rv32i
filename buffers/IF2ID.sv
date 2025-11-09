@@ -1,38 +1,37 @@
 import defs::*;
 
-module IF2ID #(
-    parameter ADDR_WIDTH = 32,
-    parameter DATA_WIDTH = 32
-) (
-    input clk,
-    input stall_c,
-    input flush_c,
-    input logic [ADDR_WIDTH-1:0] pc_i,
-    input logic [DATA_WIDTH-1:0] instruction_i,
-    output logic [ADDR_WIDTH-1:0] pc_o,
-    output logic [DATA_WIDTH-1:0] instruction_o
+module IF2ID (
+    input  logic    clk,
+    input  enable_t stall_c,
+    input  enable_t flush_c,
+    input  data_t   pc_i,
+    input  data_t   instruction_i,
+    output data_t   pc_o,
+    output data_t   instruction_o
 );
 
-  always_comb begin
-    pc_o = pc;
-    instruction_o = instruction;
-  end
-
-  logic [ADDR_WIDTH-1:0] pc;
-  logic [DATA_WIDTH-1:0] instruction;
-  always_ff @(posedge clk) begin
-    if (flush_c) begin
-      pc <= 0;
-      instruction <= 0;
-    end else begin
-      if (stall_c) begin
-        pc <= pc;
-        instruction <= instruction;
-      end else begin
-        pc <= pc_i;
-        instruction <= instruction_i;
-      end
+    always_comb
+    begin
+        pc_o = pc;
+        instruction_o = instruction;
     end
-  end
+
+    data_t pc;
+    data_t instruction;
+    always_ff @(posedge clk)
+    begin
+        if (flush_c) begin
+            pc <= 0;
+            instruction <= 0;
+        end
+        else if (stall_c) begin
+            pc <= pc;
+            instruction <= instruction;
+        end
+        else begin
+            pc <= pc_i;
+            instruction <= instruction_i;
+        end
+    end
 
 endmodule

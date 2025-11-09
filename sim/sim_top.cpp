@@ -43,7 +43,9 @@ int main(int argc, char **argv)
     tfp->dump(contextp->time());
     for (int i = 0; i < 10; i++) step(top, tfp, contextp);
 
+    half_step(top, tfp, contextp);
     top-> rst_n = 1;
+    half_step(top, tfp, contextp);
     top->eval();
     tfp->dump(contextp->time());
     for (int i = 0; i < 100; i++) step(top, tfp, contextp);

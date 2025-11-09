@@ -2,9 +2,11 @@
 
 TOP  ?= top
 SRCS += test/$(TOP).sv 
-SRCS += $(wildcard peripheral/*.sv)
+SRCS += defs.sv
 SRCS += $(wildcard stages/*.sv)
 SRCS += $(wildcard buffers/*.sv)
+SRCS += $(wildcard sub_modules/*.sv)
+SRCS += $(wildcard peripheral/*.sv)
 
 PROG_DIR        := program
 PROG_ELF_DIR    := $(PROG_DIR)/elf
