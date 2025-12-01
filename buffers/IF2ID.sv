@@ -2,35 +2,30 @@ import defs::*;
 
 module IF2ID (
     input  logic    clk,
-    input  enable_t stall_c,
-    input  enable_t flush_c,
+    /* Input */
+    input  enable_t stall_c_i,
+    input  enable_t flush_c_i,
+    /* Input */
     input  data_t   pc_i,
     input  data_t   instruction_i,
+    /* Output */
     output data_t   pc_o,
     output data_t   instruction_o
 );
 
-    always_comb
-    begin
-        pc_o = pc;
-        instruction_o = instruction;
-    end
-
-    data_t pc;
-    data_t instruction;
     always_ff @(posedge clk)
     begin
-        if (flush_c) begin
-            pc <= 0;
-            instruction <= 0;
+        if (flush_c_i) begin
+            pc_o <= DATA_UNKNOWN;
+            instruction_o <= DATA_UNKNOWN;
         end
         else if (stall_c) begin
-            pc <= pc;
-            instruction <= instruction;
+            pc_o <= pc_o;
+            instruction_o <= instruction_o;
         end
         else begin
-            pc <= pc_i;
-            instruction <= instruction_i;
+            pc_o <= pc_i;
+            instruction_o <= instruction_i;
         end
     end
 

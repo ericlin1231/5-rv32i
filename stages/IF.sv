@@ -4,45 +4,40 @@ module IF #(
     parameter DATA_WIDTH = 32,
     parameter IMEM_SIZE = 4096
 ) (
-    input logic clk,
-    input logic rst_n,
-    input logic stall_c,
-    input logic jump_c,
-    input logic [ADDR_WIDTH-1:0] jump_addr_i,
-    output logic [DATA_WIDTH-1:0] instruction_o,
-    output logic [ADDR_WIDTH-1:0] pc_o
+    /* System */
+    input logic    clk,
+    input logic    rst_n,
+    /* Input */
+    input enable_t stall_c_i,
+    input enable_t jump_c_i,
+    input addr_t   jump_addr_i,
+    /* Output */
+    output data_t  instruction_o,
+    output addr_t  pc_o,
+    output addr_t  pc_next_o
 );
-    logic [ADDR_WIDTH-1:0] pc;
     always_ff @(posedge clk)
     begin
-        if (!rst_n) pc <= 0;
+        if (!rst_n) pc_o <= 32'd0;
         else begin
-            if (jump_c) pc <= jump_addr_i;
-            else begin
-                if (stall_c) pc <= pc;
-                else pc <= pc + 4;
-            end
+            if (stall_c_i) pc_o <= pc_o;
+            else if (jump_c_i) pc_o <= jump_addr_i;
+            else pc_o <= pc_o + 32'd4;
         end
     end
-
-    always_comb
-    begin
-        pc_o = pc;
-    end
-
-    logic [DATA_WIDTH-1:0] instruction_i;
-    always_comb instruction_o = instruction_i;
+    always_comb pc_next_o = pc_o + 32'd4;
 
     memory #(
         .WIDTH(DATA_WIDTH),
-        .MEM_SIZE(IMEM_SIZE)
+        .MEM_SIZE(IMEM_SIZE),
+        .MEM_TYPE("IMEM")
     ) DMEM (
         .clk(clk),
-        .ren(1),
-        .wen(),
-        .addr_i(pc),
-        .data_i(),
-        .data_o(instruction_i)
+        .ren(1'b1),
+        .wen(1'b0),
+        .addr_i(pc_o),
+        .data_i(32'd0),
+        .data_o(instruction_o)
     );
 
 endmodule

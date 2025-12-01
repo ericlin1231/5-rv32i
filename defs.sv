@@ -3,14 +3,11 @@ package defs;
 parameter XLEN = 32;
 parameter ADDR_WIDTH = 32;
 parameter REG_ADDR_WIDTH = 5;
-parameter FUNCT3_WIDTH = 3;
-parameter FUNCT7_WIDTH = 7;
 
-typedef logic [XLEN-1:0] data_t;
-typedef logic [XLEN-1:0] imm_t;
-typedef logic [6:0]      funct7_t;
-typedef logic [2:0]      funct3_t;
-
+typedef logic [XLEN-1:0]       data_t;
+typedef logic [ADDR_WIDTH-1:0] addr_t
+typedef logic [6:0]            funct7_t;
+typedef logic [2:0]            funct3_t;
 
 typedef enum logic {
     DISABLE = 0,
@@ -21,8 +18,27 @@ typedef enum logic [1:0] {
     id2ex_buf   = 2'd0,
     mem_forward = 2'd1,
     wb_forward  = 2'd2,
-    UNKNOWN     = 2'd3
+    UNKNOWN     = 2'dx
 } alu_data_sel_t;
+
+typedef enum logic {
+    rs1 = 1'b0,
+    pc  = 1'b1,
+    UNKNOWN = 1'bx
+} alu_src1_sel_t;
+
+typedef enum logic {
+    rs2 = 1'b0,
+    imm = 1'b1,
+    UNKNOWN = 1'bx
+} alu_src2_sel_t;
+
+typedef enum logic [1:0] {
+    alu_result = 2'd0,
+    mem_read   = 2'd1,
+    pc_next    = 2'd2,
+    UNKNOWN    = 2'dx
+} wb_data_sel_t;
 
 typedef enum logic [REG_ADDR_WIDTH-1:0] {
     zero = 5'd0,
@@ -56,7 +72,8 @@ typedef enum logic [REG_ADDR_WIDTH-1:0] {
     t3   = 5'd28,
     t4   = 5'd29,
     t5   = 5'd30,
-    t6   = 5'd31
+    t6   = 5'd31,
+    UNKNOWN = 5'dx
 } reg_addr_t;
 
 typedef enum logic [6:0] {
@@ -68,16 +85,17 @@ typedef enum logic [6:0] {
     JAL            = 7'b1101111,
     JALR           = 7'b1100111,
     AUIPC          = 7'b0010111,
-    LUI            = 7'b0110111
+    LUI            = 7'b0110111,
+    UNKNOWN        = 7'bx
 } opcode_t;
 
 typedef enum logic [2:0] {
-    IMM_I_TYPE,
-    IMM_S_TYPE,
-    IMM_B_TYPE,
-    IMM_U_TYPE,
-    IMM_J_TYPE,
-    IMM_UNKNOWN
+    IMM_I_TYPE = 3'd0,
+    IMM_S_TYPE = 3'd1,
+    IMM_B_TYPE = 3'd2,
+    IMM_U_TYPE = 3'd3,
+    IMM_J_TYPE = 3'd4,
+    UNKNOWN = 3'bx
 } imm_sel_t;
 
 typedef enum logic [2:0] {
@@ -85,14 +103,16 @@ typedef enum logic [2:0] {
     FUNCT3_LH  = 3'b001,
     FUNCT3_LW  = 3'b010,
     FUNCT3_LBU = 3'b100,
-    FUNCT3_LHU = 3'b101
-} I_LOAD_FUNCT3;
+    FUNCT3_LHU = 3'b101,
+    UNKNOWN    = 3'bx
+} LOAD_FUNCT3;
 
 typedef enum logic [2:0] {
     FUNCT3_SB = 3'b000,
     FUNCT3_SH = 3'b001,
-    FUNCT3_SW = 3'b010
-} S_STORE_FUNCT3;
+    FUNCT3_SW = 3'b010,
+    UNKNOWN   = 3'bx
+} STORE_FUNCT3;
 
 typedef enum logic [2:0] {
     FUNCT3_ADDI_JALR = 3'd0,
@@ -102,8 +122,9 @@ typedef enum logic [2:0] {
     FUNCT3_XORI      = 3'd4,
     FUNCT3_SRXI      = 3'd5, /* SRLI, SRAI */
     FUNCT3_ORI       = 3'd6,
-    FUNCT3_ANDI      = 3'd7
-} I_ARITHMETIC_IMM_FUNCT3;
+    FUNCT3_ANDI      = 3'd7,
+    UNKNOWN          = 3'dx
+} ARITHMETIC_IMM_FUNCT3;
 
 typedef enum logic [2:0] {
     FUNCT3_ADD_SUB = 3'd0,
@@ -111,10 +132,11 @@ typedef enum logic [2:0] {
     FUNCT3_SLT     = 3'd2,
     FUNCT3_SLTU    = 3'd3,
     FUNCT3_XOR     = 3'd4,
-    FUNCT3_SRX     = 3'd5, /* SRL, SRA */
+    FUNCT3_SRX     = 3'd5,   /* SRL, SRA */
     FUNCT3_OR      = 3'd6,
-    FUNCT3_AND     = 3'd7
-} R_ARITHMETIC_REG_FUNCT3;
+    FUNCT3_AND     = 3'd7,
+    UNKNOWN        = 3'dx
+} ARITHMETIC_REG_FUNCT3;
 
 typedef enum logic [2:0] {
     FUNCT3_BEQ  = 3'b000,
@@ -122,32 +144,51 @@ typedef enum logic [2:0] {
     FUNCT3_BLT  = 3'b100,
     FUNCT3_BGE  = 3'b101,
     FUNCT3_BLTU = 3'b110,
-    FUNCT3_BGEU = 3'b111
-} B_BRANCH_FUNCT3;
-
-typedef enum logic [6:0] {
-    FUNCT7_SXLI = 7'b0000000, /* SLLI, SRLI */
-    FUNCT7_SRAI = 7'b0100000
-} I_ARITHMETIC_IMM_FUNCT7;
+    FUNCT3_BGEU = 3'b111,
+    UNKNOWN     = 3'bx
+} BRANCH_FUNCT3;
 
 /*
  * Standard
- * ADD, SLL, SLT, SLTU, XOR, SRL, OR, AND
+ * ADD, SRL, SRLI
  * 
  * Alternative
- * SUB (Correspond to ADD)
- * SRA (Correspond to SRL)
+ * SUB  (Correspond to ADD)
+ * SRA  (Correspond to SRL)
+ * SRAI (Correspond to SRLI)
  */
 typedef enum logic [6:0] {
     FUNCT7_STD  = 7'b0000000,
     FUNCT7_ALT  = 7'b0100000
-} R_ARITHMETIC_REG_FUNCT7;
+} ARITHMETIC_FUNCT7;
 
-/* Unknown Signal Definition */
-parameter reg_addr_t     REG_UNKNOWN          = zero;
+typedef enum logic [3:0] {
+    ADD     = 4'd0,
+    SUB     = 4'd1,
+    SLL     = 4'd2,
+    SRL     = 4'd3,
+    SRA     = 4'd4,
+    AND     = 4'd5,
+    OR      = 4'd6,
+    XOR     = 4'd7,
+    SLT     = 4'd8,
+    SLTU    = 4'd9,
+    PASS    = 4'd10,
+    UNKNOWN = 4'dx
+} alu_op_t;
+
+typedef enum logic [2:0] {
+    BEQ  = 4'd0,
+    BNE  = 4'd1,
+    BLT  = 4'd2,
+    BGE  = 4'd3,
+    BLTU = 4'd4,
+    BGEU = 4'd5,
+    UNKNOWN = 4'dx
+} cmp_op_t;
+
+/* UNKNOWN signal definition */
+parameter reg_addr_t     REG_UNKNOWN          = '0;
 parameter data_t         DATA_UNKNOWN         = '0;
-parameter funct3_t       FUNCT3_UNKNOWN       = '0;
-parameter funct7_t       FUNCT7_UNKNOWN       = '0;
-parameter alu_data_sel_t ALU_DATA_SEL_UNKNOWN = UNKNOWN;
 
 endpackage

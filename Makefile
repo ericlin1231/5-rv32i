@@ -39,8 +39,7 @@ sim: $(SRCS) $(SIMULATION) prog_sim
 	$(VIEWER) -c $(VIEWER_SCRIPT)
 
 .PHONY: debug
-debug:
-	@make -C program debug
+debug: prog_debug
 	@echo "------------------------------------"
 	@echo "Press Crtl-A and then X to exit QEMU"
 	@echo "------------------------------------"
@@ -53,6 +52,10 @@ gdb:
 .PHONY: prog_sim
 prog_sim:
 	@make -C program
+
+.PHONY: prog_debug
+prog_debug:
+	@make -C program debug
 
 .PHONY: clean
 clean:
