@@ -7,9 +7,11 @@ module IF2ID (
     input  enable_t flush_c_i,
     /* Input */
     input  data_t   pc_i,
+    input  data_t   pc_next_i,
     input  data_t   instruction_i,
     /* Output */
     output data_t   pc_o,
+    output data_t   pc_next_o,
     output data_t   instruction_o
 );
 
@@ -17,14 +19,17 @@ module IF2ID (
     begin
         if (flush_c_i) begin
             pc_o <= DATA_UNKNOWN;
+            pc_next_o <= DATA_UNKNOWN;
             instruction_o <= DATA_UNKNOWN;
         end
-        else if (stall_c) begin
+        else if (stall_c_i) begin
             pc_o <= pc_o;
+            pc_next_o <= pc_next_o;
             instruction_o <= instruction_o;
         end
         else begin
             pc_o <= pc_i;
+            pc_next_o <= pc_next_o;
             instruction_o <= instruction_i;
         end
     end

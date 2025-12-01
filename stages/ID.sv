@@ -1,11 +1,6 @@
 import defs::*;
 
-module ID #(
-    parameter XLEN = 32,
-    parameter ADDR_WIDTH = 32,
-    parameter DATA_WIDTH = 32,
-    parameter REG_ADDR_WIDTH = 5
-) (
+module ID (
     /* Input */
     input data_t instruction_i,
     /* Output
@@ -131,9 +126,7 @@ module ID #(
         op_o = op;
     end
 
-    ImmGen #(
-        .XLEN(XLEN)
-    ) ImmGen_u (
+    ImmGen ImmGen_u (
         .imm_sel_c(imm_sel_c),
         .imm_i(instruction_i[31:7]),
         .imm_o(imm_o)

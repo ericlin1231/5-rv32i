@@ -32,6 +32,10 @@ WAVE          := *.vcd
 VIEWER        := surfer
 VIEWER_SCRIPT := script.sucl
 
+.PHONY: lint
+lint: 
+	$(SIMULATOR) --lint-only $(SRCS)
+
 .PHONY: sim
 sim: $(SRCS) $(SIMULATION) prog_sim
 	$(SIMULATOR) $(SIMULATOR_OPTS) $(SIMULATION_FILES) -o $(SIMULATION_BIN)

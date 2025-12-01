@@ -1,11 +1,14 @@
 package defs;
 
+/* CPU profile */
 parameter XLEN = 32;
+parameter IMEM_SIZE = 4096;
+parameter DMEM_SIZE = 4096;
 parameter ADDR_WIDTH = 32;
 parameter REG_ADDR_WIDTH = 5;
 
 typedef logic [XLEN-1:0]       data_t;
-typedef logic [ADDR_WIDTH-1:0] addr_t
+typedef logic [ADDR_WIDTH-1:0] addr_t;
 typedef logic [6:0]            funct7_t;
 typedef logic [2:0]            funct3_t;
 
@@ -18,26 +21,24 @@ typedef enum logic [1:0] {
     id2ex_buf   = 2'd0,
     mem_forward = 2'd1,
     wb_forward  = 2'd2,
-    UNKNOWN     = 2'dx
+    ALU_DATA_SEL_UNKNOWN = 2'd3
 } alu_data_sel_t;
 
 typedef enum logic {
     rs1 = 1'b0,
-    pc  = 1'b1,
-    UNKNOWN = 1'bx
+    pc  = 1'b1
 } alu_src1_sel_t;
 
 typedef enum logic {
     rs2 = 1'b0,
-    imm = 1'b1,
-    UNKNOWN = 1'bx
+    imm = 1'b1
 } alu_src2_sel_t;
 
 typedef enum logic [1:0] {
     alu_result = 2'd0,
     mem_read   = 2'd1,
     pc_next    = 2'd2,
-    UNKNOWN    = 2'dx
+    WB_DATA_SEL_UNKNOWN = 2'd3
 } wb_data_sel_t;
 
 typedef enum logic [REG_ADDR_WIDTH-1:0] {
@@ -72,8 +73,7 @@ typedef enum logic [REG_ADDR_WIDTH-1:0] {
     t3   = 5'd28,
     t4   = 5'd29,
     t5   = 5'd30,
-    t6   = 5'd31,
-    UNKNOWN = 5'dx
+    t6   = 5'd31
 } reg_addr_t;
 
 typedef enum logic [6:0] {
@@ -85,8 +85,7 @@ typedef enum logic [6:0] {
     JAL            = 7'b1101111,
     JALR           = 7'b1100111,
     AUIPC          = 7'b0010111,
-    LUI            = 7'b0110111,
-    UNKNOWN        = 7'bx
+    LUI            = 7'b0110111
 } opcode_t;
 
 typedef enum logic [2:0] {
@@ -95,7 +94,7 @@ typedef enum logic [2:0] {
     IMM_B_TYPE = 3'd2,
     IMM_U_TYPE = 3'd3,
     IMM_J_TYPE = 3'd4,
-    UNKNOWN = 3'bx
+    IMM_UNKNOWN = 3'd7
 } imm_sel_t;
 
 typedef enum logic [2:0] {
@@ -103,27 +102,24 @@ typedef enum logic [2:0] {
     FUNCT3_LH  = 3'b001,
     FUNCT3_LW  = 3'b010,
     FUNCT3_LBU = 3'b100,
-    FUNCT3_LHU = 3'b101,
-    UNKNOWN    = 3'bx
+    FUNCT3_LHU = 3'b101
 } LOAD_FUNCT3;
 
 typedef enum logic [2:0] {
     FUNCT3_SB = 3'b000,
     FUNCT3_SH = 3'b001,
-    FUNCT3_SW = 3'b010,
-    UNKNOWN   = 3'bx
+    FUNCT3_SW = 3'b010
 } STORE_FUNCT3;
 
 typedef enum logic [2:0] {
-    FUNCT3_ADDI_JALR = 3'd0,
-    FUNCT3_SLLI      = 3'd1,
-    FUNCT3_SLTI      = 3'd2,
-    FUNCT3_SLTIU     = 3'd3,
-    FUNCT3_XORI      = 3'd4,
-    FUNCT3_SRXI      = 3'd5, /* SRLI, SRAI */
-    FUNCT3_ORI       = 3'd6,
-    FUNCT3_ANDI      = 3'd7,
-    UNKNOWN          = 3'dx
+    FUNCT3_ADDI  = 3'd0,
+    FUNCT3_SLLI  = 3'd1,
+    FUNCT3_SLTI  = 3'd2,
+    FUNCT3_SLTIU = 3'd3,
+    FUNCT3_XORI  = 3'd4,
+    FUNCT3_SRXI  = 3'd5, /* SRLI, SRAI */
+    FUNCT3_ORI   = 3'd6,
+    FUNCT3_ANDI  = 3'd7
 } ARITHMETIC_IMM_FUNCT3;
 
 typedef enum logic [2:0] {
@@ -134,8 +130,7 @@ typedef enum logic [2:0] {
     FUNCT3_XOR     = 3'd4,
     FUNCT3_SRX     = 3'd5,   /* SRL, SRA */
     FUNCT3_OR      = 3'd6,
-    FUNCT3_AND     = 3'd7,
-    UNKNOWN        = 3'dx
+    FUNCT3_AND     = 3'd7
 } ARITHMETIC_REG_FUNCT3;
 
 typedef enum logic [2:0] {
@@ -144,8 +139,7 @@ typedef enum logic [2:0] {
     FUNCT3_BLT  = 3'b100,
     FUNCT3_BGE  = 3'b101,
     FUNCT3_BLTU = 3'b110,
-    FUNCT3_BGEU = 3'b111,
-    UNKNOWN     = 3'bx
+    FUNCT3_BGEU = 3'b111
 } BRANCH_FUNCT3;
 
 /*
@@ -174,21 +168,23 @@ typedef enum logic [3:0] {
     SLT     = 4'd8,
     SLTU    = 4'd9,
     PASS    = 4'd10,
-    UNKNOWN = 4'dx
+    ALU_OP_UNKNOWN = 4'd15 /* don't care */
 } alu_op_t;
 
 typedef enum logic [2:0] {
-    BEQ  = 4'd0,
-    BNE  = 4'd1,
-    BLT  = 4'd2,
-    BGE  = 4'd3,
-    BLTU = 4'd4,
-    BGEU = 4'd5,
-    UNKNOWN = 4'dx
+    BEQ  = 3'd0,
+    BNE  = 3'd1,
+    BLT  = 3'd2,
+    BGE  = 3'd3,
+    BLTU = 3'd4,
+    BGEU = 3'd5,
+    CMP_OP_UNKNOWN = 3'd7
 } cmp_op_t;
 
 /* UNKNOWN signal definition */
-parameter reg_addr_t     REG_UNKNOWN          = '0;
-parameter data_t         DATA_UNKNOWN         = '0;
+parameter reg_addr_t REG_UNKNOWN    = zero;
+parameter data_t     DATA_UNKNOWN   = 32'd0;
+parameter funct7_t   FUNCT7_UNKNOWN = 7'd0;
+parameter funct3_t   FUNCT3_UNKNOWN = 3'd0;
 
 endpackage

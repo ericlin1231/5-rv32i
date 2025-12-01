@@ -34,7 +34,7 @@ module ID2EX (
     output data_t         pc_o,
     output data_t         rs1_data_o,
     output data_t         rs2_data_o,
-    output data_t         imm_o
+    output data_t         imm_o,
     // control
     output enable_t       jump_c_o,
     output enable_t       branch_c_o,
@@ -64,12 +64,12 @@ module ID2EX (
             rs2_data_o       <= DATA_UNKNOWN;
             imm_o            <= DATA_UNKNOWN;
             // control
-            jump_c_o         <= UNKNOWN;
-            branch_c_o       <= UNKNOWN;
-            alu_src1_sel_c_o <= UNKNOWN;
-            alu_src2_sel_c_o <= UNKNOWN;
-            alu_op_c_o       <= UNKNOWN;
-            cmp_op_c_o       <= UNKNOWN;
+            jump_c_o         <= DISABLE;
+            branch_c_o       <= DISABLE;
+            alu_src1_sel_c_o <= rs1; /* don't care */
+            alu_src2_sel_c_o <= rs2; /* don't care */
+            alu_op_c_o       <= ALU_OP_UNKNOWN;
+            cmp_op_c_o       <= CMP_OP_UNKNOWN;
             // hazard detection
             rd_o             <= REG_UNKNOWN;
             rs1_o            <= REG_UNKNOWN;
@@ -79,7 +79,7 @@ module ID2EX (
             /* WB stage */
             pc_next_o        <= DATA_UNKNOWN;
             reg_write_c_o    <= DISABLE;
-            wb_data_sel_c_o  <= DISABLE;
+            wb_data_sel_c_o  <= WB_DATA_SEL_UNKNOWN;
         end
         else begin
             /* EX stage */
