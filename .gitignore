@@ -1,4 +1,4 @@
-.direnv/
+axi/
 obj_dir/
 *.vcd
 *.ron

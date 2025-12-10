@@ -1,8 +1,8 @@
 .DEFAULT_GOAL := sim
 
 TOP  ?= top
-SRCS += test/$(TOP).sv 
 SRCS += defs.sv
+SRCS += test/$(TOP).sv 
 SRCS += $(wildcard stages/*.sv)
 SRCS += $(wildcard buffers/*.sv)
 SRCS += $(wildcard sub_modules/*.sv)
