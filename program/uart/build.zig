@@ -10,11 +10,11 @@ pub fn build(b: *std.Build) void {
     });
 
     const exe = b.addExecutable(.{
-        .name = "rodata_to_stack",
+        .name = "uart",
         .root_module = b.createModule(.{
             .root_source_file = b.path("src/main.zig"),
             .target = target,
-            .optimize = .ReleaseSafe,
+            .optimize = .ReleaseSafe, // keep function symbol
         }),
     });
 
@@ -25,7 +25,7 @@ pub fn build(b: *std.Build) void {
     b.installArtifact(exe);
 
     const bin = b.addObjCopy(exe.getEmittedBin(), .{ .format = .bin });
-    const install_bin = b.addInstallBinFile(bin.getOutput(), "rodata_to_stack.bin");
+    const install_bin = b.addInstallBinFile(bin.getOutput(), "uart.bin");
     b.getInstallStep().dependOn(&install_bin.step);
 }
 

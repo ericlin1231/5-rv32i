@@ -4,6 +4,7 @@
 parameter XLEN = 32;
 parameter IMEM_SIZE = 4096;
 parameter DMEM_SIZE = 4096;
+parameter MEM_SIZE = IMEM_SIZE + DMEM_SIZE;
 parameter ADDR_WIDTH = 32;
 parameter REG_ADDR_WIDTH = 5;
 
@@ -16,10 +17,10 @@ typedef enum logic [REG_ADDR_WIDTH-1:0] {
     t0   = 5'd5,
     t1   = 5'd6,
     t2   = 5'd7,
-    s0   = 5'd8,  /* fp */
+    s0   = 5'd8,   /* fp */
     s1   = 5'd9,
-    a0   = 5'd10, /* return value */
-    a1   = 5'd11, /* return value */
+    a0   = 5'd10,  /* return value */
+    a1   = 5'd11,  /* return value */
     a2   = 5'd12,
     a3   = 5'd13,
     a4   = 5'd14,
