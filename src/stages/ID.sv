@@ -18,17 +18,17 @@ module ID (
     opcode_t   op;
     reg_addr_t rd;
     funct3_t   funct3;
-    reg_addr_t rs1;
-    reg_addr_t rs2;
+    reg_addr_t rs1_idx;
+    reg_addr_t rs2_idx;
     funct7_t   funct7;
     imm_sel_t  imm_sel_c;
     always_comb begin
-        op     = opcode_t'(instruction_i[6:0]);
-        rd     = reg_addr_t'(instruction_i[11:7]);
-        funct3 = funct3_t'(instruction_i[14:12]);
-        rs1    = reg_addr_t'(instruction_i[19:15]);
-        rs2    = reg_addr_t'(instruction_i[24:20]);
-        funct7 = funct7_t'(instruction_i[31:25]);
+        op      = opcode_t'(instruction_i[6:0]);
+        rd      = reg_addr_t'(instruction_i[11:7]);
+        funct3  = funct3_t'(instruction_i[14:12]);
+        rs1_idx = reg_addr_t'(instruction_i[19:15]);
+        rs2_idx = reg_addr_t'(instruction_i[24:20]);
+        funct7  = funct7_t'(instruction_i[31:25]);
         unique case (op)
             LOAD:           imm_sel_c = IMM_I_TYPE;
             STORE:          imm_sel_c = IMM_S_TYPE;
@@ -46,7 +46,7 @@ module ID (
             LOAD: begin
                 rd_o     = rd;
                 funct3_o = funct3;
-                rs1_o    = rs1;
+                rs1_o    = rs1_idx;
                 rs2_o    = REG_UNKNOWN;
                 funct7_o = FUNCT7_UNKNOWN;
             end
@@ -54,15 +54,15 @@ module ID (
             STORE: begin
                 rd_o     = REG_UNKNOWN;
                 funct3_o = funct3;
-                rs1_o    = rs1;
-                rs2_o    = rs2;
+                rs1_o    = rs1_idx;
+                rs2_o    = rs2_idx;
                 funct7_o = FUNCT7_UNKNOWN;
             end
             /* I Type */
             ARITHMETIC_IMM: begin
                 rd_o     = rd;
                 funct3_o = funct3;
-                rs1_o    = rs1;
+                rs1_o    = rs1_idx;
                 rs2_o    = REG_UNKNOWN;
                 funct7_o = FUNCT7_UNKNOWN;
             end
@@ -70,16 +70,16 @@ module ID (
             ARITHMETIC_REG: begin
                 rd_o     = rd;
                 funct3_o = funct3;
-                rs1_o    = rs1;
-                rs2_o    = rs2;
+                rs1_o    = rs1_idx;
+                rs2_o    = rs2_idx;
                 funct7_o = funct7;
             end
             /* B Type */
             BRANCH: begin
                 rd_o     = REG_UNKNOWN;
                 funct3_o = funct3;
-                rs1_o    = rs1;
-                rs2_o    = rs2;
+                rs1_o    = rs1_idx;
+                rs2_o    = rs2_idx;
                 funct7_o = FUNCT7_UNKNOWN;
             end
             /* J Type */
@@ -94,7 +94,7 @@ module ID (
             JALR: begin
                 rd_o     = rd;
                 funct3_o = funct3;
-                rs1_o    = rs1;
+                rs1_o    = rs1_idx;
                 rs2_o    = REG_UNKNOWN;
                 funct7_o = FUNCT7_UNKNOWN;
             end

@@ -15,8 +15,8 @@ module memory (
 );
 
     localparam ADDR_BITS = $clog2(MEM_SIZE);
-    localparam ADDR_TOP_BIT = ADDR_BITS + ADDR_SHIFT - 1;
-    localparam ADDR_BOTTOM_BIT = ADDR_SHIFT;
+    localparam ADDR_MSB = ADDR_BITS + ADDR_SHIFT - 1;
+    localparam ADDR_LSB = ADDR_SHIFT;
 
     string mem_file;
     data_t mem      [0:MEM_SIZE-1];
@@ -33,8 +33,21 @@ module memory (
     /* effective address */
     logic [ADDR_BITS-1:0] imem_addr;
     logic [ADDR_BITS-1:0] dmem_addr;
-    assign imem_addr = imem_addr_i[ADDR_TOP_BIT:ADDR_BOTTOM_BIT];
-    assign dmem_addr = dmem_addr_i[ADDR_TOP_BIT:ADDR_BOTTOM_BIT];
+    assign imem_addr = imem_addr_i[ADDR_MSB:ADDR_LSB];
+    assign dmem_addr = dmem_addr_i[ADDR_MSB:ADDR_LSB];
+    /* word aligned access assertion */
+    always_comb begin
+        assert (imem_addr_i[1:0] == 2'b00)
+        else $fatal("imem addr not aligned: %h", imem_addr_i);
+        // assert (dmem_addr_i[1:0] == 2'b00)
+        // else $fatal("dmem addr not aligned: %h", dmem_addr_i);
+
+        assert (imem_addr_i[31:ADDR_MSB+1] == '0)
+        else $fatal("imem addr OOR: %h", imem_addr_i);
+        // assert (dmem_addr_i[31:ADDR_MSB+1] == '0)
+        // else $fatal("dmem addr OOR: %h", dmem_addr_i);
+    end
+
 
     always_comb begin
         imem_data_o  = '0;

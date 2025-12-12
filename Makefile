@@ -14,11 +14,11 @@ IMEM      ?= program/uart/uart.hex
 VCD       ?= wave.vcd
 BUILD_DIR ?= build
 OBJ_DIR   := $(BUILD_DIR)/obj_dir
-SIM_BIN   := $(BUILD_DIR)/Vtb_top
+SIM_BIN   := $(OBJ_DIR)/Vtb_top
 
 SIMULATOR       := verilator
 INC_DIRS        := -Isrc
-VERILATOR_FLAGS := -sv --timing --trace --binary -Wall
+VERILATOR_FLAGS := -sv --timing --trace --binary -Wno-fatal
 VERILATOR_FLAGS += $(INC_DIRS)
 VERILATOR_FLAGS += --Mdir $(OBJ_DIR)
 VERILATOR_FLAGS += --top-module tb_top
@@ -46,6 +46,7 @@ format:
 
 sim: $(SIM_BIN)
 	@$(SIM_BIN) +IMEM=$(IMEM) +VCD=$(VCD)
+	@$(VIEWER) -c $(VIEWER_SCRIPT)
 
 $(SIM_BIN): $(SRCS) $(TB)
 	@mkdir -p $(BUILD_DIR)

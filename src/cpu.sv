@@ -53,7 +53,7 @@ module cpu (
     opcode_t op_id2ctrl;
     funct3_t funct3_id2ctrl;
     funct7_t funct7_id2ctrl;
-    reg_addr_t rs1, rs2;
+    reg_addr_t rs1_idx, rs2_idx;
     reg_addr_t rs1_id2reg, rs2_id2reg;
     ID ID_stage (
         /* Input */
@@ -63,18 +63,18 @@ module cpu (
         .funct7_o     (funct7_id2ctrl),
         .funct3_o     (funct3_id2ctrl),
         .rd_o         (id_ex_buf_in.rd),
-        .rs1_o        (rs1),
-        .rs2_o        (rs2),
+        .rs1_o        (rs1_idx),
+        .rs2_o        (rs2_idx),
         .imm_o        (id_ex_buf_in.imm)
     );
     /* Pass pc, pc_next and redirect rs signal */
     always_comb begin
         id_ex_buf_in.pc      = if_id_bus.pc;
         id_ex_buf_in.pc_next = if_id_bus.pc_next;
-        id_ex_buf_in.rs1     = rs1;
-        rs1_id2reg           = rs1;
-        id_ex_buf_in.rs2     = rs2;
-        rs2_id2reg           = rs2;
+        id_ex_buf_in.rs1     = rs1_idx;
+        rs1_id2reg           = rs1_idx;
+        id_ex_buf_in.rs2     = rs2_idx;
+        rs2_id2reg           = rs2_idx;
     end
 
     /* Register Files */
@@ -313,9 +313,8 @@ module cpu (
 
     /* Write Back Stage */
     /* signal pass to Register File */
-    enable_t   reg_write_c_wb;
-    reg_addr_t rd_wb;
-    data_t     rd_data_wb;
+    enable_t reg_write_c_wb;
+    data_t   rd_data_wb;
     WB WB_stage (
         /* Input */
         .wb_data_sel_c_i(mem_wb_bus.wb_data_sel_c),
@@ -325,10 +324,7 @@ module cpu (
         /* Output */
         .rd_data_o      (rd_data_wb)
     );
-    always_comb begin
-        reg_write_c_wb = mem_wb_bus.reg_write_c;
-        rd_wb          = mem_wb_bus.rd;
-    end
+    assign reg_write_c_wb = mem_wb_bus.reg_write_c;
 
     /* Hazard Detection Unit */
     enable_t       stall_c_if;
