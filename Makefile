@@ -1,32 +1,33 @@
 .DEFAULT_GOAL := sim
 
-TOP  ?= top
-SRCS := defs.sv
-SRCS += test/$(TOP).sv 
-SRCS += $(wildcard stages/*.sv)
-SRCS += $(wildcard buffers/*.sv)
-SRCS += $(wildcard sub_modules/*.sv)
-SRCS += $(wildcard peripheral/*.sv)
+DUT  ?= src/top.sv
+TB   ?= tb/tb_top.sv
+SRCS := src/defs.sv
+SRCS += src/cpu.sv
+SRCS += $(wildcard src/stages/*.sv)
+SRCS += $(wildcard src/buffers/*.sv)
+SRCS += $(wildcard src/sub_modules/*.sv)
+SRCS += $(wildcard src/peripheral/*.sv)
+SRCS += $(DUT)
 
-PROG_DIR        := program
-PROG_ELF_DIR    := $(PROG_DIR)/elf
-PROG_HEX_DIR    := $(PROG_DIR)/hex
-PROG_SIM        ?= add.hex
-PROG_DEBUG      ?= add.elf
-PROG_SIM_PATH   := $(PROG_HEX_DIR)/$(PROG_SIM)
-PROG_DEBUG_PATH := $(PROG_ELF_DIR)/$(PROG_DEBUG)
+IMEM      ?= program/uart/uart.hex
+VCD       ?= wave.vcd
+BUILD_DIR ?= build
+OBJ_DIR   := $(BUILD_DIR)/obj_dir
+SIM_BIN   := $(BUILD_DIR)/Vtb_top
+
+SIMULATOR       := verilator
+INC_DIRS        := -Isrc
+VERILATOR_FLAGS := -sv --timing --trace --binary -Wall
+VERILATOR_FLAGS += $(INC_DIRS)
+VERILATOR_FLAGS += --Mdir $(OBJ_DIR)
+VERILATOR_FLAGS += --top-module tb_top
 
 QEMU   := qemu-system-riscv32
 QFLAGS := -nographic -smp 1 -machine virt -bios none
 
 GDB     := gdb
 GDBINIT := gdbinit
-
-SIMULATION       := sim/sim_$(TOP).cpp
-SIMULATOR        := verilator
-SIMULATOR_OPTS   := --sv --top-module $(TOP) --trace --build -j 0
-SIMULATION_FILES := -cc $(SRCS) -exe $(SIMULATION)
-SIMULATION_BIN   := $(notdir $(basename $(SIMULATION)))
 
 FORMATTER      := verible-verilog-format
 FORMATTER_OPTS := --inplace
@@ -43,15 +44,12 @@ VIEWER_SCRIPT := script.sucl
 format:
 	$(FORMATTER) $(FORMATTER_OPTS) $(SRCS)
 
-.PHONY: lint
-lint:
-	$(SIMULATOR) --lint-only $(SRCS)
+sim: $(SIM_BIN)
+	@$(SIM_BIN) +IMEM=$(IMEM) +VCD=$(VCD)
 
-.PHONY: sim
-sim: $(SRCS) $(SIMULATION)
-	$(SIMULATOR) $(SIMULATOR_OPTS) $(SIMULATION_FILES) -o $(SIMULATION_BIN)
-	./obj_dir/$(SIMULATION_BIN) +IMEM="program/uart/uart.hex"
-	$(VIEWER) -c $(VIEWER_SCRIPT)
+$(SIM_BIN): $(SRCS) $(TB)
+	@mkdir -p $(BUILD_DIR)
+	$(SIMULATOR) $(VERILATOR_FLAGS) $(TB) $(SRCS)
 
 .PHONY: debug
 debug: prog_debug
@@ -64,15 +62,6 @@ debug: prog_debug
 gdb:
 	@$(GDB) $(PROG_DEBUG_PATH) -q -x $(GDBINIT)
 	
-.PHONY: prog_sim
-prog_sim:
-	@make -C program
-
-.PHONY: prog_debug
-prog_debug:
-	@make -C program debug
-
 .PHONY: clean
 clean:
-	@rm -rf obj_dir $(WAVE)
-	@make -C program clean
+	@rm -rf $(BUILD_DIR) $(WAVE)

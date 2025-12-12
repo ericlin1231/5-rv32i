@@ -44,6 +44,4 @@ typedef enum logic [REG_ADDR_WIDTH-1:0] {
     t6   = 5'd31
 } reg_addr_t;
 
-parameter reg_addr_t REG_UNKNOWN = zero;
-
 `endif

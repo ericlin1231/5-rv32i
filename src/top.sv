@@ -27,9 +27,7 @@ module top (
         .dmem_write_data_o(dmem_write_data)
     );
 
-    unified_memory #(
-        .MEM_CAPACITY(MEM_SIZE)
-    ) mem0 (
+    memory mem0 (
         .clk         (clk),
         .imem_addr_i (imem_addr),
         .imem_ren_i  (imem_ren),

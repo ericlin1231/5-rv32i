@@ -1,8 +1,6 @@
 import defs::*;
 
-module unified_memory #(
-    parameter MEM_CAPACITY = MEM_SIZE
-) (
+module memory (
     input  logic    clk,
     /* Instruction port */
     input  addr_t   imem_addr_i,
@@ -16,12 +14,12 @@ module unified_memory #(
     input  data_t   dmem_wdata_i
 );
 
-    localparam ADDR_BITS = $clog2(MEM_CAPACITY);
+    localparam ADDR_BITS = $clog2(MEM_SIZE);
     localparam ADDR_TOP_BIT = ADDR_BITS + ADDR_SHIFT - 1;
     localparam ADDR_BOTTOM_BIT = ADDR_SHIFT;
 
     string mem_file;
-    data_t mem      [0:MEM_CAPACITY-1];
+    data_t mem      [0:MEM_SIZE-1];
 
     initial begin
         if (!$value$plusargs("IMEM=%s", mem_file))
