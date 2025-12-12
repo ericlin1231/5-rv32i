@@ -26,13 +26,13 @@ module EX2MEM (
 );
 
     always_ff @(posedge clk) begin
-        alu_result_o     = alu_result_i;
-        mem_write_c_o    = mem_write_c_i;
-        mem_write_data_o = mem_write_data_i;
-        rd_o             = rd_i;
-        reg_write_c_o    = reg_write_c_i;
-        wb_data_sel_c_o  = wb_data_sel_c_i;
-        pc_next_o        = pc_next_i;
+        alu_result_o     <= alu_result_i;
+        mem_write_c_o    <= mem_write_c_i;
+        mem_write_data_o <= mem_write_data_i;
+        rd_o             <= rd_i;
+        reg_write_c_o    <= reg_write_c_i;
+        wb_data_sel_c_o  <= wb_data_sel_c_i;
+        pc_next_o        <= pc_next_i;
     end
 
 endmodule

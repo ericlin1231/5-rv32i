@@ -257,8 +257,6 @@ module cpu (
     enable_t mem_ren_memstage;
     /* control signal pass to WB */
     MEM MEM_stage (
-        /* System */
-        .clk             (clk),
         /* Input */
         .mem_write_c_i   (ex_mem_bus.mem_write_c),
         .mem_addr_i      (ex_mem_bus.alu_result),

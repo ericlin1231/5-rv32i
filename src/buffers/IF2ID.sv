@@ -5,7 +5,6 @@ module IF2ID (
     /* Input */
     input  enable_t stall_c_i,
     input  enable_t flush_c_i,
-    /* Input */
     input  data_t   pc_i,
     input  data_t   pc_next_i,
     input  data_t   instruction_i,
@@ -26,7 +25,7 @@ module IF2ID (
             instruction_o <= instruction_o;
         end else begin
             pc_o          <= pc_i;
-            pc_next_o     <= pc_next_o;
+            pc_next_o     <= pc_next_i;
             instruction_o <= instruction_i;
         end
     end

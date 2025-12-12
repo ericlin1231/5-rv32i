@@ -1,8 +1,6 @@
 import defs::*;
 
 module MEM (
-    /* System */
-    input  logic    clk,
     /* Input */
     input  enable_t mem_write_c_i,
     input  data_t   mem_addr_i,

@@ -33,10 +33,8 @@ module memory (
     /* effective address */
     logic [ADDR_BITS-1:0] imem_addr;
     logic [ADDR_BITS-1:0] dmem_addr;
-    always_comb begin
-        imem_addr = imem_addr_i[ADDR_TOP_BIT:ADDR_BOTTOM_BIT];
-        dmem_addr = dmem_addr_i[ADDR_TOP_BIT:ADDR_BOTTOM_BIT];
-    end
+    assign imem_addr = imem_addr_i[ADDR_TOP_BIT:ADDR_BOTTOM_BIT];
+    assign dmem_addr = dmem_addr_i[ADDR_TOP_BIT:ADDR_BOTTOM_BIT];
 
     always_comb begin
         imem_data_o  = '0;
