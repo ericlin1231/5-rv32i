@@ -2,17 +2,17 @@ import defs::*;
 
 module EX2MEM (
     /* System */
-    input logic clk,
+    input  logic         clk,
     /* Input */
-    input data_t        alu_result_i,
+    input  data_t        alu_result_i,
     /* MEM stage */
-    input enable_t      mem_write_c_i,
-    input data_t        mem_write_data_i,
+    input  enable_t      mem_write_c_i,
+    input  data_t        mem_write_data_i,
     /* WB stage */
-    input reg_addr_t    rd_i,
-    input enable_t      reg_write_c_i,
-    input wb_data_sel_t wb_data_sel_c_i,
-    input data_t        pc_next_i,
+    input  reg_addr_t    rd_i,
+    input  enable_t      reg_write_c_i,
+    input  wb_data_sel_t wb_data_sel_c_i,
+    input  data_t        pc_next_i,
     /* Output */
     output data_t        alu_result_o,
     /* MEM stage */
@@ -25,8 +25,7 @@ module EX2MEM (
     output data_t        pc_next_o
 );
 
-    always_ff @(posedge clk)
-    begin
+    always_ff @(posedge clk) begin
         alu_result_o     = alu_result_i;
         mem_write_c_o    = mem_write_c_i;
         mem_write_data_o = mem_write_data_i;

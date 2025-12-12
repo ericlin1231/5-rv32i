@@ -1,7 +1,7 @@
 .DEFAULT_GOAL := sim
 
 TOP  ?= top
-SRCS += defs.sv
+SRCS := defs.sv
 SRCS += test/$(TOP).sv 
 SRCS += $(wildcard stages/*.sv)
 SRCS += $(wildcard buffers/*.sv)
@@ -28,12 +28,23 @@ SIMULATOR_OPTS   := --sv --top-module $(TOP) --trace --build -j 0
 SIMULATION_FILES := -cc $(SRCS) -exe $(SIMULATION)
 SIMULATION_BIN   := $(notdir $(basename $(SIMULATION)))
 
+FORMATTER      := verible-verilog-format
+FORMATTER_OPTS := --inplace
+FORMATTER_OPTS += --indentation_spaces=4
+FORMATTER_OPTS += --assignment_statement_alignment=align
+FORMATTER_OPTS += --port_declarations_alignment=align
+FORMATTER_OPTS += --named_port_alignment=align
+
 WAVE          := *.vcd
 VIEWER        := surfer
 VIEWER_SCRIPT := script.sucl
 
+.PHONY: format
+format:
+	$(FORMATTER) $(FORMATTER_OPTS) $(SRCS)
+
 .PHONY: lint
-lint: 
+lint:
 	$(SIMULATOR) --lint-only $(SRCS)
 
 .PHONY: sim

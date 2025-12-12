@@ -2,7 +2,7 @@ import defs::*;
 
 module ID (
     /* Input */
-    input data_t instruction_i,
+    input  data_t     instruction_i,
     /* Output
      * op, funct3, funct7 for control unit to determine control signal
      */
@@ -14,7 +14,7 @@ module ID (
     output reg_addr_t rs2_o,
     output data_t     imm_o
 );
-    
+
     opcode_t   op;
     reg_addr_t rd;
     funct3_t   funct3;
@@ -22,15 +22,14 @@ module ID (
     reg_addr_t rs2;
     funct7_t   funct7;
     imm_sel_t  imm_sel_c;
-    always_comb
-    begin
-        op     = opcode_t'  (instruction_i[6:0]);
+    always_comb begin
+        op     = opcode_t'(instruction_i[6:0]);
         rd     = reg_addr_t'(instruction_i[11:7]);
-        funct3 = funct3_t'  (instruction_i[14:12]);
+        funct3 = funct3_t'(instruction_i[14:12]);
         rs1    = reg_addr_t'(instruction_i[19:15]);
         rs2    = reg_addr_t'(instruction_i[24:20]);
-        funct7 = funct7_t'  (instruction_i[31:25]);
-        unique case(op)
+        funct7 = funct7_t'(instruction_i[31:25]);
+        unique case (op)
             LOAD:           imm_sel_c = IMM_I_TYPE;
             STORE:          imm_sel_c = IMM_S_TYPE;
             ARITHMETIC_IMM: imm_sel_c = IMM_I_TYPE;
@@ -42,7 +41,7 @@ module ID (
             LUI:            imm_sel_c = IMM_U_TYPE;
             default:        imm_sel_c = IMM_UNKNOWN;
         endcase
-        unique case(op)
+        unique case (op)
             /* I Type */
             LOAD: begin
                 rd_o     = rd;
@@ -128,8 +127,8 @@ module ID (
 
     ImmGen ImmGen_u (
         .imm_sel_c(imm_sel_c),
-        .imm_i(instruction_i[31:7]),
-        .imm_o(imm_o)
+        .imm_i    (instruction_i[31:7]),
+        .imm_o    (imm_o)
     );
 
 endmodule

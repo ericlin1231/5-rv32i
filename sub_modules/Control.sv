@@ -1,8 +1,8 @@
 module Control (
     /* Input */
-    input opcode_t op_i,
-    input funct3_t funct3_i,
-    input funct7_t funct7_i,
+    input  opcode_t       op_i,
+    input  funct3_t       funct3_i,
+    input  funct7_t       funct7_i,
     /* Output */
     output enable_t       reg_write_c_o,
     output enable_t       mem_write_c_o,
@@ -14,9 +14,8 @@ module Control (
     output alu_src2_sel_t alu_src2_sel_c_o,
     output cmp_op_t       cmp_op_c_o
 );
-    
-    always_comb
-    begin
+
+    always_comb begin
         unique case (op_i)
             LOAD: begin
                 reg_write_c_o    = ENABLE;
@@ -60,7 +59,7 @@ module Control (
                 wb_data_sel_c_o  = pc_next;
                 jump_c_o         = ENABLE;
                 branch_c_o       = DISABLE;
-                alu_src1_sel_c_o = rs1; /* don't care */
+                alu_src1_sel_c_o = rs1;  /* don't care */
                 alu_src2_sel_c_o = imm;
             end
             JALR: begin
@@ -96,30 +95,29 @@ module Control (
                 wb_data_sel_c_o  = WB_DATA_SEL_UNKNOWN;
                 jump_c_o         = DISABLE;
                 branch_c_o       = DISABLE;
-                alu_src1_sel_c_o = rs1; /* don't care */
-                alu_src2_sel_c_o = rs2; /* don't care */
+                alu_src1_sel_c_o = rs1;  /* don't care */
+                alu_src2_sel_c_o = rs2;  /* don't care */
             end
         endcase
     end
 
-    always_comb
-    begin
+    always_comb begin
         unique case (op_i)
-            LOAD: alu_op_c_o = ADD;
+            LOAD:    alu_op_c_o = ADD;
             ARITHMETIC_IMM: begin
                 unique case (ARITHMETIC_IMM_FUNCT3'(funct3_i))
-                    FUNCT3_ADDI  : alu_op_c_o = ADD;
-                    FUNCT3_ANDI  : alu_op_c_o = AND;
-                    FUNCT3_ORI   : alu_op_c_o = OR;
-                    FUNCT3_XORI  : alu_op_c_o = XOR;
-                    FUNCT3_SLLI  : alu_op_c_o = SLL;
-                    FUNCT3_SLTI  : alu_op_c_o = SLT;
-                    FUNCT3_SLTIU : alu_op_c_o = SLTU;
+                    FUNCT3_ADDI:  alu_op_c_o = ADD;
+                    FUNCT3_ANDI:  alu_op_c_o = AND;
+                    FUNCT3_ORI:   alu_op_c_o = OR;
+                    FUNCT3_XORI:  alu_op_c_o = XOR;
+                    FUNCT3_SLLI:  alu_op_c_o = SLL;
+                    FUNCT3_SLTI:  alu_op_c_o = SLT;
+                    FUNCT3_SLTIU: alu_op_c_o = SLTU;
                     FUNCT3_SRXI: begin
                         unique case (ARITHMETIC_FUNCT7'(funct7_i))
                             FUNCT7_STD: alu_op_c_o = SRL;
                             FUNCT7_ALT: alu_op_c_o = SRA;
-                            default: alu_op_c_o = SRL; /* don't care */
+                            default: alu_op_c_o = SRL;  /* don't care */
                         endcase
                     end
                 endcase
@@ -130,7 +128,7 @@ module Control (
                         unique case (ARITHMETIC_FUNCT7'(funct7_i))
                             FUNCT7_STD: alu_op_c_o = ADD;
                             FUNCT7_ALT: alu_op_c_o = SUB;
-                            default: alu_op_c_o = ADD; /* don't care */
+                            default: alu_op_c_o = ADD;  /* don't care */
                         endcase
                     end
                     FUNCT3_AND:  alu_op_c_o = AND;
@@ -143,7 +141,7 @@ module Control (
                         unique case (ARITHMETIC_FUNCT7'(funct7_i))
                             FUNCT7_STD: alu_op_c_o = SRL;
                             FUNCT7_ALT: alu_op_c_o = SRA;
-                            default: alu_op_c_o = SRL; /* don't care */
+                            default: alu_op_c_o = SRL;  /* don't care */
                         endcase
                     end
                 endcase
@@ -153,12 +151,11 @@ module Control (
             JALR:    alu_op_c_o = ADD;
             LUI:     alu_op_c_o = PASS;
             AUIPC:   alu_op_c_o = ADD;
-            default: alu_op_c_o = ADD; /* don't care */
+            default: alu_op_c_o = ADD;  /* don't care */
         endcase
     end
 
-    always_comb
-    begin
+    always_comb begin
         if (op_i == BRANCH) begin
             unique case (BRANCH_FUNCT3'(funct3_i))
                 FUNCT3_BEQ:  cmp_op_c_o = BEQ;
@@ -169,8 +166,7 @@ module Control (
                 FUNCT3_BGEU: cmp_op_c_o = BGEU;
                 default:     cmp_op_c_o = CMP_OP_UNKNOWN;
             endcase
-        end
-        else cmp_op_c_o = CMP_OP_UNKNOWN;
+        end else cmp_op_c_o = CMP_OP_UNKNOWN;
     end
 
 endmodule

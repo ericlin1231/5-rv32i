@@ -15,21 +15,18 @@ module IF2ID (
     output data_t   instruction_o
 );
 
-    always_ff @(posedge clk)
-    begin
+    always_ff @(posedge clk) begin
         if (flush_c_i) begin
-            pc_o <= DATA_UNKNOWN;
-            pc_next_o <= DATA_UNKNOWN;
+            pc_o          <= DATA_UNKNOWN;
+            pc_next_o     <= DATA_UNKNOWN;
             instruction_o <= DATA_UNKNOWN;
-        end
-        else if (stall_c_i) begin
-            pc_o <= pc_o;
-            pc_next_o <= pc_next_o;
+        end else if (stall_c_i) begin
+            pc_o          <= pc_o;
+            pc_next_o     <= pc_next_o;
             instruction_o <= instruction_o;
-        end
-        else begin
-            pc_o <= pc_i;
-            pc_next_o <= pc_next_o;
+        end else begin
+            pc_o          <= pc_i;
+            pc_next_o     <= pc_next_o;
             instruction_o <= instruction_i;
         end
     end

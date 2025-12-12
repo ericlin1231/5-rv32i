@@ -1,5 +1,7 @@
 axi/
 obj_dir/
+zig-out/
+.zig-cache/
 *.vcd
 *.ron
 *.sucl

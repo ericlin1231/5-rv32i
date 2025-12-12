@@ -2,32 +2,32 @@ import defs::*;
 
 module ID2EX (
     /* System */
-    input logic          clk,
-    input enable_t       flush_c_i,
+    input  logic          clk,
+    input  enable_t       flush_c_i,
     /* Input */
     /* EX stage */
     // data
-    input data_t         pc_i,
-    input data_t         rs1_data_i,
-    input data_t         rs2_data_i,
-    input data_t         imm_i,
+    input  data_t         pc_i,
+    input  data_t         rs1_data_i,
+    input  data_t         rs2_data_i,
+    input  data_t         imm_i,
     // control
-    input enable_t       jump_c_i,
-    input enable_t       branch_c_i,
-    input alu_src1_sel_t alu_src1_sel_c_i,
-    input alu_src2_sel_t alu_src2_sel_c_i,
-    input alu_op_t       alu_op_c_i,
-    input cmp_op_t       cmp_op_c_i,
+    input  enable_t       jump_c_i,
+    input  enable_t       branch_c_i,
+    input  alu_src1_sel_t alu_src1_sel_c_i,
+    input  alu_src2_sel_t alu_src2_sel_c_i,
+    input  alu_op_t       alu_op_c_i,
+    input  cmp_op_t       cmp_op_c_i,
     // hazard detection
-    input reg_addr_t     rd_i, /* also for WB */
-    input reg_addr_t     rs1_i,
-    input reg_addr_t     rs2_i,
+    input  reg_addr_t     rd_i,              /* also for WB */
+    input  reg_addr_t     rs1_i,
+    input  reg_addr_t     rs2_i,
     /* MEM stage */
-    input enable_t       mem_write_c_i,
+    input  enable_t       mem_write_c_i,
     /* WB stage */
-    input data_t         pc_next_i,
-    input enable_t       reg_write_c_i,
-    input wb_data_sel_t  wb_data_sel_c_i,
+    input  data_t         pc_next_i,
+    input  enable_t       reg_write_c_i,
+    input  wb_data_sel_t  wb_data_sel_c_i,
     /* Output */
     /* EX stage */
     // data
@@ -54,8 +54,7 @@ module ID2EX (
     output wb_data_sel_t  wb_data_sel_c_o
 );
 
-    always_ff @(posedge clk)
-    begin
+    always_ff @(posedge clk) begin
         if (flush_c_i) begin
             /* EX stage */
             // data
@@ -66,8 +65,8 @@ module ID2EX (
             // control
             jump_c_o         <= DISABLE;
             branch_c_o       <= DISABLE;
-            alu_src1_sel_c_o <= rs1; /* don't care */
-            alu_src2_sel_c_o <= rs2; /* don't care */
+            alu_src1_sel_c_o <= rs1;  /* don't care */
+            alu_src2_sel_c_o <= rs2;  /* don't care */
             alu_op_c_o       <= ALU_OP_UNKNOWN;
             cmp_op_c_o       <= CMP_OP_UNKNOWN;
             // hazard detection
@@ -80,8 +79,7 @@ module ID2EX (
             pc_next_o        <= DATA_UNKNOWN;
             reg_write_c_o    <= DISABLE;
             wb_data_sel_c_o  <= WB_DATA_SEL_UNKNOWN;
-        end
-        else begin
+        end else begin
             /* EX stage */
             // data
             pc_o             <= pc_i;
