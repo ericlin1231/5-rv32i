@@ -6,6 +6,7 @@ parameter IMEM_SIZE = 4096;
 parameter DMEM_SIZE = 4096;
 parameter MEM_SIZE = IMEM_SIZE + DMEM_SIZE;
 parameter ADDR_WIDTH = 32;
+parameter ADDR_SHIFT = 2;
 parameter REG_ADDR_WIDTH = 5;
 
 typedef enum logic [REG_ADDR_WIDTH-1:0] {

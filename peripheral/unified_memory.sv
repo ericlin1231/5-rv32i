@@ -16,11 +16,12 @@ module unified_memory #(
     input  data_t   dmem_wdata_i
 );
 
-    localparam BYTES = XLEN / 8;
     localparam ADDR_BITS = $clog2(MEM_CAPACITY);
+    localparam ADDR_TOP_BIT = ADDR_BITS + ADDR_SHIFT - 1;
+    localparam ADDR_BOTTOM_BIT = ADDR_SHIFT;
 
-    string        mem_file;
-    byte unsigned mem      [0:MEM_CAPACITY-1];
+    string mem_file;
+    data_t mem      [0:MEM_CAPACITY-1];
 
     initial begin
         if (!$value$plusargs("IMEM=%s", mem_file))
@@ -31,28 +32,28 @@ module unified_memory #(
         end
     end
 
-    bit [ADDR_BITS-1:0] offset_w;
-    always_ff @(posedge clk) begin
-        if (dmem_wen_i) begin
-            for (offset_w = 0; offset_w < BYTES; offset_w++) begin
-                mem[dmem_addr_i[ADDR_BITS-1:0]+offset_w] <= dmem_wdata_i[8*offset_w+:8];
-            end
-        end
+    /* effective address */
+    logic [ADDR_BITS-1:0] imem_addr;
+    logic [ADDR_BITS-1:0] dmem_addr;
+    always_comb begin
+        imem_addr = imem_addr_i[ADDR_TOP_BIT:ADDR_BOTTOM_BIT];
+        dmem_addr = dmem_addr_i[ADDR_TOP_BIT:ADDR_BOTTOM_BIT];
     end
 
-    bit [ADDR_BITS-1:0] offset_r;
     always_comb begin
         imem_data_o  = '0;
         dmem_rdata_o = '0;
         if (imem_ren_i) begin
-            for (offset_r = 0; offset_r < BYTES; offset_r++) begin
-                imem_data_o[8*offset_r+:8] = mem[imem_addr_i[ADDR_BITS-1:0]+offset_r];
-            end
+            imem_data_o = mem[imem_addr];
         end
         if (dmem_ren_i) begin
-            for (offset_r = 0; offset_r < BYTES; offset_r++) begin
-                dmem_rdata_o[8*offset_r+:8] = mem[dmem_addr_i[ADDR_BITS-1:0]+offset_r];
-            end
+            dmem_rdata_o = mem[dmem_addr];
+        end
+    end
+
+    always_ff @(posedge clk) begin
+        if (dmem_wen_i) begin
+            mem[dmem_addr] <= dmem_wdata_i;
         end
     end
 

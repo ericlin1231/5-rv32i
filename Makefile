@@ -48,9 +48,9 @@ lint:
 	$(SIMULATOR) --lint-only $(SRCS)
 
 .PHONY: sim
-sim: $(SRCS) $(SIMULATION) prog_sim
+sim: $(SRCS) $(SIMULATION)
 	$(SIMULATOR) $(SIMULATOR_OPTS) $(SIMULATION_FILES) -o $(SIMULATION_BIN)
-	./obj_dir/$(SIMULATION_BIN) +IMEM=$(PROG_SIM_PATH)
+	./obj_dir/$(SIMULATION_BIN) +IMEM="program/uart/uart.hex"
 	$(VIEWER) -c $(VIEWER_SCRIPT)
 
 .PHONY: debug
