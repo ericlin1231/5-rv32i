@@ -1,0 +1,2 @@
+load_file wave.vcd
+load_state debug.surf.ron

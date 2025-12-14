@@ -1,5 +1,3 @@
-import defs::*;
-
 module RegFile (
     /* System */
     input  logic      clk,

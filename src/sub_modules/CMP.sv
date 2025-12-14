@@ -1,5 +1,3 @@
-import defs::*;
-
 module CMP (
     input  cmp_op_t cmp_op_c_i,
     input  data_t   data1_i,

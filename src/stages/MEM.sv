@@ -1,5 +1,3 @@
-import defs::*;
-
 module MEM (
     /* Input */
     input  enable_t mem_write_c_i,

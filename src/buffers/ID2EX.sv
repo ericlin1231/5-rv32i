@@ -1,5 +1,3 @@
-import defs::*;
-
 module ID2EX (
     /* System */
     input  logic          clk,

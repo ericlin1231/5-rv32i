@@ -1,5 +1,3 @@
-import defs::*;
-
 module ID (
     /* Input */
     input  data_t     instruction_i,

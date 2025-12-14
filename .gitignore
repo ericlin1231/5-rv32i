@@ -3,8 +3,6 @@ obj_dir/
 zig-out/
 .zig-cache/
 *.vcd
-*.ron
-*.sucl
 *.elf
 *.bin
 *.hex

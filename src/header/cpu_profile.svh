@@ -2,12 +2,16 @@
 `define CPU_PROFILE_SVH
 
 parameter XLEN = 32;
-parameter IMEM_SIZE = 4096;
-parameter DMEM_SIZE = 4096;
-parameter MEM_SIZE = IMEM_SIZE + DMEM_SIZE;
 parameter ADDR_WIDTH = 32;
 parameter ADDR_SHIFT = 2;
 parameter REG_ADDR_WIDTH = 5;
+
+parameter int unsigned IMEM_BYTES = 64 * 1024;  /* 64 KiB */
+parameter int unsigned DMEM_BYTES = 64 * 1024;  /* 64 KiB */
+
+parameter int unsigned IMEM_SIZE = IMEM_BYTES >> ADDR_SHIFT;
+parameter int unsigned DMEM_SIZE = DMEM_BYTES >> ADDR_SHIFT;
+parameter int unsigned MEM_SIZE = IMEM_SIZE + DMEM_SIZE;
 
 typedef enum logic [REG_ADDR_WIDTH-1:0] {
     zero = 5'd0,

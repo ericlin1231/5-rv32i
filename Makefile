@@ -10,7 +10,8 @@ SRCS += $(wildcard src/sub_modules/*.sv)
 SRCS += $(wildcard src/peripheral/*.sv)
 SRCS += $(DUT)
 
-IMEM      ?= program/uart/uart.hex
+PROG      ?= copy_arr
+IMEM      ?= prog/sims/$(PROG)_sim.hex
 VCD       ?= wave.vcd
 BUILD_DIR ?= build
 OBJ_DIR   := $(BUILD_DIR)/obj_dir
@@ -18,7 +19,8 @@ SIM_BIN   := $(OBJ_DIR)/Vtb_top
 
 SIMULATOR       := verilator
 INC_DIRS        := -Isrc
-VERILATOR_FLAGS := -sv --timing --trace --binary -Wno-fatal
+VERILATOR_FLAGS := -sv --timing --trace --binary
+VERILATOR_FLAGS += -Wall -Wno-IMPORTSTAR -Wno-UNUSEDSIGNAL
 VERILATOR_FLAGS += $(INC_DIRS)
 VERILATOR_FLAGS += --Mdir $(OBJ_DIR)
 VERILATOR_FLAGS += --top-module tb_top

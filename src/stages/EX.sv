@@ -1,5 +1,3 @@
-import defs::*;
-
 module EX (
     /* Input */
     // data
@@ -44,8 +42,8 @@ module EX (
     data_t src1_data;
     always_comb begin
         unique case (alu_src1_sel_c_i)
-            rs1: src1_data = rs1_data;
-            pc: src1_data = pc_i;
+            rs1:     src1_data = rs1_data;
+            pc:      src1_data = pc_i;
             default: src1_data = 0;
         endcase
     end
@@ -53,8 +51,8 @@ module EX (
     data_t src2_data;
     always_comb begin
         unique case (alu_src2_sel_c_i)
-            rs2: src2_data = rs2_data;
-            imm: src2_data = imm_i;
+            rs2:     src2_data = rs2_data;
+            imm:     src2_data = imm_i;
             default: src2_data = 0;
         endcase
     end

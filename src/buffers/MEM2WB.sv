@@ -1,5 +1,3 @@
-import defs::*;
-
 module MEM2WB (
     /* System */
     input  logic         clk,

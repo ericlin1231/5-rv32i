@@ -1,5 +1,3 @@
-import defs::*;
-
 module ALU (
     input  alu_op_t alu_op_i,
     input  data_t   data1_i,

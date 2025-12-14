@@ -1,5 +1,3 @@
-import defs::*;
-
 module EX2MEM (
     /* System */
     input  logic         clk,

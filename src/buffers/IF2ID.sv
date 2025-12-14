@@ -1,5 +1,3 @@
-import defs::*;
-
 module IF2ID (
     input  logic    clk,
     /* Input */

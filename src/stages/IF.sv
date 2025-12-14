@@ -13,7 +13,7 @@ module IF (
     output addr_t   pc_next_o
 );
     always_ff @(posedge clk) begin
-        if (!rst_n) pc_o <= 32'h1000;
+        if (!rst_n) pc_o <= 32'h00000000;
         else begin
             if (stall_c_i) pc_o <= pc_o;
             else if (jump_c_i) pc_o <= jump_addr_i;

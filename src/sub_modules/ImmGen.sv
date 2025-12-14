@@ -1,5 +1,3 @@
-import defs::*;
-
 module ImmGen (
     input  imm_sel_t            imm_sel_c,
     input  logic     [XLEN-1:7] imm_i,

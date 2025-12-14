@@ -1,5 +1,3 @@
-import defs::*;
-
 module cpu (
     input  logic    clk,
     input  logic    rst_n,

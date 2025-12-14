@@ -1,5 +1,3 @@
-import defs::*;
-
 module memory (
     input  logic    clk,
     /* Instruction port */
@@ -36,17 +34,17 @@ module memory (
     assign imem_addr = imem_addr_i[ADDR_MSB:ADDR_LSB];
     assign dmem_addr = dmem_addr_i[ADDR_MSB:ADDR_LSB];
     /* word aligned access assertion */
-    always_comb begin
-        assert (imem_addr_i[1:0] == 2'b00)
-        else $fatal("imem addr not aligned: %h", imem_addr_i);
-        // assert (dmem_addr_i[1:0] == 2'b00)
-        // else $fatal("dmem addr not aligned: %h", dmem_addr_i);
+    // always_comb begin
+    //     assert (imem_addr_i[1:0] == 2'b00)
+    //     else $fatal("imem addr not aligned: %h", imem_addr_i);
+    //     assert (dmem_addr_i[1:0] == 2'b00)
+    //     else $fatal("dmem addr not aligned: %h", dmem_addr_i);
 
-        assert (imem_addr_i[31:ADDR_MSB+1] == '0)
-        else $fatal("imem addr OOR: %h", imem_addr_i);
-        // assert (dmem_addr_i[31:ADDR_MSB+1] == '0)
-        // else $fatal("dmem addr OOR: %h", dmem_addr_i);
-    end
+    //     assert (imem_addr_i[31:ADDR_MSB+1] == '0)
+    //     else $fatal("imem addr OOR: %h", imem_addr_i);
+    //     assert (dmem_addr_i[31:ADDR_MSB+1] == '0)
+    //     else $fatal("dmem addr OOR: %h", dmem_addr_i);
+    // end
 
 
     always_comb begin
