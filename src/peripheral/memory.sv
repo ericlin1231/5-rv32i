@@ -9,7 +9,7 @@ module memory (
     input  enable_t       dmem_ren_i,
     output data_t         dmem_rdata_o,
     input  enable_t       dmem_wen_i,
-    input  logic    [1:0] dmem_wstrb_i,
+    input  logic    [3:0] dmem_wstrb_i,
     input  data_t         dmem_wdata_i
 );
 
