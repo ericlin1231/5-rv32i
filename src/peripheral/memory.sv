@@ -1,15 +1,16 @@
 module memory (
-    input  logic    clk,
-    /* Instruction port */
-    input  addr_t   imem_addr_i,
-    input  enable_t imem_ren_i,
-    output data_t   imem_data_o,
-    /* Data port */
-    input  addr_t   dmem_addr_i,
-    input  enable_t dmem_ren_i,
-    output data_t   dmem_rdata_o,
-    input  enable_t dmem_wen_i,
-    input  data_t   dmem_wdata_i
+    input  logic          clk,
+    /* Instruction port connect to Master 0 */
+    input  addr_t         imem_addr_i,
+    input  enable_t       imem_ren_i,
+    output data_t         imem_data_o,
+    /* Data port connect to Master 1 */
+    input  addr_t         dmem_addr_i,
+    input  enable_t       dmem_ren_i,
+    output data_t         dmem_rdata_o,
+    input  enable_t       dmem_wen_i,
+    input  logic    [1:0] dmem_wstrb_i,
+    input  data_t         dmem_wdata_i
 );
 
     localparam ADDR_BITS = $clog2(MEM_SIZE);
@@ -47,20 +48,16 @@ module memory (
     // end
 
 
-    always_comb begin
-        imem_data_o  = '0;
-        dmem_rdata_o = '0;
-        if (imem_ren_i) begin
-            imem_data_o = mem[imem_addr];
-        end
-        if (dmem_ren_i) begin
-            dmem_rdata_o = mem[dmem_addr];
-        end
+    always_ff @(posedge clk) begin
+        if (imem_ren_i) imem_data_o <= mem[imem_addr];
+        if (dmem_ren_i) dmem_rdata_o <= mem[dmem_addr];
     end
 
+    data_t wdata_mask;
+    assign wdata_mask = {8{dmem_wstrb_i[3]},8{dmem_wstrb_i[2]},8{dmem_wstrb_i[1]},8{dmem_wstrb_i[0]}};
     always_ff @(posedge clk) begin
         if (dmem_wen_i) begin
-            mem[dmem_addr] <= dmem_wdata_i;
+            mem[dmem_addr] <= (mem[dmem_addr] & ~wdata_mask) | (dmem_wdata_i & wdata_mask);
         end
     end
 

@@ -1,9 +1,14 @@
 module cpu (
-    input  logic    clk,
-    input  logic    rst_n,
+    input logic clk,
+    input logic rst_n,
+    input logic global_stall_c_i,
+
+    /* Master 0 signal */
     output addr_t   imem_addr_o,
     output enable_t imem_ren_o,
     input  data_t   imem_data_i,
+
+    /* Master 1 signal */
     output addr_t   dmem_addr_o,
     output enable_t dmem_wen_o,
     output data_t   dmem_write_data_o,
@@ -18,7 +23,7 @@ module cpu (
         .clk          (clk),
         .rst_n        (rst_n),
         /* Control */
-        .stall_c_i    (stall_c_if),
+        .stall_c_i    (stall_c_if | global_stall_c_i),
         .jump_c_i     (jump_c_ex),
         /* Input */
         .instruction_i(imem_data_i),

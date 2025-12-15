@@ -9,10 +9,10 @@ module top (
     enable_t imem_ren;
     data_t   imem_data;
     addr_t   dmem_addr;
-    data_t   dmem_write_data;
-    enable_t dmem_wen;
     enable_t dmem_ren;
     data_t   dmem_read_data;
+    enable_t dmem_wen;
+    data_t   dmem_write_data;
 
     cpu core_0 (
         .clk              (clk),
