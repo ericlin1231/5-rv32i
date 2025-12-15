@@ -22,6 +22,7 @@ typedef struct packed {
     reg_addr_t     rs1;
     reg_addr_t     rs2;
     enable_t       mem_write_c;
+    enable_t       mem_read_c;
     data_t         pc_next;
     enable_t       reg_write_c;
     wb_data_sel_t  wb_data_sel_c;
@@ -29,6 +30,7 @@ typedef struct packed {
 
 typedef struct packed {
     data_t        alu_result;
+    enable_t      mem_read_c;
     enable_t      mem_write_c;
     data_t        mem_write_data;
     reg_addr_t    rd;

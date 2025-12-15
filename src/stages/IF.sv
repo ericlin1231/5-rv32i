@@ -12,11 +12,12 @@ module IF (
     output addr_t   pc_o,
     output addr_t   pc_next_o
 );
+
     always_ff @(posedge ACLK or negedge ARESETn) begin
         if (!ACLK) pc_o <= 32'h00000000;
         else begin
-            if (stall_c_i) pc_o <= pc_o;
-            else if (jump_c_i) pc_o <= jump_addr_i;
+            if (jump_c_i) pc_o <= jump_addr_i;
+            else if (stall_c_i) pc_o <= pc_o;
             else pc_o <= pc_o + 32'd4;
         end
     end

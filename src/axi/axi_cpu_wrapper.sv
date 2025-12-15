@@ -75,9 +75,11 @@ module axi_cpu_wrapper (
         .global_stall_c_i(global_stall_c),
 
         /* Master 0 signal */
-        .imem_addr_o(imem_addr),
-        .imem_ren_o (imem_ren),
-        .imem_data_i(imem_rdata),
+        .imem_addr_o         (imem_addr),
+        .imem_ren_o          (imem_ren),
+        .imem_data_i         (imem_rdata),
+        .imem_raddr_handshake(ARVALID_M0 && ARREADY_M0),
+        .imem_rdata_handshake(RVALID_M0 && RREADY_M0),
 
         /* Master 1 signal */
         .dmem_addr_o      (dmem_addr),

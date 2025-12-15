@@ -7,6 +7,8 @@ module cpu (
     output addr_t   imem_addr_o,
     output enable_t imem_ren_o,
     input  data_t   imem_data_i,
+    input  logic    imem_raddr_handshake,
+    input  logic    imem_rdata_handshake,
 
     /* Master 1 signal */
     output addr_t                         dmem_addr_o,
@@ -18,7 +20,9 @@ module cpu (
 );
 
     /* Instruction Fetch Stage */
-    if_id_bus_t if_stage_bus;
+    if_id_bus_t            if_stage_bus;
+    logic       [XLEN-1:0] current_pc;
+    logic       [XLEN-1:0] pc_keep;
     IF IF_stage (
         /* System */
         .ACLK,
@@ -31,9 +35,21 @@ module cpu (
         .jump_addr_i  (pc_target_ex),
         /* Output */
         .instruction_o(if_stage_bus.instruction),
-        .pc_o         (if_stage_bus.pc),
+        .pc_o         (current_pc),
         .pc_next_o    (if_stage_bus.pc_next)
     );
+    /* cpu output through AXI IMEM channel */
+    assign imem_addr_o = current_pc;
+    assign imem_ren_o  = ENABLE;
+    always_ff @(posedge ACLK or negedge ARESETn) begin
+        if (!ARESETn) pc_keep <= '0;
+        if (imem_raddr_handshake) begin
+            pc_keep <= current_pc;
+        end
+        if (imem_rdata_handshake) begin
+            if_stage_bus.pc <= pc_keep;
+        end
+    end
 
     /* Instruction Fetch to Instruction Decode Buffer */
     if_id_bus_t if_id_bus;
@@ -114,6 +130,7 @@ module cpu (
         .alu_src2_sel_c_o(id_ex_buf_in.alu_src2_sel_c),
         .cmp_op_c_o      (id_ex_buf_in.cmp_op_c),
         /* MEM stage */
+        .mem_read_c_o    (id_ex_buf_in.mem_read_c),
         .mem_write_c_o   (id_ex_buf_in.mem_write_c),
         /* WB stage */
         .reg_write_c_o   (id_ex_buf_in.reg_write_c),
@@ -147,6 +164,7 @@ module cpu (
         .rs2_i           (id_ex_buf_in.rs2),
         /* MEM stage */
         .mem_write_c_i   (id_ex_buf_in.mem_write_c),
+        .mem_read_c_i    (id_ex_buf_in.mem_read_c),
         /* WB stage */
         .pc_next_i       (id_ex_buf_in.pc_next),
         .reg_write_c_i   (id_ex_buf_in.reg_write_c),
@@ -171,6 +189,7 @@ module cpu (
         .rs2_o           (id_ex_bus.rs2),
         /* MEM stage */
         .mem_write_c_o   (id_ex_bus.mem_write_c),
+        .mem_read_c_o    (id_ex_bus.mem_read_c),
         /* WB stage */
         .pc_next_o       (id_ex_bus.pc_next),
         .reg_write_c_o   (id_ex_bus.reg_write_c),
@@ -182,6 +201,7 @@ module cpu (
     enable_t      branch_taken_c_ex;
     data_t        alu_result_ex2buf;
     data_t        pc_target_ex;
+    enable_t      mem_read_c_ex2buf;
     enable_t      mem_write_c_ex2buf;
     data_t        mem_write_data_ex2buf;  /* from rs2 data */
     reg_addr_t    rd_ex2buf;
@@ -218,6 +238,7 @@ module cpu (
      */
     always_comb begin
         jump_c_ex = (id_ex_bus.branch_c & branch_taken_c_ex) | id_ex_bus.jump_c ? ENABLE : DISABLE;
+        mem_read_c_ex2buf = id_ex_bus.mem_read_c;
         mem_write_c_ex2buf = id_ex_bus.mem_write_c;
         mem_write_data_ex2buf = id_ex_bus.rs2_data;
         rd_ex2buf = id_ex_bus.rd;
@@ -235,6 +256,7 @@ module cpu (
         /* Input */
         .alu_result_i    (alu_result_ex2buf),
         /* MEM stage */
+        .mem_read_c_i    (mem_read_c_ex2buf),
         .mem_write_c_i   (mem_write_c_ex2buf),
         .mem_write_data_i(mem_write_data_ex2buf),
         /* WB stage */
@@ -245,6 +267,7 @@ module cpu (
         /* Output */
         .alu_result_o    (ex_mem_bus.alu_result),
         /* MEM stage */
+        .mem_read_c_o    (ex_mem_bus.mem_read_c),
         .mem_write_c_o   (ex_mem_bus.mem_write_c),
         .mem_write_data_o(ex_mem_bus.mem_write_data),
         /* WB stage */
@@ -265,6 +288,7 @@ module cpu (
     /* control signal pass to WB */
     MEM MEM_stage (
         /* Input */
+        .mem_read_c_i    (ex_mem_bus.mem_read_c),
         .mem_write_c_i   (ex_mem_bus.mem_write_c),
         .mem_addr_i      (ex_mem_bus.alu_result),
         .mem_write_data_i(ex_mem_bus.mem_write_data),
@@ -278,8 +302,6 @@ module cpu (
         .mem_read_data_o (mem_read_data_mem2buf)
     );
     /* CPU Output Port Pass Through AXI Wrapper */
-    assign imem_addr_o       = if_stage_bus.pc;
-    assign imem_ren_o        = ENABLE;
     assign dmem_addr_o       = mem_addr_memstage;
     assign dmem_write_data_o = mem_write_data_memstage;
     assign dmem_wen_o        = mem_wen_memstage;

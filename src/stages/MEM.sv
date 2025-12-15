@@ -1,6 +1,7 @@
 module MEM (
     /* Input */
     input  enable_t                       mem_write_c_i,
+    input  enable_t                       mem_read_c_i,
     input  data_t                         mem_addr_i,
     input  data_t                         mem_write_data_i,
     input  data_t                         mem_read_data_i,
@@ -18,7 +19,7 @@ module MEM (
         mem_write_data_o = mem_write_data_i;
         mem_wen_o        = mem_write_c_i;
         mem_wstrb_o      = 4'b1111;
-        mem_ren_o        = ENABLE;
+        mem_ren_o        = mem_read_c_i;
         mem_read_data_o  = mem_read_data_i;
     end
 

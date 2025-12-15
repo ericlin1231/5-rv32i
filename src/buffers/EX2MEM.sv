@@ -6,6 +6,7 @@ module EX2MEM (
     /* Input */
     input  data_t        alu_result_i,
     /* MEM stage */
+    input  enable_t      mem_read_c_i,
     input  enable_t      mem_write_c_i,
     input  data_t        mem_write_data_i,
     /* WB stage */
@@ -16,6 +17,7 @@ module EX2MEM (
     /* Output */
     output data_t        alu_result_o,
     /* MEM stage */
+    output enable_t      mem_read_c_o,
     output enable_t      mem_write_c_o,
     output data_t        mem_write_data_o,
     /* WB stage */
@@ -28,6 +30,7 @@ module EX2MEM (
     always_ff @(posedge ACLK or negedge ARESETn) begin
         if (!ARESETn) begin
             alu_result_o     <= DATA_UNKNOWN;
+            mem_read_c_o     <= DISABLE;
             mem_write_c_o    <= DISABLE;
             mem_write_data_o <= DATA_UNKNOWN;
             rd_o             <= REG_UNKNOWN;
@@ -38,6 +41,7 @@ module EX2MEM (
         begin
             if (stall_c_i) begin
                 alu_result_o     <= alu_result_o;
+                mem_read_c_o     <= mem_read_c_o;
                 mem_write_c_o    <= mem_write_c_o;
                 mem_write_data_o <= mem_write_data_o;
                 rd_o             <= rd_o;
@@ -46,6 +50,7 @@ module EX2MEM (
                 pc_next_o        <= pc_next_o;
             end else begin
                 alu_result_o     <= alu_result_i;
+                mem_read_c_o     <= mem_read_c_i;
                 mem_write_c_o    <= mem_write_c_i;
                 mem_write_data_o <= mem_write_data_i;
                 rd_o             <= rd_i;

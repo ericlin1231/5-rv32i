@@ -23,6 +23,7 @@ module ID2EX (
     input  reg_addr_t     rs1_i,
     input  reg_addr_t     rs2_i,
     /* MEM stage */
+    input  enable_t       mem_read_c_i,
     input  enable_t       mem_write_c_i,
     /* WB stage */
     input  data_t         pc_next_i,
@@ -47,6 +48,7 @@ module ID2EX (
     output reg_addr_t     rs1_o,
     output reg_addr_t     rs2_o,
     /* MEM stage */
+    output enable_t       mem_read_c_o,
     output enable_t       mem_write_c_o,
     /* WB stage */
     output data_t         pc_next_o,
@@ -74,6 +76,7 @@ module ID2EX (
             rs1_o            <= REG_UNKNOWN;
             rs2_o            <= REG_UNKNOWN;
             /* MEM stage */
+            mem_read_c_o     <= DISABLE;
             mem_write_c_o    <= DISABLE;
             /* WB stage */
             pc_next_o        <= DATA_UNKNOWN;
@@ -98,6 +101,7 @@ module ID2EX (
             rs1_o            <= rs1_o;
             rs2_o            <= rs2_o;
             /* MEM stage */
+            mem_read_c_o     <= mem_read_c_o;
             mem_write_c_o    <= mem_write_c_o;
             /* WB stage */
             pc_next_o        <= pc_next_o;
@@ -122,6 +126,7 @@ module ID2EX (
             rs1_o            <= rs1_i;
             rs2_o            <= rs2_i;
             /* MEM stage */
+            mem_read_c_o     <= mem_read_c_i;
             mem_write_c_o    <= mem_write_c_i;
             /* WB stage */
             pc_next_o        <= pc_next_i;

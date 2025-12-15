@@ -6,6 +6,7 @@ module Control (
     /* Output */
     output enable_t       reg_write_c_o,
     output enable_t       mem_write_c_o,
+    output enable_t       mem_read_c_o,
     output wb_data_sel_t  wb_data_sel_c_o,
     output enable_t       jump_c_o,
     output enable_t       branch_c_o,
@@ -19,6 +20,7 @@ module Control (
         unique case (op_i)
             LOAD: begin
                 reg_write_c_o    = ENABLE;
+                mem_read_c_o     = ENABLE;
                 mem_write_c_o    = DISABLE;
                 wb_data_sel_c_o  = mem_read;
                 jump_c_o         = DISABLE;
@@ -28,6 +30,7 @@ module Control (
             end
             ARITHMETIC_IMM: begin
                 reg_write_c_o    = ENABLE;
+                mem_read_c_o     = DISABLE;
                 mem_write_c_o    = DISABLE;
                 wb_data_sel_c_o  = alu_result;
                 jump_c_o         = DISABLE;
@@ -37,6 +40,7 @@ module Control (
             end
             ARITHMETIC_REG: begin
                 reg_write_c_o    = ENABLE;
+                mem_read_c_o     = DISABLE;
                 mem_write_c_o    = DISABLE;
                 wb_data_sel_c_o  = alu_result;
                 jump_c_o         = DISABLE;
@@ -46,6 +50,7 @@ module Control (
             end
             BRANCH: begin
                 reg_write_c_o    = DISABLE;
+                mem_read_c_o     = DISABLE;
                 mem_write_c_o    = DISABLE;
                 wb_data_sel_c_o  = WB_DATA_SEL_UNKNOWN;
                 jump_c_o         = DISABLE;
@@ -55,6 +60,7 @@ module Control (
             end
             JAL: begin
                 reg_write_c_o    = ENABLE;
+                mem_read_c_o     = DISABLE;
                 mem_write_c_o    = DISABLE;
                 wb_data_sel_c_o  = pc_next;
                 jump_c_o         = ENABLE;
@@ -64,6 +70,7 @@ module Control (
             end
             JALR: begin
                 reg_write_c_o    = ENABLE;
+                mem_read_c_o     = DISABLE;
                 mem_write_c_o    = DISABLE;
                 wb_data_sel_c_o  = pc_next;
                 jump_c_o         = ENABLE;
@@ -73,6 +80,7 @@ module Control (
             end
             LUI: begin
                 reg_write_c_o    = ENABLE;
+                mem_read_c_o     = DISABLE;
                 mem_write_c_o    = DISABLE;
                 wb_data_sel_c_o  = alu_result;
                 jump_c_o         = DISABLE;
@@ -82,6 +90,7 @@ module Control (
             end
             AUIPC: begin
                 reg_write_c_o    = ENABLE;
+                mem_read_c_o     = DISABLE;
                 mem_write_c_o    = DISABLE;
                 wb_data_sel_c_o  = alu_result;
                 jump_c_o         = DISABLE;
@@ -91,6 +100,7 @@ module Control (
             end
             default: begin
                 reg_write_c_o    = DISABLE;
+                mem_read_c_o     = DISABLE;
                 mem_write_c_o    = DISABLE;
                 wb_data_sel_c_o  = WB_DATA_SEL_UNKNOWN;
                 jump_c_o         = DISABLE;
@@ -117,7 +127,7 @@ module Control (
                         unique case (ARITHMETIC_FUNCT7'(funct7_i))
                             FUNCT7_STD: alu_op_c_o = SRL;
                             FUNCT7_ALT: alu_op_c_o = SRA;
-                            default: alu_op_c_o = SRL;  /* don't care */
+                            default:    alu_op_c_o = SRL;  /* don't care */
                         endcase
                     end
                 endcase
@@ -128,7 +138,7 @@ module Control (
                         unique case (ARITHMETIC_FUNCT7'(funct7_i))
                             FUNCT7_STD: alu_op_c_o = ADD;
                             FUNCT7_ALT: alu_op_c_o = SUB;
-                            default: alu_op_c_o = ADD;  /* don't care */
+                            default:    alu_op_c_o = ADD;  /* don't care */
                         endcase
                     end
                     FUNCT3_AND:  alu_op_c_o = AND;
@@ -141,7 +151,7 @@ module Control (
                         unique case (ARITHMETIC_FUNCT7'(funct7_i))
                             FUNCT7_STD: alu_op_c_o = SRL;
                             FUNCT7_ALT: alu_op_c_o = SRA;
-                            default: alu_op_c_o = SRL;  /* don't care */
+                            default:    alu_op_c_o = SRL;  /* don't care */
                         endcase
                     end
                 endcase
