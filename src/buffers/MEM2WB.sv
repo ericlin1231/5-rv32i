@@ -1,6 +1,7 @@
 module MEM2WB (
     /* System */
-    input  logic         clk,
+    input  logic         ACLK,
+    input  logic         ARESETn,
     input  enable_t      stall_c_i,
     /* Input */
     // data
@@ -22,21 +23,30 @@ module MEM2WB (
     output wb_data_sel_t wb_data_sel_c_o
 );
 
-    always_ff @(posedge clk) begin
-        if (stall_c_i) begin
-            rd_o            <= rd_o;
-            alu_result_o    <= alu_result_o;
-            mem_read_data_o <= mem_read_data_o;
-            pc_next_o       <= pc_next_o;
-            reg_write_c_o   <= reg_write_c_o;
-            wb_data_sel_c_o <= wb_data_sel_c_o;
+    always_ff @(posedge ACLK or negedge ARESETn) begin
+        if (!ARESETn) begin
+            rd_o            <= REG_UNKNOWN;
+            alu_result_o    <= DATA_UNKNOWN;
+            mem_read_data_o <= DATA_UNKNOWN;
+            pc_next_o       <= DATA_UNKNOWN;
+            reg_write_c_o   <= DISABLE;
+            wb_data_sel_c_o <= WB_DATA_SEL_UNKNOWN;
         end else begin
-            rd_o            <= rd_i;
-            alu_result_o    <= alu_result_i;
-            mem_read_data_o <= mem_read_data_i;
-            pc_next_o       <= pc_next_i;
-            reg_write_c_o   <= reg_write_c_i;
-            wb_data_sel_c_o <= wb_data_sel_c_i;
+            if (stall_c_i) begin
+                rd_o            <= rd_o;
+                alu_result_o    <= alu_result_o;
+                mem_read_data_o <= mem_read_data_o;
+                pc_next_o       <= pc_next_o;
+                reg_write_c_o   <= reg_write_c_o;
+                wb_data_sel_c_o <= wb_data_sel_c_o;
+            end else begin
+                rd_o            <= rd_i;
+                alu_result_o    <= alu_result_i;
+                mem_read_data_o <= mem_read_data_i;
+                pc_next_o       <= pc_next_i;
+                reg_write_c_o   <= reg_write_c_i;
+                wb_data_sel_c_o <= wb_data_sel_c_i;
+            end
         end
     end
 

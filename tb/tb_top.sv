@@ -16,7 +16,7 @@ module tb_top;
         rst_n = 1'b1;
     end
 
-    top_axi_fixed dut (
+    top_axi dut (
         .ACLK   (clk),
         .ARESETn(rst_n)
     );

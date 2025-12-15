@@ -1,6 +1,6 @@
 module cpu (
-    input logic clk,
-    input logic rst_n,
+    input logic ACLK,
+    input logic ARESETn,
     input logic global_stall_c_i,
 
     /* Master 0 signal */
@@ -21,8 +21,8 @@ module cpu (
     if_id_bus_t if_stage_bus;
     IF IF_stage (
         /* System */
-        .clk          (clk),
-        .rst_n        (rst_n),
+        .ACLK,
+        .ARESETn,
         /* Control */
         .stall_c_i    (stall_c_if | global_stall_c_i),
         .jump_c_i     (jump_c_ex),
@@ -39,7 +39,8 @@ module cpu (
     if_id_bus_t if_id_bus;
     IF2ID IF2ID_buffer (
         /* System */
-        .clk          (clk),
+        .ACLK,
+        .ARESETn,
         /* Control */
         .stall_c_i    (stall_c_if2id | global_stall_c_i),
         .flush_c_i    (flush_c_if2id),
@@ -85,8 +86,7 @@ module cpu (
     data_t rs1_data_reg2buf;
     data_t rs2_data_reg2buf;
     RegFile RegFile_u (
-        /* System */
-        .clk       (clk),
+        .ACLK,
         /* Input */
         .wen_c     (reg_write_c_wb),
         .rs1_i     (rs1_id2reg),
@@ -123,8 +123,8 @@ module cpu (
     /* Instruction Decode to Execution Buffer */
     id_ex_bus_t id_ex_bus;
     ID2EX ID2EX_buffer (
-        /***** System *****/
-        .clk             (clk),
+        .ACLK,
+        .ARESETn,
         .stall_c_i       (global_stall_c_i),
         .flush_c_i       (flush_c_id2ex),
         /***** Input *****/
@@ -229,8 +229,8 @@ module cpu (
     /* Execute to Memory Buffer */
     ex_mem_bus_t ex_mem_bus;
     EX2MEM EX2MEM_buffer (
-        /* System */
-        .clk             (clk),
+        .ACLK,
+        .ARESETn,
         .stall_c_i       (global_stall_c_i),
         /* Input */
         .alu_result_i    (alu_result_ex2buf),
@@ -298,8 +298,8 @@ module cpu (
     mem_wb_bus_t mem_wb_bus;
     mem_wb_bus_t mem_wb_buf_in;
     MEM2WB MEM2WB_buffer (
-        /* System */
-        .clk            (clk),
+        .ACLK,
+        .ARESETn,
         .stall_c_i      (global_stall_c_i),
         /* Input */
         // data

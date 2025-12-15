@@ -1,7 +1,7 @@
 module IF (
     /* System */
-    input  logic    clk,
-    input  logic    rst_n,
+    input  logic    ACLK,
+    input  logic    ARESETn,
     /* Input */
     input  enable_t stall_c_i,
     input  enable_t jump_c_i,
@@ -12,8 +12,8 @@ module IF (
     output addr_t   pc_o,
     output addr_t   pc_next_o
 );
-    always_ff @(posedge clk) begin
-        if (!rst_n) pc_o <= 32'h00000000;
+    always_ff @(posedge ACLK or negedge ARESETn) begin
+        if (!ACLK) pc_o <= 32'h00000000;
         else begin
             if (stall_c_i) pc_o <= pc_o;
             else if (jump_c_i) pc_o <= jump_addr_i;

@@ -92,18 +92,17 @@ module axi_memory_wrapper (
         BRESP_S0   = AXI_RESP_OKAY;
         BVALID_S0  = 1'b0;
 
-        imem_addr = ARADDR_S0;
+        imem_addr  = ARADDR_S0;
     end
 
+    assign imem_ren = ARVALID_S0 && ARREADY_S0;
     always_ff @(posedge ACLK or negedge ARESETn) begin
         if (!ARESETn) begin
-            imem_ren        <= 1'b0;
             imem_resp_valid <= 1'b0;
             RVALID_S0       <= 1'b0;
             RDATA_S0        <= '0;
             RRESP_S0        <= AXI_RESP_OKAY;
         end else begin
-            imem_ren        <= ARVALID_S0 && ARREADY_S0;
             imem_resp_valid <= imem_ren;
 
             if (imem_resp_valid) begin
@@ -134,13 +133,13 @@ module axi_memory_wrapper (
 
     always_ff @(posedge ACLK or negedge ARESETn) begin
         if (!ARESETn) begin
-            dmem_ren         <= 1'b0;
-            dmem_resp_valid  <= 1'b0;
-            RVALID_S1        <= 1'b0;
-            RDATA_S1         <= '0;
-            RRESP_S1         <= AXI_RESP_OKAY;
-            BRESP_S1         <= AXI_RESP_OKAY;
-            BVALID_S1        <= 1'b0;
+            dmem_ren        <= 1'b0;
+            dmem_resp_valid <= 1'b0;
+            RVALID_S1       <= 1'b0;
+            RDATA_S1        <= '0;
+            RRESP_S1        <= AXI_RESP_OKAY;
+            BRESP_S1        <= AXI_RESP_OKAY;
+            BVALID_S1       <= 1'b0;
         end else begin
             dmem_ren        <= ARVALID_S1 && ARREADY_S1;
             dmem_resp_valid <= dmem_ren;

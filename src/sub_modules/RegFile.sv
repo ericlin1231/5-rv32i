@@ -1,6 +1,6 @@
 module RegFile (
     /* System */
-    input  logic      clk,
+    input  logic      ACLK,
     /* Input */
     input  enable_t   wen_c,
     input  reg_addr_t rs1_i,
@@ -13,7 +13,7 @@ module RegFile (
 );
 
     data_t regs[0:XLEN-1];
-    always_ff @(posedge clk) begin
+    always_ff @(posedge ACLK) begin
         if (wen_c & rd_i != 0) regs[rd_i] <= rd_data_i;
     end
 

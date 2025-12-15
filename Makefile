@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := sim
 
-DUT  ?= src/top_axi_fixed.sv
+DUT  ?= src/top_axi.sv
 TB   ?= tb/tb_top.sv
 SRCS := src/defs.sv
 SRCS += src/cpu.sv
@@ -21,7 +21,7 @@ SIM_BIN   := $(OBJ_DIR)/Vtb_top
 SIMULATOR       := verilator
 INC_DIRS        := -Isrc
 VERILATOR_FLAGS := -sv --timing --trace --binary
-VERILATOR_FLAGS += -Wall -Wno-IMPORTSTAR -Wno-UNUSEDSIGNAL
+VERILATOR_FLAGS += -Wall -Wno-IMPORTSTAR -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM
 VERILATOR_FLAGS += $(INC_DIRS)
 VERILATOR_FLAGS += --Mdir $(OBJ_DIR)
 VERILATOR_FLAGS += --top-module tb_top

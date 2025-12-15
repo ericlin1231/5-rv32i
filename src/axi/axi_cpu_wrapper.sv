@@ -53,25 +53,25 @@ module axi_cpu_wrapper (
     output logic                       BREADY_M1
 );
 
-    enable_t                       global_stall_c;
+    logic                       global_stall_c;
     /* Master 0 port */
-    logic    [  AXI_ADDR_BITS-1:0] imem_addr;
-    logic                          imem_ren;
-    logic    [  AXI_DATA_BITS-1:0] imem_rdata;
-    logic                          imem_req_pending;
+    logic [  AXI_ADDR_BITS-1:0] imem_addr;
+    logic                       imem_ren;
+    logic [  AXI_DATA_BITS-1:0] imem_rdata;
+    logic                       imem_req_pending;
     /* Master 1 port */
-    logic    [  AXI_ADDR_BITS-1:0] dmem_addr;
-    logic                          dmem_ren;
-    logic    [  AXI_DATA_BITS-1:0] dmem_rdata;
-    logic                          dmem_wen;
-    logic    [AXI_DATA_BITS/8-1:0] dmem_wstrb;
-    logic    [  AXI_DATA_BITS-1:0] dmem_wdata;
-    logic                          dmem_read_pending;
-    logic                          dmem_write_pending;
+    logic [  AXI_ADDR_BITS-1:0] dmem_addr;
+    logic                       dmem_ren;
+    logic [  AXI_DATA_BITS-1:0] dmem_rdata;
+    logic                       dmem_wen;
+    logic [AXI_DATA_BITS/8-1:0] dmem_wstrb;
+    logic [  AXI_DATA_BITS-1:0] dmem_wdata;
+    logic                       dmem_read_pending;
+    logic                       dmem_write_pending;
     /* cpu core */
     cpu core_0 (
-        .clk             (ACLK),
-        .rst_n           (ARESETn),
+        .ACLK,
+        .ARESETn,
         .global_stall_c_i(global_stall_c),
 
         /* Master 0 signal */
@@ -88,41 +88,41 @@ module axi_cpu_wrapper (
         .dmem_write_data_o(dmem_wdata)
     );
 
-    /*-------------------- Instruction port (Master 0) --------------------*/
+    /* Master 0 read IMEM */
+    logic [AXI_ADDR_BITS-1:0] araddr_M0;
+    logic                     arvalid_M0;
+    logic                     rready_M0;
     always_ff @(posedge ACLK or negedge ARESETn) begin
         if (!ARESETn) begin
-            ARVALID_M0       <= 1'b0;
-            ARADDR_M0        <= '0;
+            araddr_M0        <= '0;
+            arvalid_M0       <= 1'b0;
+            rready_M0        <= 1'b0;
+            imem_rdata       <= '0;
             imem_req_pending <= 1'b0;
         end else begin
+            /* always ready */
+            rready_M0 <= 1'b1;
+
             /* launch read request */
             if (!imem_req_pending && imem_ren) begin
-                ARVALID_M0 <= 1'b1;
-                ARADDR_M0  <= imem_addr;
+                araddr_M0  <= imem_addr;
+                arvalid_M0 <= 1'b1;
             end
-            /* address handshake */
+            /* read address handshake */
             if (ARVALID_M0 && ARREADY_M0) begin
-                ARVALID_M0       <= 1'b0;
+                arvalid_M0       <= 1'b0;
                 imem_req_pending <= 1'b1;
             end
             /* response accepted */
             if (RVALID_M0 && RREADY_M0) begin
                 imem_req_pending <= 1'b0;
+                if (RRESP_M0 == AXI_RESP_OKAY) imem_rdata <= RDATA_M0;
             end
         end
     end
-
-    always_ff @(posedge ACLK or negedge ARESETn) begin
-        if (!ARESETn) begin
-            RREADY_M0 <= 1'b0;
-            imem_rdata <= '0;
-        end else begin
-            RREADY_M0 <= 1'b1;
-            if (RVALID_M0 && RREADY_M0 && RRESP_M0 == AXI_RESP_OKAY) begin
-                imem_rdata <= RDATA_M0;
-            end
-        end
-    end
+    assign ARADDR_M0  = araddr_M0;
+    assign ARVALID_M0 = arvalid_M0;
+    assign RREADY_M0  = rready_M0;
 
     /*----------------------- Data port (Master 1) -----------------------*/
     always_ff @(posedge ACLK or negedge ARESETn) begin
@@ -160,11 +160,11 @@ module axi_cpu_wrapper (
     /* write address + data */
     always_ff @(posedge ACLK or negedge ARESETn) begin
         if (!ARESETn) begin
-            AWVALID_M1        <= 1'b0;
-            WVALID_M1         <= 1'b0;
-            AWADDR_M1         <= '0;
-            WDATA_M1          <= '0;
-            WSTRB_M1          <= '0;
+            AWVALID_M1         <= 1'b0;
+            WVALID_M1          <= 1'b0;
+            AWADDR_M1          <= '0;
+            WDATA_M1           <= '0;
+            WSTRB_M1           <= '0;
             dmem_write_pending <= 1'b0;
         end else begin
             if (!dmem_write_pending && dmem_wen) begin
@@ -209,9 +209,10 @@ module axi_cpu_wrapper (
         BREADY_M0  = 1'b1;
     end
 
-    /* global stall when any transaction in flight */
+    /* global stall when any transaction hasn't respond */
+    logic imem_req_resp = (RVALID_M0 && RREADY_M0);
     always_comb begin
-        global_stall_c = (imem_req_pending | dmem_read_pending | dmem_write_pending);
+        global_stall_c = (!imem_req_resp | dmem_read_pending | dmem_write_pending);
     end
 
 endmodule

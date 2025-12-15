@@ -1,5 +1,6 @@
 module IF2ID (
-    input  logic    clk,
+    input  logic    ACLK,
+    input  logic    ARESETn,
     /* Input */
     input  enable_t stall_c_i,
     input  enable_t flush_c_i,
@@ -12,8 +13,8 @@ module IF2ID (
     output data_t   instruction_o
 );
 
-    always_ff @(posedge clk) begin
-        if (flush_c_i) begin
+    always_ff @(posedge ACLK or negedge ARESETn) begin
+        if (!ARESETn || flush_c_i) begin
             pc_o          <= DATA_UNKNOWN;
             pc_next_o     <= DATA_UNKNOWN;
             instruction_o <= DATA_UNKNOWN;

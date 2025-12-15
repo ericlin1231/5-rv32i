@@ -1,6 +1,7 @@
 module ID2EX (
     /* System */
-    input  logic          clk,
+    input  logic          ACLK,
+    input  logic          ARESETn,
     input  enable_t       stall_c_i,
     input  enable_t       flush_c_i,
     /* Input */
@@ -53,8 +54,8 @@ module ID2EX (
     output wb_data_sel_t  wb_data_sel_c_o
 );
 
-    always_ff @(posedge clk) begin
-        if (flush_c_i) begin
+    always_ff @(posedge ACLK or negedge ARESETn) begin
+        if (!ARESETn || flush_c_i) begin
             /* EX stage */
             // data
             pc_o             <= DATA_UNKNOWN;
@@ -91,10 +92,10 @@ module ID2EX (
             alu_src1_sel_c_o <= alu_src1_sel_c_o;
             alu_src2_sel_c_o <= alu_src2_sel_c_o;
             alu_op_c_o       <= alu_op_c_o;
-            cmp_op_c_o       <= cmp_op_cp_o;
+            cmp_op_c_o       <= cmp_op_c_o;
             // hazard detection
             rd_o             <= rd_o;
-            rs1_o            <= rd1_o;
+            rs1_o            <= rs1_o;
             rs2_o            <= rs2_o;
             /* MEM stage */
             mem_write_c_o    <= mem_write_c_o;
