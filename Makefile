@@ -1,9 +1,10 @@
 .DEFAULT_GOAL := sim
 
-DUT  ?= src/top.sv
+DUT  ?= src/top_axi_fixed.sv
 TB   ?= tb/tb_top.sv
 SRCS := src/defs.sv
 SRCS += src/cpu.sv
+SRCS += $(wildcard src/axi/*.sv)
 SRCS += $(wildcard src/stages/*.sv)
 SRCS += $(wildcard src/buffers/*.sv)
 SRCS += $(wildcard src/sub_modules/*.sv)

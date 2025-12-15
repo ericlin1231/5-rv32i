@@ -9,11 +9,12 @@ module cpu (
     input  data_t   imem_data_i,
 
     /* Master 1 signal */
-    output addr_t   dmem_addr_o,
-    output enable_t dmem_wen_o,
-    output data_t   dmem_write_data_o,
-    output enable_t dmem_ren_o,
-    input  data_t   dmem_read_data_i
+    output addr_t                         dmem_addr_o,
+    output enable_t                       dmem_wen_o,
+    output          [AXI_DATA_BITS/8-1:0] dmem_wstrb_o,
+    output data_t                         dmem_write_data_o,
+    output enable_t                       dmem_ren_o,
+    input  data_t                         dmem_read_data_i
 );
 
     /* Instruction Fetch Stage */
@@ -253,11 +254,12 @@ module cpu (
 
     /* Memory Stage */
     /* data pass to WB */
-    data_t   mem_read_data_mem2buf;
-    data_t   mem_addr_memstage;
-    data_t   mem_write_data_memstage;
-    enable_t mem_wen_memstage;
-    enable_t mem_ren_memstage;
+    data_t                         mem_read_data_mem2buf;
+    data_t                         mem_addr_memstage;
+    enable_t                       mem_ren_memstage;
+    enable_t                       mem_wen_memstage;
+    logic    [AXI_DATA_BITS/8-1:0] mem_wstrb_memstage;
+    data_t                         mem_write_data_memstage;
     /* control signal pass to WB */
     MEM MEM_stage (
         /* Input */
@@ -269,6 +271,7 @@ module cpu (
         .mem_addr_o      (mem_addr_memstage),
         .mem_write_data_o(mem_write_data_memstage),
         .mem_wen_o       (mem_wen_memstage),
+        .mem_wstrb_o     (mem_wstrb_memstage),
         .mem_ren_o       (mem_ren_memstage),
         .mem_read_data_o (mem_read_data_mem2buf)
     );
@@ -278,6 +281,7 @@ module cpu (
     assign dmem_addr_o       = mem_addr_memstage;
     assign dmem_write_data_o = mem_write_data_memstage;
     assign dmem_wen_o        = mem_wen_memstage;
+    assign dmem_wstrb_o      = mem_wstrb_memstage;
     assign dmem_ren_o        = mem_ren_memstage;
     /* WB stage signal redirection */
     always_comb begin

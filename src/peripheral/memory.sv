@@ -54,7 +54,9 @@ module memory (
     end
 
     data_t wdata_mask;
-    assign wdata_mask = {8{dmem_wstrb_i[3]},8{dmem_wstrb_i[2]},8{dmem_wstrb_i[1]},8{dmem_wstrb_i[0]}};
+    assign wdata_mask = {
+        {8{dmem_wstrb_i[3]}}, {8{dmem_wstrb_i[2]}}, {8{dmem_wstrb_i[1]}}, {8{dmem_wstrb_i[0]}}
+    };
     always_ff @(posedge clk) begin
         if (dmem_wen_i) begin
             mem[dmem_addr] <= (mem[dmem_addr] & ~wdata_mask) | (dmem_wdata_i & wdata_mask);
