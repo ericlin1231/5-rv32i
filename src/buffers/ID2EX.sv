@@ -1,6 +1,7 @@
 module ID2EX (
     /* System */
     input  logic          clk,
+    input  enable_t       stall_c_i,
     input  enable_t       flush_c_i,
     /* Input */
     /* EX stage */
@@ -77,6 +78,30 @@ module ID2EX (
             pc_next_o        <= DATA_UNKNOWN;
             reg_write_c_o    <= DISABLE;
             wb_data_sel_c_o  <= WB_DATA_SEL_UNKNOWN;
+        end else if (stall_c_i) begin
+            /* EX stage */
+            // data
+            pc_o             <= pc_o;
+            rs1_data_o       <= rs1_data_o;
+            rs2_data_o       <= rs2_data_o;
+            imm_o            <= imm_o;
+            // control
+            jump_c_o         <= jump_c_o;
+            branch_c_o       <= branch_c_o;
+            alu_src1_sel_c_o <= alu_src1_sel_c_o;
+            alu_src2_sel_c_o <= alu_src2_sel_c_o;
+            alu_op_c_o       <= alu_op_c_o;
+            cmp_op_c_o       <= cmp_op_cp_o;
+            // hazard detection
+            rd_o             <= rd_o;
+            rs1_o            <= rd1_o;
+            rs2_o            <= rs2_o;
+            /* MEM stage */
+            mem_write_c_o    <= mem_write_c_o;
+            /* WB stage */
+            pc_next_o        <= pc_next_o;
+            reg_write_c_o    <= reg_write_c_o;
+            wb_data_sel_c_o  <= wb_data_sel_c_o;
         end else begin
             /* EX stage */
             // data

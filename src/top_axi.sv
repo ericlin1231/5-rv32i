@@ -5,6 +5,78 @@ module top_axi (
     input logic ARESETn
 );
 
+    logic [  AXI_ADDR_BITS-1:0] ARADDR_M0;
+    logic                       ARVALID_M0;
+    logic                       ARREADY_M0;
+    logic [  AXI_DATA_BITS-1:0] RDATA_M0;
+    logic [                1:0] RRESP_M0;
+    logic                       RVALID_M0;
+    logic                       RREADY_M0;
+    logic [  AXI_ADDR_BITS-1:0] AWADDR_M0;
+    logic                       AWVALID_M0;
+    logic                       AWREADY_M0;
+    logic [  AXI_DATA_BITS-1:0] WDATA_M0;
+    logic [AXI_DATA_BITS/8-1:0] WSTRB_M0;
+    logic                       WVALID_M0;
+    logic                       WREADY_M0;
+    logic [                1:0] BRESP_M0;
+    logic                       BVALID_M0;
+    logic                       BREADY_M0;
+
+    logic [  AXI_ADDR_BITS-1:0] ARADDR_M1;
+    logic                       ARVALID_M1;
+    logic                       ARREADY_M1;
+    logic [  AXI_DATA_BITS-1:0] RDATA_M1;
+    logic [                1:0] RRESP_M1;
+    logic                       RVALID_M1;
+    logic                       RREADY_M1;
+    logic [  AXI_ADDR_BITS-1:0] AWADDR_M1;
+    logic                       AWVALID_M1;
+    logic                       AWREADY_M1;
+    logic [  AXI_DATA_BITS-1:0] WDATA_M1;
+    logic [AXI_DATA_BITS/8-1:0] WSTRB_M1;
+    logic                       WVALID_M1;
+    logic                       WREADY_M1;
+    logic [                1:0] BRESP_M1;
+    logic                       BVALID_M1;
+    logic                       BREADY_M1;
+
+    logic [  AXI_ADDR_BITS-1:0] ARADDR_S0;
+    logic                       ARVALID_S0;
+    logic                       ARREADY_S0;
+    logic [  AXI_DATA_BITS-1:0] RDATA_S0;
+    logic [                1:0] RRESP_S0;
+    logic                       RVALID_S0;
+    logic                       RREADY_S0;
+    logic [  AXI_ADDR_BITS-1:0] AWADDR_S0;
+    logic                       AWVALID_S0;
+    logic                       AWREADY_S0;
+    logic [  AXI_DATA_BITS-1:0] WDATA_S0;
+    logic [AXI_DATA_BITS/8-1:0] WSTRB_S0;
+    logic                       WVALID_S0;
+    logic                       WREADY_S0;
+    logic [                1:0] BRESP_S0;
+    logic                       BVALID_S0;
+    logic                       BREADY_S0;
+
+    logic [  AXI_ADDR_BITS-1:0] ARADDR_S1;
+    logic                       ARVALID_S1;
+    logic                       ARREADY_S1;
+    logic [  AXI_DATA_BITS-1:0] RDATA_S1;
+    logic [                1:0] RRESP_S1;
+    logic                       RVALID_S1;
+    logic                       RREADY_S1;
+    logic [  AXI_ADDR_BITS-1:0] AWADDR_S1;
+    logic                       AWVALID_S1;
+    logic                       AWREADY_S1;
+    logic [  AXI_DATA_BITS-1:0] WDATA_S1;
+    logic [AXI_DATA_BITS/8-1:0] WSTRB_S1;
+    logic                       WVALID_S1;
+    logic                       WREADY_S1;
+    logic [                1:0] BRESP_S1;
+    logic                       BVALID_S1;
+    logic                       BREADY_S1;
+
     axi_cpu_wrapper core_0 (
         .ACLK,
         .ARESETn,

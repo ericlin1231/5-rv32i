@@ -1,6 +1,7 @@
 module EX2MEM (
     /* System */
     input  logic         clk,
+    input  enable_t      stall_c_i,
     /* Input */
     input  data_t        alu_result_i,
     /* MEM stage */
@@ -24,13 +25,23 @@ module EX2MEM (
 );
 
     always_ff @(posedge clk) begin
-        alu_result_o     <= alu_result_i;
-        mem_write_c_o    <= mem_write_c_i;
-        mem_write_data_o <= mem_write_data_i;
-        rd_o             <= rd_i;
-        reg_write_c_o    <= reg_write_c_i;
-        wb_data_sel_c_o  <= wb_data_sel_c_i;
-        pc_next_o        <= pc_next_i;
+        if (stall_c_i) begin
+            alu_result_o     <= alu_result_o;
+            mem_write_c_o    <= mem_write_c_o;
+            mem_write_data_o <= mem_write_data_o;
+            rd_o             <= rd_o;
+            reg_write_c_o    <= reg_write_c_o;
+            wb_data_sel_c_o  <= wb_data_sel_c_o;
+            pc_next_o        <= pc_next_o;
+        end else begin
+            alu_result_o     <= alu_result_i;
+            mem_write_c_o    <= mem_write_c_i;
+            mem_write_data_o <= mem_write_data_i;
+            rd_o             <= rd_i;
+            reg_write_c_o    <= reg_write_c_i;
+            wb_data_sel_c_o  <= wb_data_sel_c_i;
+            pc_next_o        <= pc_next_i;
+        end
     end
 
 endmodule

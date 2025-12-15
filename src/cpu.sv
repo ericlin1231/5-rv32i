@@ -41,7 +41,7 @@ module cpu (
         /* System */
         .clk          (clk),
         /* Control */
-        .stall_c_i    (stall_c_if2id),
+        .stall_c_i    (stall_c_if2id | global_stall_c_i),
         .flush_c_i    (flush_c_if2id),
         /* Input */
         .pc_i         (if_stage_bus.pc),
@@ -125,6 +125,7 @@ module cpu (
     ID2EX ID2EX_buffer (
         /***** System *****/
         .clk             (clk),
+        .stall_c_i       (global_stall_c_i),
         .flush_c_i       (flush_c_id2ex),
         /***** Input *****/
         /* EX stage */
@@ -230,6 +231,7 @@ module cpu (
     EX2MEM EX2MEM_buffer (
         /* System */
         .clk             (clk),
+        .stall_c_i       (global_stall_c_i),
         /* Input */
         .alu_result_i    (alu_result_ex2buf),
         /* MEM stage */
@@ -298,6 +300,7 @@ module cpu (
     MEM2WB MEM2WB_buffer (
         /* System */
         .clk            (clk),
+        .stall_c_i      (global_stall_c_i),
         /* Input */
         // data
         .rd_i           (mem_wb_buf_in.rd),
