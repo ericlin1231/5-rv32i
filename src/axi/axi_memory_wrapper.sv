@@ -1,3 +1,5 @@
+import defs::*;
+
 module axi_memory_wrapper (
     input logic ACLK,
     input logic ARESETn,
@@ -55,6 +57,7 @@ module axi_memory_wrapper (
     logic [  AXI_ADDR_BITS-1:0] imem_addr;
     logic                       imem_ren;
     logic [  AXI_DATA_BITS-1:0] imem_data;
+    logic                       imem_resp_valid;
     /* slave 1 */
     logic [  AXI_ADDR_BITS-1:0] dmem_addr;
     logic                       dmem_ren;
@@ -62,10 +65,10 @@ module axi_memory_wrapper (
     logic                       dmem_wen;
     logic [AXI_DATA_BITS/8-1:0] dmem_wstrb;
     logic [  AXI_DATA_BITS-1:0] dmem_wdata;
+    logic                       dmem_resp_valid;
 
     memory mem0 (
-        .clk  (ACLK),
-        .rst_n(ARESETn),
+        .clk(ACLK),
 
         /* slave 0 port */
         .imem_addr_i(imem_addr),
@@ -80,5 +83,88 @@ module axi_memory_wrapper (
         .dmem_wstrb_i(dmem_wstrb),
         .dmem_wdata_i(dmem_wdata)
     );
+
+    /*------------------------- Slave 0 (imem) -------------------------*/
+    always_comb begin
+        ARREADY_S0 = 1'b1;
+        AWREADY_S0 = 1'b0;
+        WREADY_S0  = 1'b0;
+        BRESP_S0   = AXI_RESP_OKAY;
+        BVALID_S0  = 1'b0;
+
+        imem_addr = ARADDR_S0;
+    end
+
+    always_ff @(posedge ACLK or negedge ARESETn) begin
+        if (!ARESETn) begin
+            imem_ren        <= 1'b0;
+            imem_resp_valid <= 1'b0;
+            RVALID_S0       <= 1'b0;
+            RDATA_S0        <= '0;
+            RRESP_S0        <= AXI_RESP_OKAY;
+        end else begin
+            imem_ren        <= ARVALID_S0 && ARREADY_S0;
+            imem_resp_valid <= imem_ren;
+
+            if (imem_resp_valid) begin
+                RDATA_S0  <= imem_data;
+                RRESP_S0  <= AXI_RESP_OKAY;
+                RVALID_S0 <= 1'b1;
+            end else if (RVALID_S0 && RREADY_S0) begin
+                RVALID_S0 <= 1'b0;
+            end else if (RVALID_S0 && !RREADY_S0) begin
+                RVALID_S0 <= RVALID_S0;
+            end else begin
+                RVALID_S0 <= 1'b0;
+            end
+        end
+    end
+
+    /*------------------------- Slave 1 (dmem) -------------------------*/
+    always_comb begin
+        ARREADY_S1 = 1'b1;
+        AWREADY_S1 = 1'b1;
+        WREADY_S1  = 1'b1;
+
+        dmem_addr  = ARVALID_S1 ? ARADDR_S1 : AWADDR_S1;
+        dmem_wdata = WDATA_S1;
+        dmem_wstrb = WSTRB_S1;
+        dmem_wen   = (AWVALID_S1 && AWREADY_S1 && WVALID_S1 && WREADY_S1);
+    end
+
+    always_ff @(posedge ACLK or negedge ARESETn) begin
+        if (!ARESETn) begin
+            dmem_ren         <= 1'b0;
+            dmem_resp_valid  <= 1'b0;
+            RVALID_S1        <= 1'b0;
+            RDATA_S1         <= '0;
+            RRESP_S1         <= AXI_RESP_OKAY;
+            BRESP_S1         <= AXI_RESP_OKAY;
+            BVALID_S1        <= 1'b0;
+        end else begin
+            dmem_ren        <= ARVALID_S1 && ARREADY_S1;
+            dmem_resp_valid <= dmem_ren;
+
+            if (dmem_resp_valid) begin
+                RDATA_S1  <= dmem_rdata;
+                RRESP_S1  <= AXI_RESP_OKAY;
+                RVALID_S1 <= 1'b1;
+            end else if (RVALID_S1 && RREADY_S1) begin
+                RVALID_S1 <= 1'b0;
+            end else if (RVALID_S1 && !RREADY_S1) begin
+                RVALID_S1 <= RVALID_S1;
+            end else begin
+                RVALID_S1 <= 1'b0;
+            end
+
+            /* write response */
+            if (dmem_wen) begin
+                BRESP_S1  <= AXI_RESP_OKAY;
+                BVALID_S1 <= 1'b1;
+            end else if (BVALID_S1 && BREADY_S1) begin
+                BVALID_S1 <= 1'b0;
+            end
+        end
+    end
 
 endmodule
