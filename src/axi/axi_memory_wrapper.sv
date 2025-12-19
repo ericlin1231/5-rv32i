@@ -1,5 +1,3 @@
-import defs::*;
-
 module axi_memory_wrapper (
     input logic ACLK,
     input logic ARESETn,

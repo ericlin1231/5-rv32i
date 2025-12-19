@@ -1,5 +1,3 @@
-import defs::*;
-
 module top_axi (
     input logic ACLK,
     input logic ARESETn

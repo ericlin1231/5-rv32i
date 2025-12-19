@@ -12,6 +12,8 @@ module ID (
     output logic [XLEN-1:0] imm_o
 );
 
+  imm_sel_e imm_sel;
+
   always_comb begin
     opcode_o = inst_i.opcode;
 
@@ -99,7 +101,6 @@ module ID (
     endcase
   end
 
-  imm_sel_e imm_sel;
   ImmGen ImmGen_u (
       .imm_sel,
       .imm_i(inst_i[31:7]),

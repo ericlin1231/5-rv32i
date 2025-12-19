@@ -14,6 +14,7 @@ module memory (
     input  logic [     3:0] dmem_wstrb,
     input  logic [XLEN-1:0] dmem_wdata
 );
+  timeunit 1ns; timeprecision 1ps;
 
   localparam int unsigned ADDR_BITS = $clog2(MEM_SIZE);
   localparam int unsigned ADDR_MSB = ADDR_BITS + ADDR_SHIFT - 1;

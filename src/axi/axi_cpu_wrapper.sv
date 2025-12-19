@@ -1,5 +1,3 @@
-import defs::*;
-
 module axi_cpu_wrapper (
     input logic ACLK,
     input logic ARESETn,
@@ -63,6 +61,11 @@ module axi_cpu_wrapper (
   logic dmem_wen;
   logic [AXI_DATA_BITS/8-1:0] dmem_wstrb;
   logic [XLEN-1:0] dmem_wdata;
+
+  logic imem_req_pending;
+  logic dmem_read_pending;
+  logic dmem_write_pending;
+
   cpu core_0 (
       .ACLK,
       .ARESETn,
@@ -205,9 +208,6 @@ module axi_cpu_wrapper (
     BREADY_M0  = 1'b1;
   end
 
-  logic imem_req_pending;
-  logic dmem_read_pending;
-  logic dmem_write_pending;
   /* global stall when any transaction hasn't respond */
   logic imem_req_resp = (RVALID_M0 && RREADY_M0);
   always_comb begin

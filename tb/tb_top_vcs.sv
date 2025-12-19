@@ -1,8 +1,8 @@
-module tb_top;
-  string vcd_file;
+module tb_top_vcs;
+  timeunit 1ns; timeprecision 1ps;
 
-  logic  clk;
-  logic  rst_n;
+  logic clk;
+  logic rst_n;
 
   initial clk = 1'b0;
   always #5 clk = ~clk;
@@ -19,11 +19,8 @@ module tb_top;
   );
 
   initial begin
-    if (!$value$plusargs("VCD=%s", vcd_file)) begin
-      vcd_file = "wave.vcd";
-    end
-    $dumpfile(vcd_file);
-    $dumpvars(0, tb_top);
+    $fsdbDumpfile("wave.fsdb");
+    $fsdbDumpvars(0, dut);
   end
 
   initial begin
