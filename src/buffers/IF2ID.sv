@@ -1,32 +1,16 @@
 module IF2ID (
-    input  logic    ACLK,
-    input  logic    ARESETn,
-    /* Input */
-    input  enable_t stall_c_i,
-    input  enable_t flush_c_i,
-    input  data_t   pc_i,
-    input  data_t   pc_next_i,
-    input  data_t   instruction_i,
-    /* Output */
-    output data_t   pc_o,
-    output data_t   pc_next_o,
-    output data_t   instruction_o
+    input  logic       ACLK,
+    input  logic       ARESETn,
+    input  logic       stall_en_i,
+    input  logic       flush_en_i,
+    input  if_id_bus_t if_id_bus_in,
+    output if_id_bus_t if_id_bus_out
 );
 
     always_ff @(posedge ACLK or negedge ARESETn) begin
-        if (!ARESETn || flush_c_i) begin
-            pc_o          <= DATA_UNKNOWN;
-            pc_next_o     <= DATA_UNKNOWN;
-            instruction_o <= DATA_UNKNOWN;
-        end else if (stall_c_i) begin
-            pc_o          <= pc_o;
-            pc_next_o     <= pc_next_o;
-            instruction_o <= instruction_o;
-        end else begin
-            pc_o          <= pc_i;
-            pc_next_o     <= pc_next_i;
-            instruction_o <= instruction_i;
-        end
+        if (!ARESETn || flush_en_i) if_id_bus_out <= '0;
+        else if (stall_en_i) if_id_bus_out <= if_id_bus_out;
+        else if_id_bus_out <= if_id_bus_in;
     end
 
 endmodule

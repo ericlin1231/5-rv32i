@@ -1,20 +1,21 @@
 module WB (
-    /* Input */
-    input  wb_data_sel_t wb_data_sel_c_i,
-    input  data_t        alu_result_i,
-    input  data_t        mem_read_data_i,
-    input  data_t        pc_next_i,
-    /* Output */
-    output data_t        rd_data_o
+    // input
+    input wb_wdata_sel_e            wb_wdata_sel_i,
+    input logic          [XLEN-1:0] alu_result_i,
+    input logic          [XLEN-1:0] mem_rdata_i,
+    input logic          [XLEN-1:0] pc_next_i,
+
+    // output
+    output logic [XLEN-1:0] rd_wdata_o
 );
 
-    always_comb begin
-        unique case (wb_data_sel_c_i)
-            alu_result: rd_data_o = alu_result_i;
-            mem_read:   rd_data_o = mem_read_data_i;
-            pc_next:    rd_data_o = pc_next_i;
-            default:    rd_data_o = DATA_UNKNOWN;
-        endcase
-    end
+  always_comb begin
+    unique case (wb_wdata_sel_i)
+      alu_result: rd_wdata_o = alu_result_i;
+      mem_read:   rd_wdata_o = mem_rdata_i;
+      pc_next:    rd_wdata_o = pc_next_i;
+      default:    rd_wdata_o = '0;
+    endcase
+  end
 
 endmodule

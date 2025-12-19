@@ -1,25 +1,28 @@
 module RegFile (
-    /* System */
-    input  logic      ACLK,
-    /* Input */
-    input  enable_t   wen_c,
-    input  reg_addr_t rs1_i,
-    input  reg_addr_t rs2_i,
-    input  reg_addr_t rd_i,
-    input  data_t     rd_data_i,
-    /* Output */
-    output data_t     rs1_data_o,
-    output data_t     rs2_data_o
+    input logic ACLK,
+
+    // input
+    /********** write data to destination register ***/
+    input logic            wen,
+    input logic [     4:0] rd_idx,
+    input logic [XLEN-1:0] rd_wdata,
+    /********** get source register data *************/
+    input logic [     4:0] rs1_idx,
+    input logic [     4:0] rs2_idx,
+
+    // output
+    output logic [XLEN-1:0] rs1_data_o,
+    output logic [XLEN-1:0] rs2_data_o
 );
 
-    data_t regs[0:XLEN-1];
-    always_ff @(posedge ACLK) begin
-        if (wen_c & rd_i != 0) regs[rd_i] <= rd_data_i;
-    end
+  logic [XLEN-1:0] regs[32];
+  always_ff @(posedge ACLK) begin
+    if (wen & rd_idx != 0) regs[rd_idx] <= rd_wdata;
+  end
 
-    always_comb begin
-        rs1_data_o = (rs1_i != 0) ? regs[rs1_i] : 0;
-        rs2_data_o = (rs2_i != 0) ? regs[rs2_i] : 0;
-    end
+  always_comb begin
+    rs1_data_o = (rs1_idx != 0) ? regs[rs1_idx] : 0;
+    rs2_data_o = (rs2_idx != 0) ? regs[rs2_idx] : 0;
+  end
 
 endmodule

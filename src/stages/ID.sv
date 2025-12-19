@@ -1,132 +1,109 @@
 module ID (
-    /* Input */
-    input  data_t     instruction_i,
-    /* Output
-     * op, funct3, funct7 for control unit to determine control signal
-     */
-    output opcode_t   op_o,
-    output reg_addr_t rd_o,
-    output funct3_t   funct3_o,
-    output funct7_t   funct7_o,
-    output reg_addr_t rs1_o,
-    output reg_addr_t rs2_o,
-    output data_t     imm_o
+    // input
+    input inst_t inst_i,
+
+    // output
+    output logic [     6:0] funct7_o,
+    output logic [     4:0] rs2_idx_o,
+    output logic [     4:0] rs1_idx_o,
+    output logic [     2:0] funct3_o,
+    output logic [     4:0] rd_idx_o,
+    output logic [     6:0] opcode_o,
+    output logic [XLEN-1:0] imm_o
 );
 
-    opcode_t   op;
-    reg_addr_t rd;
-    funct3_t   funct3;
-    reg_addr_t rs1_idx;
-    reg_addr_t rs2_idx;
-    funct7_t   funct7;
-    imm_sel_t  imm_sel_c;
-    always_comb begin
-        op      = opcode_t'(instruction_i[6:0]);
-        rd      = reg_addr_t'(instruction_i[11:7]);
-        funct3  = funct3_t'(instruction_i[14:12]);
-        rs1_idx = reg_addr_t'(instruction_i[19:15]);
-        rs2_idx = reg_addr_t'(instruction_i[24:20]);
-        funct7  = funct7_t'(instruction_i[31:25]);
-        unique case (op)
-            LOAD:           imm_sel_c = IMM_I_TYPE;
-            STORE:          imm_sel_c = IMM_S_TYPE;
-            ARITHMETIC_IMM: imm_sel_c = IMM_I_TYPE;
-            ARITHMETIC_REG: imm_sel_c = IMM_UNKNOWN;
-            BRANCH:         imm_sel_c = IMM_B_TYPE;
-            JAL:            imm_sel_c = IMM_J_TYPE;
-            JALR:           imm_sel_c = IMM_I_TYPE;
-            AUIPC:          imm_sel_c = IMM_U_TYPE;
-            LUI:            imm_sel_c = IMM_U_TYPE;
-            default:        imm_sel_c = IMM_UNKNOWN;
-        endcase
-        unique case (op)
-            /* I Type */
-            LOAD: begin
-                rd_o     = rd;
-                funct3_o = funct3;
-                rs1_o    = rs1_idx;
-                rs2_o    = REG_UNKNOWN;
-                funct7_o = FUNCT7_UNKNOWN;
-            end
-            /* S Type */
-            STORE: begin
-                rd_o     = REG_UNKNOWN;
-                funct3_o = funct3;
-                rs1_o    = rs1_idx;
-                rs2_o    = rs2_idx;
-                funct7_o = FUNCT7_UNKNOWN;
-            end
-            /* I Type */
-            ARITHMETIC_IMM: begin
-                rd_o     = rd;
-                funct3_o = funct3;
-                rs1_o    = rs1_idx;
-                rs2_o    = REG_UNKNOWN;
-                funct7_o = FUNCT7_UNKNOWN;
-            end
-            /* R Type */
-            ARITHMETIC_REG: begin
-                rd_o     = rd;
-                funct3_o = funct3;
-                rs1_o    = rs1_idx;
-                rs2_o    = rs2_idx;
-                funct7_o = funct7;
-            end
-            /* B Type */
-            BRANCH: begin
-                rd_o     = REG_UNKNOWN;
-                funct3_o = funct3;
-                rs1_o    = rs1_idx;
-                rs2_o    = rs2_idx;
-                funct7_o = FUNCT7_UNKNOWN;
-            end
-            /* J Type */
-            JAL: begin
-                rd_o     = rd;
-                funct3_o = FUNCT3_UNKNOWN;
-                rs1_o    = REG_UNKNOWN;
-                rs2_o    = REG_UNKNOWN;
-                funct7_o = FUNCT7_UNKNOWN;
-            end
-            /* I Type */
-            JALR: begin
-                rd_o     = rd;
-                funct3_o = funct3;
-                rs1_o    = rs1_idx;
-                rs2_o    = REG_UNKNOWN;
-                funct7_o = FUNCT7_UNKNOWN;
-            end
-            /* U Type */
-            AUIPC: begin
-                rd_o     = rd;
-                funct3_o = FUNCT3_UNKNOWN;
-                rs1_o    = REG_UNKNOWN;
-                rs2_o    = REG_UNKNOWN;
-                funct7_o = FUNCT7_UNKNOWN;
-            end
-            /* U Type */
-            LUI: begin
-                rd_o     = rd;
-                funct3_o = FUNCT3_UNKNOWN;
-                rs1_o    = REG_UNKNOWN;
-                rs2_o    = REG_UNKNOWN;
-                funct7_o = FUNCT7_UNKNOWN;
-            end
-            default: begin
-                rd_o     = REG_UNKNOWN;
-                funct3_o = FUNCT3_UNKNOWN;
-                rs1_o    = REG_UNKNOWN;
-                rs2_o    = REG_UNKNOWN;
-                funct7_o = FUNCT7_UNKNOWN;
-            end
-        endcase
-        op_o = op;
-    end
+  always_comb begin
+    opcode_o = inst_i.opcode;
 
-    ImmGen ImmGen_u (
-        .imm_sel_c(imm_sel_c),
-        .imm_i    (instruction_i[31:7]),
-        .imm_o    (imm_o)
-    );
+    unique case (inst_i.opcode)
+      LOAD: begin
+        funct7_o  = '0;
+        rs2_idx_o = '0;
+        rs1_idx_o = inst_i.rs1_idx;
+        funct3_o  = inst_i.funct3;
+        rd_idx_o  = inst_i.rd_idx;
+        imm_sel   = IMM_I_TYPE;
+      end
+      STORE: begin
+        funct7_o  = '0;
+        rs2_idx_o = inst_i.rs2_idx;
+        rs1_idx_o = inst_i.rs1_idx;
+        funct3_o  = inst_i.funct3;
+        rd_idx_o  = '0;
+        imm_sel   = IMM_S_TYPE;
+      end
+      ARITHMETIC_IMM: begin
+        funct7_o  = '0;
+        rs2_idx_o = '0;
+        rs1_idx_o = inst_i.rs1_idx;
+        funct3_o  = inst_i.funct3;
+        rd_idx_o  = inst_i.rd_idx;
+        imm_sel   = IMM_I_TYPE;
+      end
+      ARITHMETIC_REG: begin
+        funct7_o  = inst_i.funct7;
+        rs2_idx_o = inst_i.rs2_idx;
+        rs1_idx_o = inst_i.rs1_idx;
+        funct3_o  = inst_i.funct3;
+        rd_idx_o  = inst_i.rd_idx;
+        imm_sel   = IMM_SEL_UNKNOWN;
+      end
+      BRANCH: begin
+        funct7_o  = '0;
+        rs2_idx_o = inst_i.rs2_idx;
+        rs1_idx_o = inst_i.rs1_idx;
+        funct3_o  = inst_i.funct3;
+        rd_idx_o  = '0;
+        imm_sel   = IMM_B_TYPE;
+      end
+      JAL: begin
+        funct7_o  = '0;
+        rs2_idx_o = '0;
+        rs1_idx_o = '0;
+        funct3_o  = '0;
+        rd_idx_o  = inst_i.rd_idx;
+        imm_sel   = IMM_J_TYPE;
+      end
+      JALR: begin
+        funct7_o  = '0;
+        rs2_idx_o = '0;
+        rs1_idx_o = inst_i.rs1_idx;
+        funct3_o  = inst_i.funct3;
+        rd_idx_o  = inst_i.rd_idx;
+        imm_sel   = IMM_I_TYPE;
+      end
+      AUIPC: begin
+        funct7_o  = '0;
+        rs2_idx_o = '0;
+        rs1_idx_o = '0;
+        funct3_o  = '0;
+        rd_idx_o  = inst_i.rd_idx;
+        imm_sel   = IMM_U_TYPE;
+      end
+      LUI: begin
+        funct7_o  = '0;
+        rs2_idx_o = '0;
+        rs1_idx_o = '0;
+        funct3_o  = '0;
+        rd_idx_o  = inst_i.rd_idx;
+        imm_sel   = IMM_U_TYPE;
+      end
+      default: begin
+        rd_idx_o  = '0;
+        funct3_o  = '0;
+        rs1_idx_o = '0;
+        rs2_idx_o = '0;
+        funct7_o  = '0;
+        imm_sel   = IMM_SEL_UNKNOWN;
+      end
+    endcase
+  end
+
+  imm_sel_e imm_sel;
+  ImmGen ImmGen_u (
+      .imm_sel,
+      .imm_i(inst_i[31:7]),
+      .imm_o
+  );
 
 endmodule

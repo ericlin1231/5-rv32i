@@ -1,388 +1,262 @@
 module cpu (
     input logic ACLK,
     input logic ARESETn,
-    input logic global_stall_c_i,
+    input logic global_stall_en,
 
-    /* Master 0 signal */
-    output addr_t   imem_addr_o,
-    output enable_t imem_ren_o,
-    input  data_t   imem_data_i,
-    input  logic    imem_raddr_handshake,
-    input  logic    imem_rdata_handshake,
+    /********** IMEM Master 0 Interface ******************/
+    output logic [XLEN-1:0] imem_addr,
+    output logic            imem_ren,
+    input  logic [XLEN-1:0] imem_rdata,
+    input  logic            imem_raddr_handshake,
+    input  logic            imem_rdata_handshake,
 
-    /* Master 1 signal */
-    output addr_t                         dmem_addr_o,
-    output enable_t                       dmem_wen_o,
-    output          [AXI_DATA_BITS/8-1:0] dmem_wstrb_o,
-    output data_t                         dmem_write_data_o,
-    output enable_t                       dmem_ren_o,
-    input  data_t                         dmem_read_data_i
+    /********** DMEM Master 1 Interface ******************/
+    output logic [           XLEN-1:0] dmem_addr,
+    output logic                       dmem_wen,
+    output       [AXI_DATA_BITS/8-1:0] dmem_wstrb,
+    output logic [           XLEN-1:0] dmem_wdata,
+    output logic                       dmem_ren,
+    input  logic [           XLEN-1:0] dmem_rdata
 );
 
-    /* Instruction Fetch Stage */
-    if_id_bus_t            if_stage_bus;
-    logic       [XLEN-1:0] current_pc;
-    logic       [XLEN-1:0] pc_keep;
-    IF IF_stage (
-        /* System */
-        .ACLK,
-        .ARESETn,
-        /* Control */
-        .stall_c_i    (stall_c_if | global_stall_c_i),
-        .jump_c_i     (jump_c_ex),
-        /* Input */
-        .instruction_i(imem_data_i),
-        .jump_addr_i  (pc_target_ex),
-        /* Output */
-        .instruction_o(if_stage_bus.instruction),
-        .pc_o         (current_pc),
-        .pc_next_o    (if_stage_bus.pc_next)
-    );
-    /* cpu output through AXI IMEM channel */
-    assign imem_addr_o = current_pc;
-    assign imem_ren_o  = ENABLE;
-    always_ff @(posedge ACLK or negedge ARESETn) begin
-        if (!ARESETn) pc_keep <= '0;
-        if (imem_raddr_handshake) begin
-            pc_keep <= current_pc;
-        end
-        if (imem_rdata_handshake) begin
-            if_stage_bus.pc <= pc_keep;
-        end
+  /********** IF ***************************************/
+  logic [XLEN-1:0] current_pc;
+  logic [XLEN-1:0] pc_keep;
+  IF IF_stage (
+      .ACLK,
+      .ARESETn,
+      .stall_en(stall_en_if | global_stall_en),
+      .jump_en (jump_en_ex),
+
+      // input
+      .inst_i     (imem_rdata),
+      .jump_addr_i(pc_target_ex),
+
+      // output
+      .inst_o   (if_id_bus_in.inst),
+      .pc_o     (current_pc),
+      .pc_next_o(if_id_bus_in.wb.pc_next)
+  );
+  /********** IMEM Master 0 Interface ******************/
+  assign imem_addr = current_pc;
+  assign imem_ren  = 1'b1;
+  always_ff @(posedge ACLK or negedge ARESETn) begin
+    if (!ARESETn) pc_keep <= '0;
+    if (imem_raddr_handshake) begin
+      pc_keep <= current_pc;
     end
-
-    /* Instruction Fetch to Instruction Decode Buffer */
-    if_id_bus_t if_id_bus;
-    IF2ID IF2ID_buffer (
-        /* System */
-        .ACLK,
-        .ARESETn,
-        /* Control */
-        .stall_c_i    (stall_c_if2id | global_stall_c_i),
-        .flush_c_i    (flush_c_if2id),
-        /* Input */
-        .pc_i         (if_stage_bus.pc),
-        .pc_next_i    (if_stage_bus.pc_next),
-        .instruction_i(if_stage_bus.instruction),
-        /* Output */
-        .pc_o         (if_id_bus.pc),
-        .pc_next_o    (if_id_bus.pc_next),
-        .instruction_o(if_id_bus.instruction)
-    );
-
-    /* Instruction Decode Stage */
-    opcode_t op_id2ctrl;
-    funct3_t funct3_id2ctrl;
-    funct7_t funct7_id2ctrl;
-    reg_addr_t rs1_idx, rs2_idx;
-    reg_addr_t rs1_id2reg, rs2_id2reg;
-    ID ID_stage (
-        /* Input */
-        .instruction_i(if_id_bus.instruction),
-        /* Output */
-        .op_o         (op_id2ctrl),
-        .funct7_o     (funct7_id2ctrl),
-        .funct3_o     (funct3_id2ctrl),
-        .rd_o         (id_ex_buf_in.rd),
-        .rs1_o        (rs1_idx),
-        .rs2_o        (rs2_idx),
-        .imm_o        (id_ex_buf_in.imm)
-    );
-    /* Pass pc, pc_next and redirect rs signal */
-    always_comb begin
-        id_ex_buf_in.pc      = if_id_bus.pc;
-        id_ex_buf_in.pc_next = if_id_bus.pc_next;
-        id_ex_buf_in.rs1     = rs1_idx;
-        rs1_id2reg           = rs1_idx;
-        id_ex_buf_in.rs2     = rs2_idx;
-        rs2_id2reg           = rs2_idx;
+    if (imem_rdata_handshake) begin
+      if_id_bus_in.ex.pc <= pc_keep;
     end
+  end
 
-    /* Register Files */
-    data_t rs1_data_reg2buf;
-    data_t rs2_data_reg2buf;
-    RegFile RegFile_u (
-        .ACLK,
-        /* Input */
-        .wen_c     (reg_write_c_wb),
-        .rs1_i     (rs1_id2reg),
-        .rs2_i     (rs2_id2reg),
-        .rd_i      (mem_wb_bus.rd),
-        .rd_data_i (rd_data_wb),
-        /* Output */
-        .rs1_data_o(rs1_data_reg2buf),
-        .rs2_data_o(rs2_data_reg2buf)
-    );
+  /********** IF-ID Buffer *****************************/
+  if_id_bus_t if_id_bus_in;
+  if_id_bus_t if_id_bus_out;
+  IF2ID IF2ID_buffer (
+      .ACLK,
+      .ARESETn,
+      .stall_en_i(stall_en_if2id | global_stall_en),
+      .flush_en_i(flush_en_if2id),
+      .if_id_bus_in,
+      .if_id_bus_out
+  );
 
-    /* Control Logic */
-    id_ex_bus_t id_ex_buf_in;
-    Control Control_u (
-        /* Input */
-        .op_i            (op_id2ctrl),
-        .funct3_i        (funct3_id2ctrl),
-        .funct7_i        (funct7_id2ctrl),
-        /* Output */
-        /* EX stage */
-        .jump_c_o        (id_ex_buf_in.jump_c),
-        .branch_c_o      (id_ex_buf_in.branch_c),
-        .alu_op_c_o      (id_ex_buf_in.alu_op_c),
-        .alu_src1_sel_c_o(id_ex_buf_in.alu_src1_sel_c),
-        .alu_src2_sel_c_o(id_ex_buf_in.alu_src2_sel_c),
-        .cmp_op_c_o      (id_ex_buf_in.cmp_op_c),
-        /* MEM stage */
-        .mem_read_c_o    (id_ex_buf_in.mem_read_c),
-        .mem_write_c_o   (id_ex_buf_in.mem_write_c),
-        /* WB stage */
-        .reg_write_c_o   (id_ex_buf_in.reg_write_c),
-        .wb_data_sel_c_o (id_ex_buf_in.wb_data_sel_c)
-    );
+  /********** ID ***************************************/
+  ID ID_stage (
+      // input
+      .inst_i(if_id_bus_out.inst),
 
-    /* Instruction Decode to Execution Buffer */
-    id_ex_bus_t id_ex_bus;
-    ID2EX ID2EX_buffer (
-        .ACLK,
-        .ARESETn,
-        .stall_c_i       (global_stall_c_i),
-        .flush_c_i       (flush_c_id2ex),
-        /***** Input *****/
-        /* EX stage */
-        // data
-        .pc_i            (id_ex_buf_in.pc),
-        .rs1_data_i      (rs1_data_reg2buf),
-        .rs2_data_i      (rs2_data_reg2buf),
-        .imm_i           (id_ex_buf_in.imm),
-        // control
-        .jump_c_i        (id_ex_buf_in.jump_c),
-        .branch_c_i      (id_ex_buf_in.branch_c),
-        .alu_op_c_i      (id_ex_buf_in.alu_op_c),
-        .alu_src1_sel_c_i(id_ex_buf_in.alu_src1_sel_c),
-        .alu_src2_sel_c_i(id_ex_buf_in.alu_src2_sel_c),
-        .cmp_op_c_i      (id_ex_buf_in.cmp_op_c),
-        // hazard detection
-        .rd_i            (id_ex_buf_in.rd),
-        .rs1_i           (id_ex_buf_in.rs1),
-        .rs2_i           (id_ex_buf_in.rs2),
-        /* MEM stage */
-        .mem_write_c_i   (id_ex_buf_in.mem_write_c),
-        .mem_read_c_i    (id_ex_buf_in.mem_read_c),
-        /* WB stage */
-        .pc_next_i       (id_ex_buf_in.pc_next),
-        .reg_write_c_i   (id_ex_buf_in.reg_write_c),
-        .wb_data_sel_c_i (id_ex_buf_in.wb_data_sel_c),
-        /***** Output *****/
-        /* EX stage */
-        // data
-        .pc_o            (id_ex_bus.pc),
-        .rs1_data_o      (id_ex_bus.rs1_data),
-        .rs2_data_o      (id_ex_bus.rs2_data),
-        .imm_o           (id_ex_bus.imm),
-        // control
-        .jump_c_o        (id_ex_bus.jump_c),
-        .branch_c_o      (id_ex_bus.branch_c),
-        .alu_op_c_o      (id_ex_bus.alu_op_c),
-        .alu_src1_sel_c_o(id_ex_bus.alu_src1_sel_c),
-        .alu_src2_sel_c_o(id_ex_bus.alu_src2_sel_c),
-        .cmp_op_c_o      (id_ex_bus.cmp_op_c),
-        // hazard detection
-        .rd_o            (id_ex_bus.rd),
-        .rs1_o           (id_ex_bus.rs1),
-        .rs2_o           (id_ex_bus.rs2),
-        /* MEM stage */
-        .mem_write_c_o   (id_ex_bus.mem_write_c),
-        .mem_read_c_o    (id_ex_bus.mem_read_c),
-        /* WB stage */
-        .pc_next_o       (id_ex_bus.pc_next),
-        .reg_write_c_o   (id_ex_bus.reg_write_c),
-        .wb_data_sel_c_o (id_ex_bus.wb_data_sel_c)
-    );
+      // output
+      .funct7_o (control.funct7),
+      .funct3_o (control.funct3),
+      .opcode_o (control.opcode),
+      .rs2_idx_o(id_ex_bus_in.rs2_idx),
+      .rs1_idx_o(id_ex_bus_in.rs1_idx),
+      .rd_idx_o (id_ex_bus_in.wb.rd_idx),
+      .imm_o    (id_ex_bus_in.ex.imm)
+  );
+  assign id_ex_bus_in.ex.pc      = if_id_bus_out.ex.pc;
+  assign id_ex_bus_in.wb.pc_next = if_id_bus_out.wb.pc_next;
 
-    /* Execute Stage */
-    enable_t      jump_c_ex;
-    enable_t      branch_taken_c_ex;
-    data_t        alu_result_ex2buf;
-    data_t        pc_target_ex;
-    enable_t      mem_read_c_ex2buf;
-    enable_t      mem_write_c_ex2buf;
-    data_t        mem_write_data_ex2buf;  /* from rs2 data */
-    reg_addr_t    rd_ex2buf;
-    enable_t      reg_write_c_ex2buf;
-    wb_data_sel_t wb_data_sel_c_ex2buf;
-    data_t        pc_next_ex2buf;
-    EX EX_stage (
-        /* Input */
-        // data
-        .pc_i                  (id_ex_bus.pc),
-        .rs1_data_i            (id_ex_bus.rs1_data),
-        .rs2_data_i            (id_ex_bus.rs2_data),
-        .imm_i                 (id_ex_bus.imm),
-        // forwarding data
-        .rs1_data_mem_forward_i(ex_mem_bus.alu_result),
-        .rs2_data_mem_forward_i(ex_mem_bus.alu_result),
-        .rs1_data_wb_forward_i (rd_data_wb),
-        .rs2_data_wb_forward_i (rd_data_wb),
-        // control
-        .alu_op_c_i            (id_ex_bus.alu_op_c),
-        .alu_rs1_data_sel_c_i  (alu_rs1_data_sel_c_ex),
-        .alu_rs2_data_sel_c_i  (alu_rs2_data_sel_c_ex),
-        .alu_src1_sel_c_i      (id_ex_bus.alu_src1_sel_c),
-        .alu_src2_sel_c_i      (id_ex_bus.alu_src2_sel_c),
-        .cmp_op_c_i            (id_ex_bus.cmp_op_c),
-        /* Output */
-        .alu_result_o          (alu_result_ex2buf),
-        .branch_taken_o        (branch_taken_c_ex),
-        .pc_target_o           (pc_target_ex)
-    );
-    /* redirection
-     * jump, branch control signal
-     * pc_next and mem write data (rs2 data)
-     */
-    always_comb begin
-        jump_c_ex = (id_ex_bus.branch_c & branch_taken_c_ex) | id_ex_bus.jump_c ? ENABLE : DISABLE;
-        mem_read_c_ex2buf = id_ex_bus.mem_read_c;
-        mem_write_c_ex2buf = id_ex_bus.mem_write_c;
-        mem_write_data_ex2buf = id_ex_bus.rs2_data;
-        rd_ex2buf = id_ex_bus.rd;
-        reg_write_c_ex2buf = id_ex_bus.reg_write_c;
-        wb_data_sel_c_ex2buf = id_ex_bus.wb_data_sel_c;
-        pc_next_ex2buf = id_ex_bus.pc_next;
-    end
+  /********** RegFile **********************************/
+  RegFile RegFile_u (
+      .ACLK,
 
-    /* Execute to Memory Buffer */
-    ex_mem_bus_t ex_mem_bus;
-    EX2MEM EX2MEM_buffer (
-        .ACLK,
-        .ARESETn,
-        .stall_c_i       (global_stall_c_i),
-        /* Input */
-        .alu_result_i    (alu_result_ex2buf),
-        /* MEM stage */
-        .mem_read_c_i    (mem_read_c_ex2buf),
-        .mem_write_c_i   (mem_write_c_ex2buf),
-        .mem_write_data_i(mem_write_data_ex2buf),
-        /* WB stage */
-        .rd_i            (rd_ex2buf),
-        .reg_write_c_i   (reg_write_c_ex2buf),
-        .wb_data_sel_c_i (wb_data_sel_c_ex2buf),
-        .pc_next_i       (pc_next_ex2buf),
-        /* Output */
-        .alu_result_o    (ex_mem_bus.alu_result),
-        /* MEM stage */
-        .mem_read_c_o    (ex_mem_bus.mem_read_c),
-        .mem_write_c_o   (ex_mem_bus.mem_write_c),
-        .mem_write_data_o(ex_mem_bus.mem_write_data),
-        /* WB stage */
-        .rd_o            (ex_mem_bus.rd),
-        .reg_write_c_o   (ex_mem_bus.reg_write_c),
-        .wb_data_sel_c_o (ex_mem_bus.wb_data_sel_c),
-        .pc_next_o       (ex_mem_bus.pc_next)
-    );
+      // input
+      /********** write data to destination register ***/
+      .rd_idx (mem_wb_bus_out.rd_idx),
+      .wen    (mem_wb_bus_out.reg_wen),
+      .rd_wdata,
+      /********** get source register data *************/
+      .rs1_idx(id_ex_bus_in.rs1_idx),
+      .rs2_idx(id_ex_bus_in.rs2_idx),
 
-    /* Memory Stage */
-    /* data pass to WB */
-    data_t                         mem_read_data_mem2buf;
-    data_t                         mem_addr_memstage;
-    enable_t                       mem_ren_memstage;
-    enable_t                       mem_wen_memstage;
-    logic    [AXI_DATA_BITS/8-1:0] mem_wstrb_memstage;
-    data_t                         mem_write_data_memstage;
-    /* control signal pass to WB */
-    MEM MEM_stage (
-        /* Input */
-        .mem_read_c_i    (ex_mem_bus.mem_read_c),
-        .mem_write_c_i   (ex_mem_bus.mem_write_c),
-        .mem_addr_i      (ex_mem_bus.alu_result),
-        .mem_write_data_i(ex_mem_bus.mem_write_data),
-        .mem_read_data_i (dmem_read_data_i),
-        /* Output */
-        .mem_addr_o      (mem_addr_memstage),
-        .mem_write_data_o(mem_write_data_memstage),
-        .mem_wen_o       (mem_wen_memstage),
-        .mem_wstrb_o     (mem_wstrb_memstage),
-        .mem_ren_o       (mem_ren_memstage),
-        .mem_read_data_o (mem_read_data_mem2buf)
-    );
-    /* CPU Output Port Pass Through AXI Wrapper */
-    assign dmem_addr_o       = mem_addr_memstage;
-    assign dmem_write_data_o = mem_write_data_memstage;
-    assign dmem_wen_o        = mem_wen_memstage;
-    assign dmem_wstrb_o      = mem_wstrb_memstage;
-    assign dmem_ren_o        = mem_ren_memstage;
-    /* WB stage signal redirection */
-    always_comb begin
-        mem_wb_buf_in.rd            = ex_mem_bus.rd;
-        mem_wb_buf_in.alu_result    = ex_mem_bus.alu_result;
-        mem_wb_buf_in.pc_next       = ex_mem_bus.pc_next;
-        mem_wb_buf_in.reg_write_c   = ex_mem_bus.reg_write_c;
-        mem_wb_buf_in.wb_data_sel_c = ex_mem_bus.wb_data_sel_c;
-    end
+      // output
+      .rs1_data_o(id_ex_bus_in.ex.rs1_data),
+      .rs2_data_o(id_ex_bus_in.ex.rs2_data)
+  );
 
-    /* Memory to Write Back Buffer */
-    mem_wb_bus_t mem_wb_bus;
-    mem_wb_bus_t mem_wb_buf_in;
-    MEM2WB MEM2WB_buffer (
-        .ACLK,
-        .ARESETn,
-        .stall_c_i      (global_stall_c_i),
-        /* Input */
-        // data
-        .rd_i           (mem_wb_buf_in.rd),
-        .alu_result_i   (mem_wb_buf_in.alu_result),
-        .pc_next_i      (mem_wb_buf_in.pc_next),
-        .mem_read_data_i(mem_read_data_mem2buf),
-        // control
-        .reg_write_c_i  (mem_wb_buf_in.reg_write_c),
-        .wb_data_sel_c_i(mem_wb_buf_in.wb_data_sel_c),
-        /* Output */
-        // data
-        .rd_o           (mem_wb_bus.rd),
-        .alu_result_o   (mem_wb_bus.alu_result),
-        .pc_next_o      (mem_wb_bus.pc_next),
-        .mem_read_data_o(mem_wb_bus.mem_read_data),
-        // control
-        .reg_write_c_o  (mem_wb_bus.reg_write_c),
-        .wb_data_sel_c_o(mem_wb_bus.wb_data_sel_c)
-    );
+  /********** Control **********************************/
+  control_t control;
+  Control Control_u (
+      // input
+      .funct7_i(control.funct7),
+      .funct3_i(control.funct3),
+      .opcode_i(control.opcode),
 
-    /* Write Back Stage */
-    /* signal pass to Register File */
-    enable_t reg_write_c_wb;
-    data_t   rd_data_wb;
-    WB WB_stage (
-        /* Input */
-        .wb_data_sel_c_i(mem_wb_bus.wb_data_sel_c),
-        .alu_result_i   (mem_wb_bus.alu_result),
-        .mem_read_data_i(mem_wb_bus.mem_read_data),
-        .pc_next_i      (mem_wb_bus.pc_next),
-        /* Output */
-        .rd_data_o      (rd_data_wb)
-    );
-    assign reg_write_c_wb = mem_wb_bus.reg_write_c;
+      // output
+      /********** EX ***********************************/
+      .jump_en_o     (id_ex_bus_in.ex.jump_en),
+      .branch_en_o   (id_ex_bus_in.ex.branch_en),
+      .alu_op_o      (id_ex_bus_in.ex.alu_op),
+      .alu_src1_sel_o(id_ex_bus_in.ex.alu_src1_sel),
+      .alu_src2_sel_o(id_ex_bus_in.ex.alu_src2_sel),
+      .cmp_op_o      (id_ex_bus_in.ex.cmp_op),
+      /********** MEM **********************************/
+      .mem_ren_o     (id_ex_bus_in.mem.mem_ren),
+      .mem_wen_o     (id_ex_bus_in.mem.mem_wen),
+      /********** WB ***********************************/
+      .reg_wen_o     (id_ex_bus_in.wb.reg_wen),
+      .wb_wdata_sel_o(id_ex_bus_in.wb.wb_wdata_sel)
+  );
 
-    /* Hazard Detection Unit */
-    enable_t       stall_c_if;
-    enable_t       stall_c_if2id;
-    enable_t       flush_c_if2id;
-    enable_t       flush_c_id2ex;
-    alu_data_sel_t alu_rs1_data_sel_c_ex;
-    alu_data_sel_t alu_rs2_data_sel_c_ex;
-    Hazard Hazard_u (
-        .rs1_id               (id_ex_buf_in.rs1),
-        .rs2_id               (id_ex_buf_in.rs2),
-        .rs1_ex               (id_ex_bus.rs1),
-        .rs2_ex               (id_ex_bus.rs2),
-        .rd_ex                (id_ex_bus.rd),
-        .jump_c_ex            (jump_c_ex),
-        .wb_data_sel_c_ex     (id_ex_bus.wb_data_sel_c),
-        .rd_mem               (ex_mem_bus.rd),
-        .reg_write_c_mem      (ex_mem_bus.reg_write_c),
-        .rd_wb                (mem_wb_bus.rd),
-        .reg_write_c_wb       (mem_wb_bus.reg_write_c),
-        .stall_c_if           (stall_c_if),
-        .stall_c_if2id        (stall_c_if2id),
-        .flush_c_if2id        (flush_c_if2id),
-        .flush_c_id2ex        (flush_c_id2ex),
-        .alu_rs1_data_sel_c_ex(alu_rs1_data_sel_c_ex),
-        .alu_rs2_data_sel_c_ex(alu_rs2_data_sel_c_ex)
-    );
+  /********** ID-EX Buffer *****************************/
+  id_ex_bus_t id_ex_bus_in;
+  id_ex_bus_t id_ex_bus_out;
+  ID2EX ID2EX_buffer (
+      .ACLK,
+      .ARESETn,
+      .stall_en(global_stall_en),
+      .flush_en(flush_en_id2ex),
+      .id_ex_bus_in,
+      .id_ex_bus_out
+  );
+
+  /********** EX ***************************************/
+  logic            jump_en_ex;
+  logic            branch_taken_en_ex;
+  logic [XLEN-1:0] pc_target_ex;
+  EX EX_stage (
+      // input
+      .pc_i                  (id_ex_bus_out.ex.pc),
+      .rs1_data_i            (id_ex_bus_out.ex.rs1_data),
+      .rs2_data_i            (id_ex_bus_out.ex.rs2_data),
+      .imm_i                 (id_ex_bus_out.ex.imm),
+      /********** data forward from MEM and WB *********/
+      .rs1_data_mem_forward_i(ex_mem_bus_out.alu_result),
+      .rs2_data_mem_forward_i(ex_mem_bus_out.alu_result),
+      .rs1_data_wb_forward_i (rd_wdata),
+      .rs2_data_wb_forward_i (rd_wdata),
+      /********** Control ******************************/
+      .alu_op_i              (id_ex_bus_out.ex.alu_op),
+      .alu_rs1_data_sel_i    (alu_rs1_data_sel_ex),
+      .alu_rs2_data_sel_i    (alu_rs2_data_sel_ex),
+      .alu_src1_sel_i        (id_ex_bus_out.ex.alu_src1_sel),
+      .alu_src2_sel_i        (id_ex_bus_out.ex.alu_src2_sel),
+      .cmp_op_i              (id_ex_bus_out.ex.cmp_op),
+
+      // output
+      .alu_result_o  (ex_mem_bus_in.alu_result),
+      .branch_taken_o(branch_taken_en_ex),
+      .pc_target_o   (pc_target_ex)
+  );
+  assign jump_en_ex = (id_ex_bus_out.ex.branch_en & branch_taken_en_ex) | id_ex_bus_out.ex.jump_en;
+  assign ex_mem_bus_in.mem.mem_ren = id_ex_bus_out.mem.mem_ren;
+  assign ex_mem_bus_in.mem.mem_wen = id_ex_bus_out.mem.mem_wen;
+  assign ex_mem_bus_in.mem.mem_wdata = id_ex_bus_out.ex.rs2_data;
+  assign ex_mem_bus_in.wb.rd_idx = id_ex_bus_out.wb.rd_idx;
+  assign ex_mem_bus_in.wb.reg_wen = id_ex_bus_out.wb.reg_wen;
+  assign ex_mem_bus_in.wb.wb_wdata_sel = id_ex_bus_out.wb.wb_wdata_sel;
+  assign ex_mem_bus_in.wb.pc_next = id_ex_bus_out.wb.pc_next;
+
+  /********** EX-MEM Buffer ****************************/
+  ex_mem_bus_t ex_mem_bus_in;
+  ex_mem_bus_t ex_mem_bus_out;
+  EX2MEM EX2MEM_buffer (
+      .ACLK,
+      .ARESETn,
+      .stall_en(global_stall_en),
+      .ex_mem_bus_in,
+      .ex_mem_bus_out
+  );
+
+  /********** MEM **************************************/
+  MEM MEM_stage (
+      // input
+      .mem_addr_i (ex_mem_bus_out.alu_result),
+      .mem_ren_i  (ex_mem_bus_out.mem.mem_ren),
+      .mem_rdata_i(dmem_rdata),
+      .mem_wen_i  (ex_mem_bus_out.mem.mem_wen),
+      .mem_wdata_i(ex_mem_bus_out.mem.mem_wdata),
+
+      // output
+      .mem_addr_o (dmem_addr),
+      .mem_ren_o  (dmem_ren),
+      .mem_rdata_o(mem_wb_bus_in.mem_rdata),
+      .mem_wen_o  (dmem_wen),
+      .mem_wstrb_o(dmem_wstrb),
+      .mem_wdata_o(dmem_wdata)
+  );
+  assign mem_wb_bus_in.rd_idx       = ex_mem_bus_out.wb.rd_idx;
+  assign mem_wb_bus_in.reg_wen      = ex_mem_bus_out.wb.reg_wen;
+  assign mem_wb_bus_in.wb_wdata_sel = ex_mem_bus_out.wb.wb_wdata_sel;
+  assign mem_wb_bus_in.pc_next      = ex_mem_bus_out.wb.pc_next;
+  assign mem_wb_bus_in.alu_result   = ex_mem_bus_out.alu_result;
+
+
+  /********** MEM-WB Buffer ****************************/
+  mem_wb_bus_t mem_wb_bus_in;
+  mem_wb_bus_t mem_wb_bus_out;
+  MEM2WB MEM2WB_buffer (
+      .ACLK,
+      .ARESETn,
+      .stall_en(global_stall_en),
+      .mem_wb_bus_in,
+      .mem_wb_bus_out
+  );
+
+  /********** WB ***************************************/
+  logic [XLEN-1:0] rd_wdata;
+  WB WB_stage (
+      // input
+      .wb_wdata_sel_i(mem_wb_bus_out.wb_wdata_sel),
+      .alu_result_i  (mem_wb_bus_out.alu_result),
+      .mem_rdata_i   (mem_wb_bus_out.mem_rdata),
+      .pc_next_i     (mem_wb_bus_out.pc_next),
+
+      // output
+      .rd_wdata_o(rd_wdata)
+  );
+
+  /********** Hazard Detection *************************/
+  logic          stall_en_if;
+  logic          stall_en_if2id;
+  logic          flush_en_if2id;
+  logic          flush_en_id2ex;
+  alu_data_sel_e alu_rs1_data_sel_ex;
+  alu_data_sel_e alu_rs2_data_sel_ex;
+  Hazard Hazard_u (
+      // input
+      .rs1_idx_id     (id_ex_bus_in.rs1_idx),
+      .rs2_idx_id     (id_ex_bus_in.rs2_idx),
+      .rs1_idx_ex     (id_ex_bus_out.rs1_idx),
+      .rs2_idx_ex     (id_ex_bus_out.rs2_idx),
+      .rd_idx_ex      (id_ex_bus_out.wb.rd_idx),
+      .jump_en_ex     (jump_en_ex),
+      .wb_wdata_sel_ex(id_ex_bus_out.wb.wb_wdata_sel),
+      .rd_idx_mem     (ex_mem_bus_out.wb.rd_idx),
+      .reg_wen_mem    (ex_mem_bus_out.wb.reg_wen),
+      .rd_idx_wb      (mem_wb_bus_out.rd_idx),
+      .reg_wen_wb     (mem_wb_bus_out.reg_wen),
+
+      // output
+      .stall_en_if,
+      .stall_en_if2id,
+      .flush_en_if2id,
+      .flush_en_id2ex,
+      .alu_rs1_data_sel_ex,
+      .alu_rs2_data_sel_ex
+  );
 
 endmodule

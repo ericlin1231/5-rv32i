@@ -1,51 +1,86 @@
 `ifndef CPU_BUFFER_BUS_SVH
 `define CPU_BUFFER_BUS_SVH
 
+/********** IF-ID *****************************************/
+typedef struct packed {logic [XLEN-1:0] pc;} if_pass_ex_t;
+
+typedef struct packed {logic [XLEN-1:0] pc_next;} if_pass_wb_t;
+
 typedef struct packed {
-    data_t instruction;
-    data_t pc;
-    data_t pc_next;
+  inst_t inst;
+  if_pass_ex_t ex;
+  if_pass_wb_t wb;
 } if_id_bus_t;
 
+/********** ID-EX ****************************************/
 typedef struct packed {
-    data_t         pc;
-    data_t         rs1_data;
-    data_t         rs2_data;
-    data_t         imm;
-    enable_t       jump_c;
-    enable_t       branch_c;
-    alu_op_t       alu_op_c;
-    alu_src1_sel_t alu_src1_sel_c;
-    alu_src2_sel_t alu_src2_sel_c;
-    cmp_op_t       cmp_op_c;
-    reg_addr_t     rd;
-    reg_addr_t     rs1;
-    reg_addr_t     rs2;
-    enable_t       mem_write_c;
-    enable_t       mem_read_c;
-    data_t         pc_next;
-    enable_t       reg_write_c;
-    wb_data_sel_t  wb_data_sel_c;
+  logic [XLEN-1:0] pc;
+  logic [XLEN-1:0] rs1_data;
+  logic [XLEN-1:0] rs2_data;
+  logic [XLEN-1:0] imm;
+  logic            jump_en;
+  logic            branch_en;
+  alu_op_e         alu_op;
+  alu_src1_sel_e   alu_src1_sel;
+  alu_src2_sel_e   alu_src2_sel;
+  cmp_op_e         cmp_op;
+} ex_signal_t;
+
+typedef struct packed {
+  logic mem_ren;
+  logic mem_wen;
+} id_pass_mem_t;
+
+typedef struct packed {
+  logic [4:0] rd_idx;
+  logic reg_wen;
+  wb_wdata_sel_e wb_wdata_sel;
+  logic [XLEN-1:0] pc_next;
+} id_pass_wb_t;
+
+typedef struct packed {
+  logic [4:0]   rs1_idx;
+  logic [4:0]   rs2_idx;
+  ex_signal_t   ex;
+  id_pass_mem_t mem;
+  id_pass_wb_t  wb;
 } id_ex_bus_t;
 
+/********** EX-MEM ***************************************/
 typedef struct packed {
-    data_t        alu_result;
-    enable_t      mem_read_c;
-    enable_t      mem_write_c;
-    data_t        mem_write_data;
-    reg_addr_t    rd;
-    enable_t      reg_write_c;
-    wb_data_sel_t wb_data_sel_c;
-    data_t        pc_next;
-} ex_mem_bus_t;
+  logic            mem_ren;
+  logic            mem_wen;
+  logic [XLEN-1:0] mem_wdata;
+} mem_signal_t;
 
 typedef struct packed {
-    reg_addr_t    rd;
-    data_t        alu_result;
-    data_t        pc_next;
-    data_t        mem_read_data;
-    enable_t      reg_write_c;
-    wb_data_sel_t wb_data_sel_c;
+  logic [4:0]      rd_idx;
+  logic            reg_wen;
+  wb_wdata_sel_e   wb_wdata_sel;
+  logic [XLEN-1:0] pc_next;
+} ex_pass_wb_t;
+
+typedef struct packed {
+  logic [XLEN-1:0] alu_result;  /* share with MEM and WB */
+  mem_signal_t mem;
+  ex_pass_wb_t wb;
+} ex_mem_bus_t;
+
+/********** MEM-WB ***************************************/
+typedef struct packed {
+  logic [4:0]      rd_idx;
+  logic            reg_wen;
+  wb_wdata_sel_e   wb_wdata_sel;
+  logic [XLEN-1:0] alu_result;
+  logic [XLEN-1:0] mem_rdata;
+  logic [XLEN-1:0] pc_next;
 } mem_wb_bus_t;
+
+/********** Other ****************************************/
+typedef struct packed {
+  logic [6:0] funct7;
+  logic [2:0] funct3;
+  logic [6:0] opcode;
+} control_t;
 
 `endif

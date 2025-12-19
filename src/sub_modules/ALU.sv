@@ -1,8 +1,8 @@
 module ALU (
-    input  alu_op_t alu_op_i,
-    input  data_t   data1_i,
-    input  data_t   data2_i,
-    output data_t   alu_result_o
+    input  alu_op_e            alu_op_i,
+    input  logic    [XLEN-1:0] data1_i,
+    input  logic    [XLEN-1:0] data2_i,
+    output logic    [XLEN-1:0] alu_result_o
 );
 
     always_comb begin
@@ -18,7 +18,7 @@ module ALU (
             SLT:     alu_result_o = $signed(data1_i) < $signed(data2_i) ? 32'd1 : 32'd0;
             SLTU:    alu_result_o = data1_i < data2_i ? 32'd1 : 32'd0;
             PASS:    alu_result_o = data2_i;  /* LUI */
-            default: alu_result_o = DATA_UNKNOWN;
+            default: alu_result_o = '0;
         endcase
     end
 
