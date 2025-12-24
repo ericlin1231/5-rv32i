@@ -1,4 +1,6 @@
-module IF (
+module IF
+  import CPU_profile::*;
+(
     input logic ACLK,
     input logic ARESETn,
     input logic stall_en,
@@ -13,9 +15,8 @@ module IF (
     output logic  [XLEN-1:0] pc_o,
     output logic  [XLEN-1:0] pc_next_o
 );
-
   always_ff @(posedge ACLK or negedge ARESETn) begin
-    if (!ACLK) pc_o <= 32'h00000000;
+    if (!ARESETn) pc_o <= 32'h00000000;
     else begin
       if (jump_en) pc_o <= jump_addr_i;
       else if (stall_en) pc_o <= pc_o;
@@ -26,5 +27,4 @@ module IF (
     inst_o    = inst_i;
     pc_next_o = pc_o + 32'd4;
   end
-
 endmodule

@@ -1,4 +1,7 @@
-module axi_cpu_wrapper (
+module axi_cpu_wrapper
+  import CPU_profile::*;
+  import AXI_define::*;
+(
     input logic ACLK,
     input logic ARESETn,
 
@@ -209,7 +212,8 @@ module axi_cpu_wrapper (
   end
 
   /* global stall when any transaction hasn't respond */
-  logic imem_req_resp = (RVALID_M0 && RREADY_M0);
+  logic imem_req_resp;
+  assign imem_req_resp = (RVALID_M0 && RREADY_M0);
   always_comb begin
     global_stall_en = (!imem_req_resp | dmem_read_pending | dmem_write_pending);
   end

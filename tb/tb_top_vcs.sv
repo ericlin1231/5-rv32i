@@ -1,30 +1,28 @@
 module tb_top_vcs;
-  timeunit 1ns; timeprecision 1ps;
+  logic ACLK;
+  logic ARESETn;
 
-  logic clk;
-  logic rst_n;
-
-  initial clk = 1'b0;
-  always #5 clk = ~clk;
+  initial ACLK = 1'b0;
+  always #5 ACLK = ~ACLK;
 
   initial begin
-    rst_n = 1'b0;
-    repeat (20) @(posedge clk);
-    rst_n = 1'b1;
+    ARESETn = 1'b0;
+    repeat (20) @(posedge ACLK);
+    ARESETn = 1'b1;
   end
 
-  top_axi dut (
-      .ACLK   (clk),
-      .ARESETn(rst_n)
+  top_axi TOP (
+      .ACLK,
+      .ARESETn
   );
 
   initial begin
     $fsdbDumpfile("wave.fsdb");
-    $fsdbDumpvars(0, dut);
+    $fsdbDumpvars(99, "+all", tb_top_vcs.TOP);
   end
 
   initial begin
-    repeat (200000) @(posedge clk);
+    repeat (200000) @(posedge ACLK);
     $display("[TB] Timeout reached, finishing.");
     $finish;
   end

@@ -1,4 +1,6 @@
-module ID2EX (
+module ID2EX
+  import CPU_buffer_bus::*;
+(
     input  logic       ACLK,
     input  logic       ARESETn,
     input  logic       stall_en,

@@ -1,30 +1,22 @@
-.DEFAULT_GOAL := sim
-
-DUT  ?= src/top_axi.sv
-TB   ?= tb/tb_top.sv
-SRCS := src/defs.sv
-SRCS += src/cpu.sv
+TB  := tb/tb_top_vcs.sv
+TOP := src/top_axi.sv
+SRCS := $(wildcard src/pkgs/*.sv)
 SRCS += $(wildcard src/axi/*.sv)
 SRCS += $(wildcard src/stages/*.sv)
 SRCS += $(wildcard src/buffers/*.sv)
 SRCS += $(wildcard src/sub_modules/*.sv)
 SRCS += $(wildcard src/peripheral/*.sv)
-SRCS += $(DUT)
+SRCS += src/cpu.sv
+SRCS += $(TB) $(TOP)
 
-PROG      ?= copy_arr
-IMEM      ?= prog/sims/$(PROG)_sim.hex
-VCD       ?= wave.vcd
-BUILD_DIR ?= build
-OBJ_DIR   := $(BUILD_DIR)/obj_dir
-SIM_BIN   := $(OBJ_DIR)/Vtb_top
+SIMULATOR := vcs
+COMPILE_OPTS := -q -R -sverilog $(SRCS) -debug_access+all -full64
+COMPILE_OPTS += +IMEM=prog/sims/copy_arr_sim.hex
+COMPILE_OPTS += +notimingcheck +error+1000
 
-SIMULATOR       := verilator
-INC_DIRS        := -Isrc
-VERILATOR_FLAGS := -sv --timing --trace --binary
-VERILATOR_FLAGS += -Wall -Wno-IMPORTSTAR -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM
-VERILATOR_FLAGS += $(INC_DIRS)
-VERILATOR_FLAGS += --Mdir $(OBJ_DIR)
-VERILATOR_FLAGS += --top-module tb_top
+VIEWER := verdi
+WAVE := wave.fsdb
+VIEWER_OPTS := -sswr signal.rc
 
 QEMU   := qemu-system-riscv32
 QFLAGS := -nographic -smp 1 -machine virt -bios none
@@ -32,31 +24,12 @@ QFLAGS := -nographic -smp 1 -machine virt -bios none
 GDB     := gdb
 GDBINIT := gdbinit
 
-FORMATTER      := verible-verilog-format
-FORMATTER_OPTS := --inplace
-FORMATTER_OPTS += --indentation_spaces=4
-FORMATTER_OPTS += --assignment_statement_alignment=align
-FORMATTER_OPTS += --port_declarations_alignment=align
-FORMATTER_OPTS += --named_port_alignment=align
-
-WAVE          := *.vcd
-VIEWER        := surfer
-VIEWER_SCRIPT := script.sucl
-
-.PHONY: format
-format:
-	$(FORMATTER) $(FORMATTER_OPTS) $(SRCS)
-
-sim: $(SIM_BIN)
-	@$(SIM_BIN) +IMEM=$(IMEM) +VCD=$(VCD)
-	@$(VIEWER) -c $(VIEWER_SCRIPT)
-
-$(SIM_BIN): $(SRCS) $(TB)
-	@mkdir -p $(BUILD_DIR)
-	$(SIMULATOR) $(VERILATOR_FLAGS) $(TB) $(SRCS)
+all: prog
+	$(SIMULATOR) $(COMPILE_OPTS)
+	$(VIEWER) $(VIEWER_OPTS) $(WAVE)
 
 .PHONY: debug
-debug: prog_debug
+debug: prog
 	@echo "------------------------------------"
 	@echo "Press Crtl-A and then X to exit QEMU"
 	@echo "------------------------------------"
@@ -65,7 +38,7 @@ debug: prog_debug
 .PHONY: gdb
 gdb:
 	@$(GDB) $(PROG_DEBUG_PATH) -q -x $(GDBINIT)
-	
-.PHONY: clean
-clean:
-	@rm -rf $(BUILD_DIR) $(WAVE)
+
+.PHONY: prog
+prog:
+	make -C prog

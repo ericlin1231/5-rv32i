@@ -1,4 +1,6 @@
-module Hazard (
+module Hazard
+  import decode::*;
+(
     // input
     input logic          [4:0] rs1_idx_id,
     input logic          [4:0] rs2_idx_id,

@@ -1,4 +1,7 @@
-module axi_memory_wrapper (
+module axi_memory_wrapper
+  import CPU_profile::*;
+  import AXI_define::*;
+(
     input logic ACLK,
     input logic ARESETn,
 

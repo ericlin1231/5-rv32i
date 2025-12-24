@@ -1,4 +1,6 @@
-module EX2MEM (
+module EX2MEM
+  import CPU_buffer_bus::*;
+(
     input  logic        ACLK,
     input  logic        ARESETn,
     input  logic        stall_en,
@@ -6,10 +8,10 @@ module EX2MEM (
     output ex_mem_bus_t ex_mem_bus_out
 );
 
-    always_ff @(posedge ACLK or negedge ARESETn) begin
-        if (!ARESETn) ex_mem_bus_out <= '0;
-        else if (stall_en) ex_mem_bus_out <= ex_mem_bus_out;
-        else ex_mem_bus_out <= ex_mem_bus_in;
-    end
+  always_ff @(posedge ACLK or negedge ARESETn) begin
+    if (!ARESETn) ex_mem_bus_out <= '0;
+    else if (stall_en) ex_mem_bus_out <= ex_mem_bus_out;
+    else ex_mem_bus_out <= ex_mem_bus_in;
+  end
 
 endmodule

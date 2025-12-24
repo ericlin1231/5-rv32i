@@ -1,0 +1,123 @@
+wvCreateWindow
+wvRestoreSignal -win $_nWave2 -openDumpFile "signal.rc" "wave.fsdb" \
+           -overWriteAutoAlias on -appendSignals on
+verdiSetActWin -win $_nWave2
+verdiWindowResize -win $_Verdi_1 "0" "0" "1920" "1052"
+verdiDockWidgetMaximize -dock windowDock_nWave_2
+wvSelectSignal -win $_nWave2 {( "IF" 5 )} 
+wvGetSignalOpen -win $_nWave2
+wvSetPosition -win $_nWave2 {("ID_EX" 3)}
+wvSetPosition -win $_nWave2 {("ID_EX" 3)}
+wvAddSignal -win $_nWave2 -clear
+wvAddSignal -win $_nWave2 -group {"System" \
+{/tb_top_vcs/TOP/core_0/core_0/ACLK} \
+{/tb_top_vcs/TOP/core_0/core_0/ARESETn} \
+{/tb_top_vcs/TOP/core_0/core_0/global_stall_en} \
+{/tb_top_vcs/TOP/core_0/imem_req_resp} \
+}
+wvAddSignal -win $_nWave2 -group {"AXI" \
+{/tb_top_vcs/TOP/AXI/ARADDR_M0\[31:0\]} \
+{/tb_top_vcs/TOP/AXI/ARREADY_M0} \
+{/tb_top_vcs/TOP/AXI/ARVALID_M0} \
+{/tb_top_vcs/TOP/AXI/RDATA_M0\[31:0\]} \
+{/tb_top_vcs/TOP/AXI/RREADY_M0} \
+{/tb_top_vcs/TOP/AXI/RVALID_M0} \
+}
+wvAddSignal -win $_nWave2 -group {"memory" \
+{/tb_top_vcs/TOP/mem0/mem0/imem_addr\[31:0\]} \
+{/tb_top_vcs/TOP/mem0/mem0/valid_imem_addr\[14:0\]} \
+{/tb_top_vcs/TOP/mem0/mem0/imem_ren} \
+{/tb_top_vcs/TOP/mem0/mem0/imem_rdata\[31:0\]} \
+{/tb_top_vcs/TOP/mem0/mem0/dmem_addr\[31:0\]} \
+{/tb_top_vcs/TOP/mem0/mem0/valid_dmem_addr\[14:0\]} \
+{/tb_top_vcs/TOP/mem0/mem0/dmem_ren} \
+{/tb_top_vcs/TOP/mem0/mem0/dmem_rdata\[31:0\]} \
+{/tb_top_vcs/TOP/mem0/mem0/dmem_wen} \
+{/tb_top_vcs/TOP/mem0/mem0/dmem_wstrb\[3:0\]} \
+{/tb_top_vcs/TOP/mem0/mem0/dmem_wdata\[31:0\]} \
+}
+wvAddSignal -win $_nWave2 -group {"IF" \
+{/tb_top_vcs/TOP/core_0/core_0/IF_stage/stall_en} \
+{/tb_top_vcs/TOP/core_0/core_0/IF_stage/jump_en} \
+{/tb_top_vcs/TOP/core_0/core_0/IF_stage/jump_addr_i\[31:0\]} \
+{/tb_top_vcs/TOP/core_0/core_0/IF_stage/pc_o\[31:0\]} \
+{/tb_top_vcs/TOP/core_0/core_0/IF_stage/pc_next_o\[31:0\]} \
+}
+wvAddSignal -win $_nWave2 -group {"IF_ID" \
+{/tb_top_vcs/TOP/core_0/core_0/IF2ID_buffer/flush_en_i} \
+{/tb_top_vcs/TOP/core_0/core_0/IF2ID_buffer/stall_en_i} \
+}
+wvAddSignal -win $_nWave2 -group {"ID" \
+{/tb_top_vcs/TOP/core_0/core_0/ID_stage/rd_idx_o\[4:0\]} \
+{/tb_top_vcs/TOP/core_0/core_0/ID_stage/rs1_idx_o\[4:0\]} \
+{/tb_top_vcs/TOP/core_0/core_0/ID_stage/rs2_idx_o\[4:0\]} \
+}
+wvAddSignal -win $_nWave2 -group {"ID_EX" \
+{/tb_top_vcs/TOP/core_0/core_0/ID2EX_buffer/flush_en} \
+{/tb_top_vcs/TOP/core_0/core_0/ID2EX_buffer/stall_en} \
+{/tb_top_vcs/TOP/core_0/core_0/ID2EX_buffer/id_ex_bus_in} \
+}
+wvAddSignal -win $_nWave2 -group {"G8" \
+}
+wvSelectSignal -win $_nWave2 {( "ID_EX" 3 )} 
+wvSetPosition -win $_nWave2 {("ID_EX" 3)}
+wvSetPosition -win $_nWave2 {("ID_EX" 3)}
+wvSetPosition -win $_nWave2 {("ID_EX" 3)}
+wvAddSignal -win $_nWave2 -clear
+wvAddSignal -win $_nWave2 -group {"System" \
+{/tb_top_vcs/TOP/core_0/core_0/ACLK} \
+{/tb_top_vcs/TOP/core_0/core_0/ARESETn} \
+{/tb_top_vcs/TOP/core_0/core_0/global_stall_en} \
+{/tb_top_vcs/TOP/core_0/imem_req_resp} \
+}
+wvAddSignal -win $_nWave2 -group {"AXI" \
+{/tb_top_vcs/TOP/AXI/ARADDR_M0\[31:0\]} \
+{/tb_top_vcs/TOP/AXI/ARREADY_M0} \
+{/tb_top_vcs/TOP/AXI/ARVALID_M0} \
+{/tb_top_vcs/TOP/AXI/RDATA_M0\[31:0\]} \
+{/tb_top_vcs/TOP/AXI/RREADY_M0} \
+{/tb_top_vcs/TOP/AXI/RVALID_M0} \
+}
+wvAddSignal -win $_nWave2 -group {"memory" \
+{/tb_top_vcs/TOP/mem0/mem0/imem_addr\[31:0\]} \
+{/tb_top_vcs/TOP/mem0/mem0/valid_imem_addr\[14:0\]} \
+{/tb_top_vcs/TOP/mem0/mem0/imem_ren} \
+{/tb_top_vcs/TOP/mem0/mem0/imem_rdata\[31:0\]} \
+{/tb_top_vcs/TOP/mem0/mem0/dmem_addr\[31:0\]} \
+{/tb_top_vcs/TOP/mem0/mem0/valid_dmem_addr\[14:0\]} \
+{/tb_top_vcs/TOP/mem0/mem0/dmem_ren} \
+{/tb_top_vcs/TOP/mem0/mem0/dmem_rdata\[31:0\]} \
+{/tb_top_vcs/TOP/mem0/mem0/dmem_wen} \
+{/tb_top_vcs/TOP/mem0/mem0/dmem_wstrb\[3:0\]} \
+{/tb_top_vcs/TOP/mem0/mem0/dmem_wdata\[31:0\]} \
+}
+wvAddSignal -win $_nWave2 -group {"IF" \
+{/tb_top_vcs/TOP/core_0/core_0/IF_stage/stall_en} \
+{/tb_top_vcs/TOP/core_0/core_0/IF_stage/jump_en} \
+{/tb_top_vcs/TOP/core_0/core_0/IF_stage/jump_addr_i\[31:0\]} \
+{/tb_top_vcs/TOP/core_0/core_0/IF_stage/pc_o\[31:0\]} \
+{/tb_top_vcs/TOP/core_0/core_0/IF_stage/pc_next_o\[31:0\]} \
+}
+wvAddSignal -win $_nWave2 -group {"IF_ID" \
+{/tb_top_vcs/TOP/core_0/core_0/IF2ID_buffer/flush_en_i} \
+{/tb_top_vcs/TOP/core_0/core_0/IF2ID_buffer/stall_en_i} \
+}
+wvAddSignal -win $_nWave2 -group {"ID" \
+{/tb_top_vcs/TOP/core_0/core_0/ID_stage/rd_idx_o\[4:0\]} \
+{/tb_top_vcs/TOP/core_0/core_0/ID_stage/rs1_idx_o\[4:0\]} \
+{/tb_top_vcs/TOP/core_0/core_0/ID_stage/rs2_idx_o\[4:0\]} \
+}
+wvAddSignal -win $_nWave2 -group {"ID_EX" \
+{/tb_top_vcs/TOP/core_0/core_0/ID2EX_buffer/flush_en} \
+{/tb_top_vcs/TOP/core_0/core_0/ID2EX_buffer/stall_en} \
+{/tb_top_vcs/TOP/core_0/core_0/ID2EX_buffer/id_ex_bus_in} \
+}
+wvAddSignal -win $_nWave2 -group {"G8" \
+}
+wvSelectSignal -win $_nWave2 {( "ID_EX" 3 )} 
+wvSetPosition -win $_nWave2 {("ID_EX" 3)}
+wvGetSignalClose -win $_nWave2
+wvCut -win $_nWave2
+wvSetPosition -win $_nWave2 {("G8" 0)}
+wvSetPosition -win $_nWave2 {("ID_EX" 2)}
+debExit

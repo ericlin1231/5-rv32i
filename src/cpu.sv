@@ -1,4 +1,9 @@
-module cpu (
+module cpu
+  import CPU_profile::*;
+  import CPU_buffer_bus::*;
+  import AXI_define::*;
+  import decode::*;
+(
     input logic ACLK,
     input logic ARESETn,
     input logic global_stall_en,
@@ -19,9 +24,39 @@ module cpu (
     input  logic [           XLEN-1:0] dmem_rdata
 );
 
+  // interconnect wire declaration
   /********** IF ***************************************/
-  logic [XLEN-1:0] current_pc;
-  logic [XLEN-1:0] pc_keep;
+  logic          [XLEN-1:0] current_pc;
+  logic          [XLEN-1:0] pc_keep;
+  /********** IF-ID Buffer *****************************/
+  if_id_bus_t               if_id_bus_in;
+  if_id_bus_t               if_id_bus_out;
+  /********** Control **********************************/
+  control_t                 control;
+  /********** ID-EX Buffer *****************************/
+  id_ex_bus_t               id_ex_bus_in;
+  id_ex_bus_t               id_ex_bus_out;
+  /********** EX ***************************************/
+  logic                     jump_en_ex;
+  logic                     branch_taken_en_ex;
+  logic          [XLEN-1:0] pc_target_ex;
+  /********** EX-MEM Buffer ****************************/
+  ex_mem_bus_t              ex_mem_bus_in;
+  ex_mem_bus_t              ex_mem_bus_out;
+  /********** MEM-WB Buffer ****************************/
+  mem_wb_bus_t              mem_wb_bus_in;
+  mem_wb_bus_t              mem_wb_bus_out;
+  /********** WB ***************************************/
+  logic          [XLEN-1:0] rd_wdata;
+  /********** Hazard detection *************************/
+  logic                     stall_en_if;
+  logic                     stall_en_if2id;
+  logic                     flush_en_if2id;
+  logic                     flush_en_id2ex;
+  alu_data_sel_e            alu_rs1_data_sel_ex;
+  alu_data_sel_e            alu_rs2_data_sel_ex;
+
+  /********** IF ***************************************/
   IF IF_stage (
       .ACLK,
       .ARESETn,
@@ -51,8 +86,6 @@ module cpu (
   end
 
   /********** IF-ID Buffer *****************************/
-  if_id_bus_t if_id_bus_in;
-  if_id_bus_t if_id_bus_out;
   IF2ID IF2ID_buffer (
       .ACLK,
       .ARESETn,
@@ -98,7 +131,6 @@ module cpu (
   );
 
   /********** Control **********************************/
-  control_t control;
   Control Control_u (
       // input
       .funct7_i(control.funct7),
@@ -122,8 +154,6 @@ module cpu (
   );
 
   /********** ID-EX Buffer *****************************/
-  id_ex_bus_t id_ex_bus_in;
-  id_ex_bus_t id_ex_bus_out;
   ID2EX ID2EX_buffer (
       .ACLK,
       .ARESETn,
@@ -134,9 +164,6 @@ module cpu (
   );
 
   /********** EX ***************************************/
-  logic            jump_en_ex;
-  logic            branch_taken_en_ex;
-  logic [XLEN-1:0] pc_target_ex;
   EX EX_stage (
       // input
       .pc_i                  (id_ex_bus_out.ex.pc),
@@ -171,8 +198,6 @@ module cpu (
   assign ex_mem_bus_in.wb.pc_next = id_ex_bus_out.wb.pc_next;
 
   /********** EX-MEM Buffer ****************************/
-  ex_mem_bus_t ex_mem_bus_in;
-  ex_mem_bus_t ex_mem_bus_out;
   EX2MEM EX2MEM_buffer (
       .ACLK,
       .ARESETn,
@@ -206,8 +231,6 @@ module cpu (
 
 
   /********** MEM-WB Buffer ****************************/
-  mem_wb_bus_t mem_wb_bus_in;
-  mem_wb_bus_t mem_wb_bus_out;
   MEM2WB MEM2WB_buffer (
       .ACLK,
       .ARESETn,
@@ -217,7 +240,6 @@ module cpu (
   );
 
   /********** WB ***************************************/
-  logic [XLEN-1:0] rd_wdata;
   WB WB_stage (
       // input
       .wb_wdata_sel_i(mem_wb_bus_out.wb_wdata_sel),
@@ -230,12 +252,6 @@ module cpu (
   );
 
   /********** Hazard Detection *************************/
-  logic          stall_en_if;
-  logic          stall_en_if2id;
-  logic          flush_en_if2id;
-  logic          flush_en_id2ex;
-  alu_data_sel_e alu_rs1_data_sel_ex;
-  alu_data_sel_e alu_rs2_data_sel_ex;
   Hazard Hazard_u (
       // input
       .rs1_idx_id     (id_ex_bus_in.rs1_idx),

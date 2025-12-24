@@ -1,7 +1,19 @@
-obj_dir/
+# waveform
+*.vcd
+*.fsdb
+
+# prog
 zig-out/
 .zig-cache/
-*.vcd
 *.elf
 *.bin
 *.hex
+
+# vcs & verdi
+*.log
+*.conf
+novas.rc
+ucli.key
+simv
+simv.daidir
+csrc

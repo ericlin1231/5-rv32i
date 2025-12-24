@@ -1,4 +1,6 @@
-module RegFile (
+module RegFile
+  import CPU_profile::*;
+(
     input logic ACLK,
 
     // input

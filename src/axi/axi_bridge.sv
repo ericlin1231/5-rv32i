@@ -1,4 +1,6 @@
-module axi_bridge (
+module axi_bridge
+  import AXI_define::*;
+(
     input logic ACLK,
     input logic ARESETn,
 
@@ -100,52 +102,52 @@ module axi_bridge (
     output logic                       BREADY_S1
 );
 
-    /* Master and slave 0 */
-    // read address channel
-    assign ARADDR_S0  = ARADDR_M0;
-    assign ARVALID_S0 = ARVALID_M0;
-    assign ARREADY_M0 = ARREADY_S0;
-    // read data channel
-    assign RDATA_M0   = RDATA_S0;
-    assign RRESP_M0   = RRESP_S0;
-    assign RVALID_M0  = RVALID_S0;
-    assign RREADY_S0  = RREADY_M0;
-    // write address channel
-    assign AWADDR_S0  = AWADDR_M0;
-    assign AWVALID_S0 = AWVALID_M0;
-    assign AWREADY_M0 = AWREADY_S0;
-    // write data channel
-    assign WDATA_S0   = WDATA_M0;
-    assign WSTRB_S0   = WSTRB_M0;
-    assign WVALID_S0  = WVALID_M0;
-    assign WREADY_M0  = WREADY_S0;
-    // write response channel
-    assign BRESP_M0   = BRESP_S0;
-    assign BVALID_M0  = BVALID_S0;
-    assign BREADY_S0  = BREADY_M0;
+  /* Master and slave 0 */
+  // read address channel
+  assign ARADDR_S0  = ARADDR_M0;
+  assign ARVALID_S0 = ARVALID_M0;
+  assign ARREADY_M0 = ARREADY_S0;
+  // read data channel
+  assign RDATA_M0   = RDATA_S0;
+  assign RRESP_M0   = RRESP_S0;
+  assign RVALID_M0  = RVALID_S0;
+  assign RREADY_S0  = RREADY_M0;
+  // write address channel
+  assign AWADDR_S0  = AWADDR_M0;
+  assign AWVALID_S0 = AWVALID_M0;
+  assign AWREADY_M0 = AWREADY_S0;
+  // write data channel
+  assign WDATA_S0   = WDATA_M0;
+  assign WSTRB_S0   = WSTRB_M0;
+  assign WVALID_S0  = WVALID_M0;
+  assign WREADY_M0  = WREADY_S0;
+  // write response channel
+  assign BRESP_M0   = BRESP_S0;
+  assign BVALID_M0  = BVALID_S0;
+  assign BREADY_S0  = BREADY_M0;
 
-    /* Master and slave 1 */
-    // read address channel
-    assign ARADDR_S1  = ARADDR_M1;
-    assign ARVALID_S1 = ARVALID_M1;
-    assign ARREADY_M1 = ARREADY_S1;
-    // read data channel
-    assign RDATA_M1   = RDATA_S1;
-    assign RRESP_M1   = RRESP_S1;
-    assign RVALID_M1  = RVALID_S1;
-    assign RREADY_S1  = RREADY_M1;
-    // write address channel
-    assign AWADDR_S1  = AWADDR_M1;
-    assign AWVALID_S1 = AWVALID_M1;
-    assign AWREADY_M1 = AWREADY_S1;
-    // write data channel
-    assign WDATA_S1   = WDATA_M1;
-    assign WSTRB_S1   = WSTRB_M1;
-    assign WVALID_S1  = WVALID_M1;
-    assign WREADY_M1  = WREADY_S1;
-    // write response channel
-    assign BRESP_M1   = BRESP_S1;
-    assign BVALID_M1  = BVALID_S1;
-    assign BREADY_S1  = BREADY_M1;
+  /* Master and slave 1 */
+  // read address channel
+  assign ARADDR_S1  = ARADDR_M1;
+  assign ARVALID_S1 = ARVALID_M1;
+  assign ARREADY_M1 = ARREADY_S1;
+  // read data channel
+  assign RDATA_M1   = RDATA_S1;
+  assign RRESP_M1   = RRESP_S1;
+  assign RVALID_M1  = RVALID_S1;
+  assign RREADY_S1  = RREADY_M1;
+  // write address channel
+  assign AWADDR_S1  = AWADDR_M1;
+  assign AWVALID_S1 = AWVALID_M1;
+  assign AWREADY_M1 = AWREADY_S1;
+  // write data channel
+  assign WDATA_S1   = WDATA_M1;
+  assign WSTRB_S1   = WSTRB_M1;
+  assign WVALID_S1  = WVALID_M1;
+  assign WREADY_M1  = WREADY_S1;
+  // write response channel
+  assign BRESP_M1   = BRESP_S1;
+  assign BVALID_M1  = BVALID_S1;
+  assign BREADY_S1  = BREADY_M1;
 
 endmodule

@@ -1,4 +1,6 @@
-module MEM2WB (
+module MEM2WB
+  import CPU_buffer_bus::*;
+(
     input  logic        ACLK,
     input  logic        ARESETn,
     input  logic        stall_en,

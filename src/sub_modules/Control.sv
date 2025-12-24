@@ -1,4 +1,6 @@
-module Control (
+module Control
+  import decode::*;
+(
     // input
     input logic [6:0] funct7_i,
     input logic [2:0] funct3_i,

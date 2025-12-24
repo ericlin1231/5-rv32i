@@ -1,4 +1,7 @@
-module EX (
+module EX
+  import CPU_profile::*;
+  import decode::*;
+(
     // input
     input logic          [XLEN-1:0] pc_i,
     input logic          [XLEN-1:0] rs1_data_i,

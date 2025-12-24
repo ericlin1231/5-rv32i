@@ -1,4 +1,7 @@
-module WB (
+module WB
+  import CPU_profile::*;
+  import decode::*;
+(
     // input
     input wb_wdata_sel_e            wb_wdata_sel_i,
     input logic          [XLEN-1:0] alu_result_i,

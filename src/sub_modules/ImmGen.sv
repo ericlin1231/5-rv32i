@@ -1,4 +1,7 @@
-module ImmGen (
+module ImmGen
+  import CPU_profile::*;
+  import decode::*;
+(
     input  imm_sel_e            imm_sel,
     input  logic     [XLEN-1:7] imm_i,
     output logic     [XLEN-1:0] imm_o

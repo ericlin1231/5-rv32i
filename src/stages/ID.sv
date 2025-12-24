@@ -1,4 +1,7 @@
-module ID (
+module ID
+  import CPU_profile::*;
+  import decode::*;
+(
     // input
     input inst_t inst_i,
 
