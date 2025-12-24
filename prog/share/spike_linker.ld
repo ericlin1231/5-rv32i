@@ -36,8 +36,16 @@ SECTIONS
     
     .signature (NOLOAD): ALIGN(16) {
         PROVIDE(begin_signature = .);
-        . = . + 1024;
+        . = . + 16;
         PROVIDE(end_signature = .);
+    } > dmem
+
+    .tohost : ALIGN(8) {
+        PROVIDE(tohost = .);
+    } > dmem
+
+    .fromhost : ALIGN(8) {
+        KEEP(*(.fromhost));
     } > dmem
 
     .stack (NOLOAD) : ALIGN(16) {

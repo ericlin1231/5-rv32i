@@ -1,3 +1,5 @@
+ISA := rv32i
+
 TB  := tb/tb_top_vcs.sv
 TOP := src/top_axi.sv
 SRCS := $(wildcard src/pkgs/*.sv)
@@ -28,8 +30,18 @@ all: prog sim
 	$(VIEWER) $(VIEWER_OPTS) $(WAVE)
 
 .PHONY: sim
-sim:
+sim: prog
 	$(SIMULATOR) $(COMPILE_OPTS)
+
+SPIKE_ELF_BASE := 0x80000000
+SPIKE_ELF_SIZE := 0x20000
+.PHONY: golden
+golden: prog
+	spike -l -m$(SPIKE_ELF_BASE):$(SPIKE_ELF_SIZE) --isa=$(ISA) +signature=golden.sig --signature=golden.sig prog/spikes/copy_arr_spike
+	xxd -r -p golden.sig sig.raw
+	xxd -p -c 4 sig.raw > golden.sig
+	mkdir -p golden
+	mv golden.sig golden
 
 .PHONY: debug
 debug: prog
@@ -45,3 +57,7 @@ gdb:
 .PHONY: prog
 prog:
 	make -C prog
+
+.PHONY: clean
+clean:
+	@rm -rf golden

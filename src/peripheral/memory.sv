@@ -33,8 +33,8 @@ module memory
 
   final begin
     int unsigned base = 32'h10000;
-    int unsigned size = 32'h400;
-    for (int unsigned i = base; i <= base + size; i += 4) begin
+    int unsigned size = 32'd16;
+    for (int unsigned i = base; i < base + size; i += 4) begin
       $display("mem[%0h]: %0h", i, mem[i]);
     end
   end

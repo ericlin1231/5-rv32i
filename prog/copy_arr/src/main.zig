@@ -1,6 +1,15 @@
 extern var begin_signature: usize;
 extern var end_signature: usize;
 
+pub export var tohost: u64 linksection(".tohost") = 0;
+pub export var fromhost: u64 linksection(".fromhost") = 0;
+
+fn spike_exit(status: usize) noreturn {
+    const ptr: *volatile u64 = @ptrCast(&tohost);
+    ptr.* = @as(u64, status);
+    while (true) {}
+}
+
 pub export fn main() noreturn {
     const start: usize = @intFromPtr(&begin_signature);
     const end: usize = @intFromPtr(&end_signature);
@@ -14,5 +23,5 @@ pub export fn main() noreturn {
         p[i] = 0xDEADBEEF;
     }
 
-    while (true) {}
+    spike_exit(1);
 }
