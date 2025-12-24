@@ -1,3 +1,0 @@
-Command Line: /usr/cad/synopsys/verdi/2024.09-sp2/platform/LINUXAMD64/bin/Novas -sswr signal.rc wave.fsdb
-uname(Linux localhost.localdomain 4.18.0-348.7.1.el8_5.x86_64 #1 SMP Wed Dec 22 13:25:12 UTC 2021 x86_64)
-Disabled AskUser2 Message (Response 0): Overwrite /home/eric1231/code/5-rv32i/signal.rc?
