@@ -2,7 +2,7 @@ Magic 271485
 Revision Verdi_W-2024.09-SP2
 
 ; Window Layout <x> <y> <width> <height> <signalwidth> <valuewidth>
-viewPort 0 25 1920 958 342 65
+viewPort 0 29 1920 946 342 65
 
 ; File list:
 ; openDirFile [-d delimiter] [-s time_offset] [-rf auto_bus_rule_file] path_name file_name
@@ -16,16 +16,27 @@ signalSpacing 5
 
 ; windowTimeUnit is used for zoom, cursor & marker
 ; waveform viewport range
-zoom 300.135218 487.549563
-cursor 395.000000
+zoom 379.139559 566.553904
+cursor 464.84349610327
 marker 0.000000
 
 ; user define markers
 ; userMarker time_pos marker_name color linestyle
+userMarker 464.97 "valid inst come after jump" ID_GREEN5 long_dashed
+userMarker 385.155 "first jump" ID_GREEN5 long_dashed
+userMarker 395.194 "send wrong IMEM address" ID_GREEN5 long_dashed
+userMarker 415.109 "wrong instruction valid" ID_GREEN5 long_dashed
+
 ; visible top row signal index
-top 0
+top 7
 ; marker line index
-markerPos 29
+markerPos 34
+
+; rename signal list
+; addRenameSig new_name org_name
+activeDirFile "" "/home/eric1231/code/5-rv32i/wave.fsdb"
+
+addRenameSig "/tb_top_vcs/TOP/core_0/core_0/EX2MEM_buffer/EX-MEM" "/tb_top_vcs/TOP/core_0/core_0/EX2MEM_buffer/stall_en"
 
 ; event list
 ; addEvent event_name event_expression
@@ -80,6 +91,7 @@ addSignal -h 15 /tb_top_vcs/TOP/core_0/core_0/IF2ID_buffer/if_id_bus_in.inst
 addGroup "IF_ID"
 addSignal -h 15 /tb_top_vcs/TOP/core_0/core_0/IF2ID_buffer/flush_en_i
 addSignal -h 15 -holdScope stall_en_i
+addSignal -h 15 -holdScope if_id_bus_out.inst
 addGroup "ID"
 addSignal -h 15 -UNSIGNED -HEX /tb_top_vcs/TOP/core_0/core_0/ID_stage/rd_idx_o[4:0]
 addSignal -h 15 -UNSIGNED -HEX -holdScope rs1_idx_o[4:0]
@@ -87,7 +99,29 @@ addSignal -h 15 -UNSIGNED -HEX -holdScope rs2_idx_o[4:0]
 addGroup "ID_EX"
 addSignal -h 15 /tb_top_vcs/TOP/core_0/core_0/ID2EX_buffer/flush_en
 addSignal -h 15 -holdScope stall_en
-addGroup "G8"
+addGroup "EX"
+addSignal -h 15 -UNSIGNED /tb_top_vcs/TOP/core_0/core_0/EX_stage/alu_op_i[3:0]
+addSignal -h 15 -UNSIGNED -UDEC -holdScope alu_result_o[31:0]
+addSignal -h 15 -UNSIGNED -UDEC -holdScope src1_data[31:0]
+addSignal -h 15 -UNSIGNED -UDEC -holdScope src2_data[31:0]
+addSignal -h 15 -holdScope branch_taken_o
+addSignal -h 15 -UNSIGNED -HEX -holdScope pc_target_o[31:0]
+addGroup "EX-MEM"
+addSignal -h 15 /tb_top_vcs/TOP/core_0/core_0/EX2MEM_buffer/EX-MEM
+addSignal -h 15 -holdScope ex_mem_bus_in
+addGroup "MEM"
+addSignal -h 15 -UNSIGNED -HEX /tb_top_vcs/TOP/core_0/core_0/MEM_stage/mem_addr_o[31:0]
+addSignal -h 15 -holdScope mem_ren_o
+addSignal -h 15 -UNSIGNED -HEX -holdScope mem_rdata_i[31:0]
+addSignal -h 15 -holdScope mem_wen_o
+addSignal -h 15 -UNSIGNED -HEX -holdScope mem_wstrb_o[3:0]
+addSignal -h 15 -UNSIGNED -HEX -holdScope mem_wdata_o[31:0]
+addGroup "MEM-WB"
+addSignal -h 15 /tb_top_vcs/TOP/core_0/core_0/MEM2WB_buffer/stall_en
+addSignal -h 15 -holdScope mem_wb_bus_in
+addGroup "WB"
+addSignal -h 15 -UNSIGNED -HEX /tb_top_vcs/TOP/core_0/core_0/WB_stage/rd_wdata_o[31:0]
+addGroup "G13"
 
 ; getSignalForm Scope Hierarchy Status
 ; active file of getSignalForm
@@ -101,10 +135,15 @@ getSignalForm close
 "/tb_top_vcs/TOP/AXI"
 "/tb_top_vcs/TOP/core_0"
 "/tb_top_vcs/TOP/core_0/core_0"
+"/tb_top_vcs/TOP/core_0/core_0/EX2MEM_buffer"
+"/tb_top_vcs/TOP/core_0/core_0/EX_stage"
 "/tb_top_vcs/TOP/core_0/core_0/ID2EX_buffer"
 "/tb_top_vcs/TOP/core_0/core_0/ID_stage"
 "/tb_top_vcs/TOP/core_0/core_0/IF2ID_buffer"
 "/tb_top_vcs/TOP/core_0/core_0/IF_stage"
+"/tb_top_vcs/TOP/core_0/core_0/MEM2WB_buffer"
+"/tb_top_vcs/TOP/core_0/core_0/MEM_stage"
+"/tb_top_vcs/TOP/core_0/core_0/WB_stage"
 "/tb_top_vcs/TOP/mem0"
 
 SCOPE_LIST_BEGIN
@@ -119,6 +158,11 @@ SCOPE_LIST_BEGIN
 "/tb_top_vcs/TOP/core_0/core_0/IF2ID_buffer"
 "/tb_top_vcs/TOP/core_0/core_0/ID_stage"
 "/tb_top_vcs/TOP/core_0/core_0/ID2EX_buffer"
+"/tb_top_vcs/TOP/core_0/core_0/EX_stage"
+"/tb_top_vcs/TOP/core_0/core_0/EX2MEM_buffer"
+"/tb_top_vcs/TOP/core_0/core_0/MEM_stage"
+"/tb_top_vcs/TOP/core_0/core_0/MEM2WB_buffer"
+"/tb_top_vcs/TOP/core_0/core_0/WB_stage"
 SCOPE_LIST_END
 
 GETSIGNALFORM_SCOPE_HIERARCHY_END

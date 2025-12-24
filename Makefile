@@ -24,9 +24,12 @@ QFLAGS := -nographic -smp 1 -machine virt -bios none
 GDB     := gdb
 GDBINIT := gdbinit
 
-all: prog
-	$(SIMULATOR) $(COMPILE_OPTS)
+all: prog sim
 	$(VIEWER) $(VIEWER_OPTS) $(WAVE)
+
+.PHONY: sim
+sim:
+	$(SIMULATOR) $(COMPILE_OPTS)
 
 .PHONY: debug
 debug: prog

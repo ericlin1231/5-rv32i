@@ -18,11 +18,11 @@ module tb_top_vcs;
 
   initial begin
     $fsdbDumpfile("wave.fsdb");
-    $fsdbDumpvars(99, "+all", tb_top_vcs.TOP);
+    $fsdbDumpvars("+struct", tb_top_vcs.TOP);
   end
 
   initial begin
-    repeat (200000) @(posedge ACLK);
+    repeat (1000) @(posedge ACLK);
     $display("[TB] Timeout reached, finishing.");
     $finish;
   end

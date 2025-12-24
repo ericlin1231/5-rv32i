@@ -28,6 +28,10 @@ module cpu
   /********** IF ***************************************/
   logic          [XLEN-1:0] current_pc;
   logic          [XLEN-1:0] pc_keep;
+  /* until valid instuction after jump coming
+   * the IF-ID buffer should always flush
+   */
+  logic                     jump_penalty;
   /********** IF-ID Buffer *****************************/
   if_id_bus_t               if_id_bus_in;
   if_id_bus_t               if_id_bus_out;
@@ -62,6 +66,8 @@ module cpu
       .ARESETn,
       .stall_en(stall_en_if | global_stall_en),
       .jump_en (jump_en_ex),
+      .imem_rdata_handshake,
+      .jump_penalty,
 
       // input
       .inst_i     (imem_rdata),
@@ -90,7 +96,7 @@ module cpu
       .ACLK,
       .ARESETn,
       .stall_en_i(stall_en_if2id | global_stall_en),
-      .flush_en_i(flush_en_if2id),
+      .flush_en_i(flush_en_if2id | jump_penalty),
       .if_id_bus_in,
       .if_id_bus_out
   );

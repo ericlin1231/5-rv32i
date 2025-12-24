@@ -31,6 +31,14 @@ module memory
     end
   end
 
+  final begin
+    int unsigned base = 32'h10000;
+    int unsigned size = 32'h400;
+    for (int unsigned i = base; i <= base + size; i += 4) begin
+      $display("mem[%0h]: %0h", i, mem[i]);
+    end
+  end
+
   /* effective address */
   logic [ADDR_BITS-1:0] valid_imem_addr;
   logic [ADDR_BITS-1:0] valid_dmem_addr;
