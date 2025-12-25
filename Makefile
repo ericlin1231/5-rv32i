@@ -14,7 +14,7 @@ SRCS += $(TB) $(TOP)
 SIMULATOR := vcs
 COMPILE_OPTS := -q -R -sverilog $(SRCS) -debug_access+all -full64
 COMPILE_OPTS += +IMEM=prog/sims/copy_arr_sim.hex +define+DEBUG
-COMPILE_OPTS += +notimingcheck +error+1000
+COMPILE_OPTS += +notimingcheck +error+1000 +lint=TFIPC-L
 
 VIEWER := verdi
 WAVE := wave.fsdb
@@ -27,7 +27,7 @@ GDB     := gdb
 GDBINIT := gdbinit
 
 all: prog sim
-	$(VIEWER) $(VIEWER_OPTS) $(WAVE)
+	@$(VIEWER) $(VIEWER_OPTS) $(WAVE)
 
 .PHONY: sim
 sim: prog
@@ -57,7 +57,7 @@ gdb:
 
 .PHONY: prog
 prog:
-	make -C prog
+	@make -C prog
 
 .PHONY: clean
 clean:

@@ -26,6 +26,7 @@ module cpu
   // debug pipelined signal declaration
 `ifdef DEBUG
   /********** DEBUG ID *********************************/
+  if_id_bus_debug_t  if_id_bus_in_debug;
   if_id_bus_debug_t  if_id_bus_out_debug;
   /********** DEBUG EX *********************************/
   id_ex_bus_debug_t  id_ex_bus_in_debug;
@@ -110,7 +111,7 @@ module cpu
   end
 
   /********** IF-ID Buffer *****************************/
-  assign if_id_bus_in.inst = if_id_bus_in.inst;
+  assign if_id_bus_in_debug.inst = if_id_bus_in.inst;
   IF2ID IF2ID_buffer (
       .ACLK,
       .ARESETn,
