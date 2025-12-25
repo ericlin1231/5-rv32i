@@ -13,7 +13,7 @@ SRCS += $(TB) $(TOP)
 
 SIMULATOR := vcs
 COMPILE_OPTS := -q -R -sverilog $(SRCS) -debug_access+all -full64
-COMPILE_OPTS += +IMEM=prog/sims/copy_arr_sim.hex
+COMPILE_OPTS += +IMEM=prog/sims/copy_arr_sim.hex +define+DEBUG
 COMPILE_OPTS += +notimingcheck +error+1000
 
 VIEWER := verdi
@@ -37,11 +37,12 @@ SPIKE_ELF_BASE := 0x80000000
 SPIKE_ELF_SIZE := 0x20000
 .PHONY: golden
 golden: prog
-	spike -l -m$(SPIKE_ELF_BASE):$(SPIKE_ELF_SIZE) --isa=$(ISA) +signature=golden.sig --signature=golden.sig prog/spikes/copy_arr_spike
-	xxd -r -p golden.sig sig.raw
-	xxd -p -c 4 sig.raw > golden.sig
-	mkdir -p golden
-	mv golden.sig golden
+	@spike -l -m$(SPIKE_ELF_BASE):$(SPIKE_ELF_SIZE) --isa=$(ISA) +signature=golden.sig --signature=golden.sig prog/spikes/copy_arr_spike
+	@xxd -r -p golden.sig sig.raw
+	@xxd -p -c 4 sig.raw > golden.sig
+	@rm sig.raw
+	@mkdir -p golden
+	@mv golden.sig golden
 
 .PHONY: debug
 debug: prog

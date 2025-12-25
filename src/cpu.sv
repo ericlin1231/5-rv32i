@@ -23,6 +23,24 @@ module cpu
     output logic                       dmem_ren,
     input  logic [           XLEN-1:0] dmem_rdata
 );
+  // debug pipelined signal declaration
+`ifdef DEBUG
+  /********** DEBUG ID *********************************/
+  if_id_bus_debug_t  if_id_bus_out_debug;
+  /********** DEBUG EX *********************************/
+  id_ex_bus_debug_t  id_ex_bus_in_debug;
+  id_ex_bus_debug_t  id_ex_bus_out_debug;
+  /********** DEBUG MEM ********************************/
+  ex_mem_bus_debug_t ex_mem_bus_in_debug;
+  ex_mem_bus_debug_t ex_mem_bus_out_debug;
+  /********** DEBUG WB *********************************/
+  mem_wb_bus_debug_t mem_wb_bus_in_debug;
+  mem_wb_bus_debug_t mem_wb_bus_out_debug;
+
+  assign id_ex_bus_in_debug  = if_id_bus_out_debug;
+  assign ex_mem_bus_in_debug = id_ex_bus_out_debug;
+  assign mem_wb_bus_in_debug = ex_mem_bus_out_debug;
+`endif
 
   // interconnect wire declaration
   /********** IF ***************************************/
@@ -92,13 +110,18 @@ module cpu
   end
 
   /********** IF-ID Buffer *****************************/
+  assign if_id_bus_in.inst = if_id_bus_in.inst;
   IF2ID IF2ID_buffer (
       .ACLK,
       .ARESETn,
-      .stall_en_i(stall_en_if2id | global_stall_en),
-      .flush_en_i(flush_en_if2id | jump_penalty),
+      .stall_en(stall_en_if2id | global_stall_en),
+      .flush_en(flush_en_if2id | jump_penalty),
       .if_id_bus_in,
-      .if_id_bus_out
+      .if_id_bus_out,
+`ifdef DEBUG
+      .if_id_bus_in_debug,
+      .if_id_bus_out_debug
+`endif
   );
 
   /********** ID ***************************************/
@@ -166,7 +189,11 @@ module cpu
       .stall_en(global_stall_en),
       .flush_en(flush_en_id2ex),
       .id_ex_bus_in,
-      .id_ex_bus_out
+      .id_ex_bus_out,
+`ifdef DEBUG
+      .id_ex_bus_in_debug,
+      .id_ex_bus_out_debug
+`endif
   );
 
   /********** EX ***************************************/
@@ -209,7 +236,11 @@ module cpu
       .ARESETn,
       .stall_en(global_stall_en),
       .ex_mem_bus_in,
-      .ex_mem_bus_out
+      .ex_mem_bus_out,
+`ifdef DEBUG
+      .ex_mem_bus_in_debug,
+      .ex_mem_bus_out_debug
+`endif
   );
 
   /********** MEM **************************************/
@@ -242,7 +273,11 @@ module cpu
       .ARESETn,
       .stall_en(global_stall_en),
       .mem_wb_bus_in,
-      .mem_wb_bus_out
+      .mem_wb_bus_out,
+`ifdef DEBUG
+      .mem_wb_bus_in_debug,
+      .mem_wb_bus_out_debug
+`endif
   );
 
   /********** WB ***************************************/
