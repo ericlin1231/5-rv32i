@@ -1,7 +1,10 @@
 package tracer;
   import CPU_profile::*;
 
-  typedef struct {string asm;} tracer_bus_t;
+  typedef struct {
+    inst_t inst;
+    logic [XLEN-1] pc;
+  } tracer_bus_t;
 
   /***** helper ****************************************/
   function automatic string xreg_str(input logic [4:0] idx);

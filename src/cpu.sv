@@ -22,26 +22,41 @@ module cpu
     output       [AXI_DATA_BITS/8-1:0] dmem_wstrb,
     output logic [           XLEN-1:0] dmem_wdata,
     output logic                       dmem_ren,
-    input  logic [           XLEN-1:0] dmem_rdata
+    input  logic [           XLEN-1:0] dmem_rdata,
+
+    /********** pipeline signal trace output ***********/
+`ifdef TRACE
+    output tracer_bus_t id_trace,
+    output tracer_bus_t ex_trace,
+    output tracer_bus_t mem_trace,
+    output tracer_bus_t wb_trace
+`endif
 );
   // trace pipelined signal declaration
 `ifdef TRACE
-  /********** TRACE ID *********************************/
+  /********** trace ID *********************************/
   tracer_bus_t if_id_bus_in_trace;
   tracer_bus_t if_id_bus_out_trace;
-  /********** TRACE EX *********************************/
+  /********** trace EX *********************************/
   tracer_bus_t id_ex_bus_in_trace;
   tracer_bus_t id_ex_bus_out_trace;
-  /********** TRACE MEM ********************************/
+  /********** trace MEM ********************************/
   tracer_bus_t ex_mem_bus_in_trace;
   tracer_bus_t ex_mem_bus_out_trace;
-  /********** TRACE WB *********************************/
+  /********** trace WB *********************************/
   tracer_bus_t mem_wb_bus_in_trace;
   tracer_bus_t mem_wb_bus_out_trace;
 
-  assign id_ex_bus_in_trace  = if_id_bus_out_trace;
+  /********** pipeline signal for tracing propagation **/
+  assign id_ex_bus_in_trace = if_id_bus_out_trace;
   assign ex_mem_bus_in_trace = id_ex_bus_out_trace;
   assign mem_wb_bus_in_trace = ex_mem_bus_out_trace;
+
+  /********** pipeline traced signal for testbench *****/
+  assign id_trace = if_id_bus_out_trace;
+  assign ex_trace = id_ex_bus_out_trace;
+  assign mem_trace = ex_mem_bus_out_trace;
+  assign wb_trace = mem_wb_bus_out_trace;
 `endif
 
   // interconnect wire declaration
@@ -112,7 +127,10 @@ module cpu
   end
 
   /********** IF-ID Buffer *****************************/
-  assign if_id_bus_in_trace.asm = rv32i_disasm_fn(if_id_bus_in.inst, if_id_bus_in.ex.pc);
+`ifdef TRACE
+  assign if_id_bus_in_trace.inst = if_id_bus_in.inst;
+  assign if_id_bus_in_trace.pc   = if_id_bus_in.ex.pc;
+`endif
   IF2ID IF2ID_buffer (
       .ACLK,
       .ARESETn,
