@@ -1,6 +1,7 @@
 module axi_cpu_wrapper
   import CPU_profile::*;
   import AXI_define::*;
+  import tracer::*;
 (
     input logic ACLK,
     input logic ARESETn,
@@ -69,6 +70,13 @@ module axi_cpu_wrapper
   logic dmem_read_pending;
   logic dmem_write_pending;
 
+`ifdef TRACE
+  tracer_bus_t id_trace;
+  tracer_bus_t ex_trace;
+  tracer_bus_t mem_trace;
+  tracer_bus_t wb_trace;
+`endif
+
   cpu core_0 (
       .ACLK,
       .ARESETn,
@@ -87,7 +95,15 @@ module axi_cpu_wrapper
       .dmem_rdata,
       .dmem_wen,
       .dmem_wstrb,
-      .dmem_wdata
+      .dmem_wdata,
+
+      /********** pipeline signal trace output ***********/
+`ifdef TRACE
+      .id_trace,
+      .ex_trace,
+      .mem_trace,
+      .wb_trace
+`endif
   );
 
   /* Master 0 read IMEM */
