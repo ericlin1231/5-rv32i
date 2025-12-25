@@ -13,8 +13,6 @@ package CPU_buffer_bus;
     if_pass_wb_t wb;
   } if_id_bus_t;
 
-  typedef struct packed {inst_t inst;} if_id_bus_debug_t;
-
   /********** ID-EX ****************************************/
   typedef struct packed {
     logic [XLEN-1:0] pc;
@@ -49,8 +47,6 @@ package CPU_buffer_bus;
     id_pass_wb_t  wb;
   } id_ex_bus_t;
 
-  typedef struct packed {inst_t inst;} id_ex_bus_debug_t;
-
   /********** EX-MEM ***************************************/
   typedef struct packed {
     logic            mem_ren;
@@ -71,8 +67,6 @@ package CPU_buffer_bus;
     ex_pass_wb_t wb;
   } ex_mem_bus_t;
 
-  typedef struct packed {inst_t inst;} ex_mem_bus_debug_t;
-
   /********** MEM-WB ***************************************/
   typedef struct packed {
     logic [4:0]      rd_idx;
@@ -82,8 +76,6 @@ package CPU_buffer_bus;
     logic [XLEN-1:0] mem_rdata;
     logic [XLEN-1:0] pc_next;
   } mem_wb_bus_t;
-
-  typedef struct packed {inst_t inst;} mem_wb_bus_debug_t;
 
   /********** Other ****************************************/
   typedef struct packed {

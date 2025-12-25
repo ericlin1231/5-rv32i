@@ -2,7 +2,11 @@ ISA := rv32i
 
 TB  := tb/tb_top_vcs.sv
 TOP := src/top_axi.sv
-SRCS := $(wildcard src/pkgs/*.sv)
+SRCS := src/pkgs/CPU_profile.sv
+SRCS += src/pkgs/decode.sv
+SRCS += src/pkgs/CPU_buffer_bus.sv
+SRCS += src/pkgs/AXI_define.sv
+SRCS += src/pkgs/tracer.sv
 SRCS += $(wildcard src/axi/*.sv)
 SRCS += $(wildcard src/stages/*.sv)
 SRCS += $(wildcard src/buffers/*.sv)
@@ -13,7 +17,7 @@ SRCS += $(TB) $(TOP)
 
 SIMULATOR := vcs
 COMPILE_OPTS := -q -R -sverilog $(SRCS) -debug_access+all -full64
-COMPILE_OPTS += +IMEM=prog/sims/copy_arr_sim.hex +define+DEBUG
+COMPILE_OPTS += +IMEM=prog/sims/copy_arr_sim.hex +define+TRACE
 COMPILE_OPTS += +notimingcheck +error+1000 +lint=TFIPC-L
 
 VIEWER := verdi

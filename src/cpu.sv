@@ -3,6 +3,7 @@ module cpu
   import CPU_buffer_bus::*;
   import AXI_define::*;
   import decode::*;
+  import tracer::*;
 (
     input logic ACLK,
     input logic ARESETn,
@@ -23,24 +24,24 @@ module cpu
     output logic                       dmem_ren,
     input  logic [           XLEN-1:0] dmem_rdata
 );
-  // debug pipelined signal declaration
-`ifdef DEBUG
-  /********** DEBUG ID *********************************/
-  if_id_bus_debug_t  if_id_bus_in_debug;
-  if_id_bus_debug_t  if_id_bus_out_debug;
-  /********** DEBUG EX *********************************/
-  id_ex_bus_debug_t  id_ex_bus_in_debug;
-  id_ex_bus_debug_t  id_ex_bus_out_debug;
-  /********** DEBUG MEM ********************************/
-  ex_mem_bus_debug_t ex_mem_bus_in_debug;
-  ex_mem_bus_debug_t ex_mem_bus_out_debug;
-  /********** DEBUG WB *********************************/
-  mem_wb_bus_debug_t mem_wb_bus_in_debug;
-  mem_wb_bus_debug_t mem_wb_bus_out_debug;
+  // trace pipelined signal declaration
+`ifdef TRACE
+  /********** TRACE ID *********************************/
+  tracer_bus_t if_id_bus_in_trace;
+  tracer_bus_t if_id_bus_out_trace;
+  /********** TRACE EX *********************************/
+  tracer_bus_t id_ex_bus_in_trace;
+  tracer_bus_t id_ex_bus_out_trace;
+  /********** TRACE MEM ********************************/
+  tracer_bus_t ex_mem_bus_in_trace;
+  tracer_bus_t ex_mem_bus_out_trace;
+  /********** TRACE WB *********************************/
+  tracer_bus_t mem_wb_bus_in_trace;
+  tracer_bus_t mem_wb_bus_out_trace;
 
-  assign id_ex_bus_in_debug  = if_id_bus_out_debug;
-  assign ex_mem_bus_in_debug = id_ex_bus_out_debug;
-  assign mem_wb_bus_in_debug = ex_mem_bus_out_debug;
+  assign id_ex_bus_in_trace  = if_id_bus_out_trace;
+  assign ex_mem_bus_in_trace = id_ex_bus_out_trace;
+  assign mem_wb_bus_in_trace = ex_mem_bus_out_trace;
 `endif
 
   // interconnect wire declaration
@@ -111,7 +112,7 @@ module cpu
   end
 
   /********** IF-ID Buffer *****************************/
-  assign if_id_bus_in_debug.inst = if_id_bus_in.inst;
+  assign if_id_bus_in_trace.asm = rv32i_disasm_fn(if_id_bus_in.inst, if_id_bus_in.ex.pc);
   IF2ID IF2ID_buffer (
       .ACLK,
       .ARESETn,
@@ -119,9 +120,9 @@ module cpu
       .flush_en(flush_en_if2id | jump_penalty),
       .if_id_bus_in,
       .if_id_bus_out,
-`ifdef DEBUG
-      .if_id_bus_in_debug,
-      .if_id_bus_out_debug
+`ifdef TRACE
+      .if_id_bus_in_trace,
+      .if_id_bus_out_trace
 `endif
   );
 
@@ -191,9 +192,9 @@ module cpu
       .flush_en(flush_en_id2ex),
       .id_ex_bus_in,
       .id_ex_bus_out,
-`ifdef DEBUG
-      .id_ex_bus_in_debug,
-      .id_ex_bus_out_debug
+`ifdef TRACE
+      .id_ex_bus_in_trace,
+      .id_ex_bus_out_trace
 `endif
   );
 
@@ -238,9 +239,9 @@ module cpu
       .stall_en(global_stall_en),
       .ex_mem_bus_in,
       .ex_mem_bus_out,
-`ifdef DEBUG
-      .ex_mem_bus_in_debug,
-      .ex_mem_bus_out_debug
+`ifdef TRACE
+      .ex_mem_bus_in_trace,
+      .ex_mem_bus_out_trace
 `endif
   );
 
@@ -275,9 +276,9 @@ module cpu
       .stall_en(global_stall_en),
       .mem_wb_bus_in,
       .mem_wb_bus_out,
-`ifdef DEBUG
-      .mem_wb_bus_in_debug,
-      .mem_wb_bus_out_debug
+`ifdef TRACE
+      .mem_wb_bus_in_trace,
+      .mem_wb_bus_out_trace
 `endif
   );
 
