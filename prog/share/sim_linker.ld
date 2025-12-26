@@ -4,9 +4,9 @@ ENTRY(_start)
 _STACK_SIZE = 0x1000;
 
 MEMORY {
-  imem : ORIGIN = 0x00000000, LENGTH = 0x00010000
-  dmem : ORIGIN = ORIGIN(imem) + LENGTH(imem), LENGTH = 0x00010000
-  debug : ORIGIN = ORIGIN(dmem) + LENGTH(dmem), LENGTH = 0x00010000
+  imem (rx) : ORIGIN = 0x00000000, LENGTH = 0x00010000
+  dmem (rw) : ORIGIN = ORIGIN(imem) + LENGTH(imem), LENGTH = 0x00010000
+  debug (rw) : ORIGIN = ORIGIN(dmem) + LENGTH(dmem), LENGTH = 0x00010000
 }
 
 SECTIONS

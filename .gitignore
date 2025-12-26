@@ -3,6 +3,7 @@
 *.fsdb
 
 # prog
+golden/
 zig-out/
 .zig-cache/
 *.elf

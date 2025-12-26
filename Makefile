@@ -1,4 +1,7 @@
 ISA := rv32i
+SIM_DEBUG_BASE := 00020000 # memory dump address to compare with golden
+SPIKE_ELF_BASE := 0x80000000
+PROG_MAX_SIZE  := 0x50000
 
 TB  := tb/tb_top.sv
 TOP := src/top_axi.sv
@@ -17,7 +20,7 @@ SRCS += $(TB) $(TOP)
 
 SIMULATOR := vcs
 COMPILE_OPTS := -q -R -sverilog $(SRCS) -debug_access+all -full64
-COMPILE_OPTS += +IMEM=prog/sims/copy_arr_sim.hex +DEBUG_BASE=00020000 +define+TRACE
+COMPILE_OPTS += +IMEM=prog/sims/copy_arr_sim.hex +DEBUG_BASE=$(SIM_DEBUG_BASE) +define+TRACE
 COMPILE_OPTS += +notimingcheck
 
 VIEWER := verdi
@@ -37,11 +40,9 @@ all: sim
 sim: golden
 	$(SIMULATOR) $(COMPILE_OPTS)
 
-SPIKE_ELF_BASE := 0x80000000
-SPIKE_ELF_SIZE := 0x50000
 .PHONY: golden
 golden: prog
-	@spike -l -m$(SPIKE_ELF_BASE):$(SPIKE_ELF_SIZE) --isa=$(ISA) +signature=golden.sig --signature=golden.sig prog/spikes/copy_arr_spike
+	@spike -l -m$(SPIKE_ELF_BASE):$(PROG_MAX_SIZE) --isa=$(ISA) +signature=golden.sig --signature=golden.sig prog/spikes/copy_arr_spike
 	@xxd -r -p golden.sig sig.raw
 	@xxd -p -c 4 sig.raw > golden.txt
 	@rm golden.sig sig.raw
