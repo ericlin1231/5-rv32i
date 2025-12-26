@@ -4,4 +4,3 @@
 _start:
     la sp, _stack_top
     j  main
-

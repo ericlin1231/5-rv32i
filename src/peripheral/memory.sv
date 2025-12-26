@@ -3,12 +3,16 @@ module memory
 (
     input logic clk,
 
-    /********** IMEM slave 0 interface ******************/
+    /************************************************************/
+    /* IMEM slave 0 interface */
+    /************************************************************/
     input  logic [XLEN-1:0] imem_addr,
     input  logic            imem_ren,
     output logic [XLEN-1:0] imem_rdata,
 
-    /********** DMEM slave 1 interface ******************/
+    /************************************************************/
+    /* DMEM slave 1 interface */
+    /************************************************************/
     input  logic [XLEN-1:0] dmem_addr,
     input  logic            dmem_ren,
     output logic [XLEN-1:0] dmem_rdata,
@@ -20,51 +24,14 @@ module memory
   localparam int unsigned ADDR_MSB = ADDR_BITS + ADDR_SHIFT - 1;
   localparam int unsigned ADDR_LSB = ADDR_SHIFT;
 
-  string            mem_file;
-  logic  [XLEN-1:0] mem      [0:MEM_SIZE-1];
+  logic [     XLEN-1:0] mem             [0:MEM_SIZE-1];
 
-  initial begin
-    if (!$value$plusargs("IMEM=%s", mem_file)) $display("Unified memory didn't load program file");
-    if (mem_file != "") begin
-      $display("[%m] load %s to unified memory", mem_file);
-      $readmemh(mem_file, mem);
-    end
-  end
-
-  final begin
-    int fd;
-    string golden_str;
-    int golden_value;
-    int error = 0;
-    logic [XLEN-1:0] base = 32'h10000;
-
-    fd = $fopen("golden/golden.txt", "r");
-    if (fd) $display("open golden.txt successfully");
-    else $error("open golden.txt fail");
-
-    while (!$feof(
-        fd
-    )) begin
-      void'($fgets(golden_str, fd));
-      if (golden_str.len() == 0) continue;
-      void'($sscanf(golden_str, "%08h", golden_value));
-      if (mem[base[XLEN-1:2]] != golden_value) begin
-        $display("Mismatch at [%08h], mem = 0x%08h, golden = 0x%08h", base, mem[base[XLEN-1:2]],
-                 golden_value);
-        error++;
-      end
-      base += 32'd4;
-    end
-    $fclose(fd);
-
-    if (error) $display("there has %d error", error);
-    else $display("simulation successfully");
-  end
-
+  /************************************************************/
   /* effective address */
+  /************************************************************/
   logic [ADDR_BITS-1:0] valid_imem_addr;
   logic [ADDR_BITS-1:0] valid_dmem_addr;
-  logic [XLEN-1:0] wdata_mask;
+  logic [     XLEN-1:0] wdata_mask;
   assign valid_imem_addr = imem_addr[ADDR_MSB:ADDR_LSB];
   assign valid_dmem_addr = dmem_addr[ADDR_MSB:ADDR_LSB];
   assign wdata_mask = {

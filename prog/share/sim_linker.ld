@@ -6,6 +6,7 @@ _STACK_SIZE = 0x1000;
 MEMORY {
   imem : ORIGIN = 0x00000000, LENGTH = 0x00010000
   dmem : ORIGIN = ORIGIN(imem) + LENGTH(imem), LENGTH = 0x00010000
+  debug : ORIGIN = ORIGIN(dmem) + LENGTH(dmem), LENGTH = 0x00010000
 }
 
 SECTIONS
@@ -33,12 +34,6 @@ SECTIONS
         *(COMMON)
         __bss_end = .;
     } > dmem
-    
-    .signature (NOLOAD): ALIGN(16) {
-        PROVIDE(begin_signature = .);
-        . = . + 16;
-        PROVIDE(end_signature = .);
-    } > dmem
 
     .tohost : ALIGN(8) {
         PROVIDE(tohost = .);
@@ -50,5 +45,9 @@ SECTIONS
         _stack_top = .;
     } > dmem
 
-    __image_end = .;
+    .signature (NOLOAD): ALIGN(16) {
+        PROVIDE(begin_signature = .);
+        . = . + 16;
+        PROVIDE(end_signature = .);
+    } > debug
 }

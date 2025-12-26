@@ -1,6 +1,6 @@
 ISA := rv32i
 
-TB  := tb/tb_top_vcs.sv
+TB  := tb/tb_top.sv
 TOP := src/top_axi.sv
 SRCS := src/pkgs/CPU_profile.sv
 SRCS += src/pkgs/decode.sv
@@ -17,7 +17,7 @@ SRCS += $(TB) $(TOP)
 
 SIMULATOR := vcs
 COMPILE_OPTS := -q -R -sverilog $(SRCS) -debug_access+all -full64
-COMPILE_OPTS += +IMEM=prog/sims/copy_arr_sim.hex +define+TRACE
+COMPILE_OPTS += +IMEM=prog/sims/copy_arr_sim.hex +DEBUG_BASE=00020000 +define+TRACE
 COMPILE_OPTS += +notimingcheck
 
 VIEWER := verdi
@@ -38,7 +38,7 @@ sim: golden
 	$(SIMULATOR) $(COMPILE_OPTS)
 
 SPIKE_ELF_BASE := 0x80000000
-SPIKE_ELF_SIZE := 0x20000
+SPIKE_ELF_SIZE := 0x50000
 .PHONY: golden
 golden: prog
 	@spike -l -m$(SPIKE_ELF_BASE):$(SPIKE_ELF_SIZE) --isa=$(ISA) +signature=golden.sig --signature=golden.sig prog/spikes/copy_arr_spike

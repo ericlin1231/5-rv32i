@@ -1,36 +1,124 @@
 module tb_top;
-  string vcd_file;
+  import CPU_profile::*;
 
-  logic  clk;
-  logic  rst_n;
+  logic  ACLK;
+  logic  ARESETn;
+  string mem_file;
 
-  initial clk = 1'b0;
-  always #5 clk = ~clk;
-
-  initial begin
-    rst_n = 1'b0;
-    repeat (20) @(posedge clk);
-    rst_n = 1'b1;
-  end
-
-  top_axi dut (
-      .ACLK   (clk),
-      .ARESETn(rst_n)
+  top_axi TOP (
+      .ACLK,
+      .ARESETn
   );
 
+  /************************************************************/
+  /* initialize memory with testcase program */
+  /************************************************************/
   initial begin
-    if (!$value$plusargs("VCD=%s", vcd_file)) begin
-      vcd_file = "wave.vcd";
+    if (!$value$plusargs("IMEM=%s", mem_file)) $display("Unified memory didn't load program file");
+    if (mem_file != "") begin
+      $display("[%m] load %s to unified memory", mem_file);
+      $readmemh(mem_file, TOP.mem0.mem0.mem);
     end
-    $dumpfile(vcd_file);
-    $dumpvars(0, tb_top);
   end
 
+  /************************************************************/
+  /* simulation */
+  /************************************************************/
+  initial ACLK = 1'b0;
+  always #5 ACLK = ~ACLK;
   initial begin
-    repeat (200000) @(posedge clk);
+    ARESETn = 1'b0;
+    repeat (20) @(posedge ACLK);
+    ARESETn = 1'b1;
+    repeat (1000) @(posedge ACLK);
     $display("[TB] Timeout reached, finishing.");
     $finish;
   end
 
+  /************************************************************/
+  /* dump waveform */
+  /************************************************************/
+  initial begin
+    $fsdbDumpfile("wave.fsdb");
+    $fsdbDumpvars("+all", tb_top.TOP);
+  end
+
+  /************************************************************/
+  /* verify simulation result */
+  /************************************************************/
+  final begin
+    int fd;
+    int file_exist = 1;
+    string golden_str;
+    int golden_value;
+    int error = 0;
+    bit [XLEN-1:0] debug_base;
+
+    $display("\n");
+    $display("\n");
+    $display("/************************************************************/");
+    $display("/* Simulation result report");
+    $display("/************************************************************/");
+
+    if (!$value$plusargs("DEBUG_BASE=%h", debug_base))
+      $display("should provide debug base address !");
+
+    fd = $fopen("golden/golden.txt", "r");
+    if (fd) $display("open golden.txt successfully");
+    else file_exist = 0;
+
+    while (!$feof(
+        fd
+    )) begin
+      void'($fgets(golden_str, fd));
+      if (golden_str.len() == 0) continue;  /* ignore empty line */
+      void'($sscanf(golden_str, "%08h", golden_value));
+      if (TOP.mem0.mem0.mem[debug_base[XLEN-1:2]] != golden_value) begin
+        $display("Mismatch at [%08h], mem = 0x%08h, golden = 0x%08h", debug_base,
+                 TOP.mem0.mem0.mem[debug_base[XLEN-1:2]], golden_value);
+        error++;
+      end
+      debug_base += 32'd4;
+    end
+    $fclose(fd);
+
+    if (!file_exist) begin
+      $display("\n");
+      $display("\n");
+      $display("        ****************************               ");
+      $display("        **                        **       |\__||  ");
+      $display("        **  OOPS!!                **      / X,X  | ");
+      $display("        **                        **    /_____   | ");
+      $display("        **  Simulation Failed!!   **   /^ ^ ^ \\  |");
+      $display("        **                        **  |^ ^ ^ ^ |w| ");
+      $display("        ****************************   \\m___m__|_|");
+      $display("        There is no file: golden/golden.txt        ");
+      $display("\n");
+    end else if (error) begin
+      $display("\n");
+      $display("\n");
+      $display("        ****************************               ");
+      $display("        **                        **       |\__||  ");
+      $display("        **  OOPS!!                **      / X,X  | ");
+      $display("        **                        **    /_____   | ");
+      $display("        **  Simulation Failed!!   **   /^ ^ ^ \\  |");
+      $display("        **                        **  |^ ^ ^ ^ |w| ");
+      $display("        ****************************   \\m___m__|_|");
+      $display("         Totally has %d errors                     ", error);
+      $display("\n");
+    end else begin
+      $display("\n");
+      $display("\n");
+      $display("        ****************************               ");
+      $display("        **                        **       |\__||  ");
+      $display("        **  Congratulations !!    **      / O.O  | ");
+      $display("        **                        **    /_____   | ");
+      $display("        **  Simulation PASS!!     **   /^ ^ ^ \\  |");
+      $display("        **                        **  |^ ^ ^ ^ |w| ");
+      $display("        ****************************   \\m___m__|_|");
+      $display("\n");
+    end
+    $finish;
+  end
 endmodule
 
