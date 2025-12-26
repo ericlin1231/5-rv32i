@@ -18,11 +18,11 @@ SRCS += $(TB) $(TOP)
 SIMULATOR := vcs
 COMPILE_OPTS := -q -R -sverilog $(SRCS) -debug_access+all -full64
 COMPILE_OPTS += +IMEM=prog/sims/copy_arr_sim.hex +define+TRACE
-COMPILE_OPTS += +notimingcheck +error+1000 +lint=TFIPC-L
+COMPILE_OPTS += +notimingcheck
 
 VIEWER := verdi
 WAVE := wave.fsdb
-VIEWER_OPTS := -sswr signal.rc
+VIEWER_OPTS := -sswr trace_dmem_write.rc
 
 QEMU   := qemu-system-riscv32
 QFLAGS := -nographic -smp 1 -machine virt -bios none
@@ -30,11 +30,11 @@ QFLAGS := -nographic -smp 1 -machine virt -bios none
 GDB     := gdb
 GDBINIT := gdbinit
 
-all: prog sim
+all: sim
 	@$(VIEWER) $(VIEWER_OPTS) $(WAVE)
 
 .PHONY: sim
-sim: prog
+sim: golden
 	$(SIMULATOR) $(COMPILE_OPTS)
 
 SPIKE_ELF_BASE := 0x80000000
@@ -43,10 +43,10 @@ SPIKE_ELF_SIZE := 0x20000
 golden: prog
 	@spike -l -m$(SPIKE_ELF_BASE):$(SPIKE_ELF_SIZE) --isa=$(ISA) +signature=golden.sig --signature=golden.sig prog/spikes/copy_arr_spike
 	@xxd -r -p golden.sig sig.raw
-	@xxd -p -c 4 sig.raw > golden.sig
-	@rm sig.raw
+	@xxd -p -c 4 sig.raw > golden.txt
+	@rm golden.sig sig.raw
 	@mkdir -p golden
-	@mv golden.sig golden
+	@mv golden.txt golden
 
 .PHONY: debug
 debug: prog

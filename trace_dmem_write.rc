@@ -2,7 +2,7 @@ Magic 271485
 Revision Verdi_W-2024.09-SP2
 
 ; Window Layout <x> <y> <width> <height> <signalwidth> <valuewidth>
-viewPort 0 29 1280 591 192 65
+viewPort 0 29 1280 591 257 65
 
 ; File list:
 ; openDirFile [-d delimiter] [-s time_offset] [-rf auto_bus_rule_file] path_name file_name
@@ -16,8 +16,8 @@ signalSpacing 5
 
 ; windowTimeUnit is used for zoom, cursor & marker
 ; waveform viewport range
-zoom 533.132041 753.121301
-cursor 535.000000
+zoom 1319.447058 1525.320521
+cursor 1305.000000
 marker 0.000000
 
 ; user define markers
@@ -28,9 +28,9 @@ userMarker 385.155 "first jump" ID_GREEN5 long_dashed
 userMarker 464.97 "valid inst come after jump" ID_GREEN5 long_dashed
 
 ; visible top row signal index
-top 25
+top 0
 ; marker line index
-markerPos 36
+markerPos 5
 
 ; event list
 ; addEvent event_name event_expression
@@ -55,20 +55,20 @@ activeDirFile "" "/home/eric1231/code/5-rv32i/wave.fsdb"
 addSignal -h 15 /tb_top_vcs/TOP/core_0/core_0/ACLK
 addSignal -h 15 -holdScope ARESETn
 addSignal -h 15 -holdScope global_stall_en
-addSignal -h 15 /tb_top_vcs/TOP/core_0/imem_req_resp
 addGroup "AXI"
-addSignal -h 15 -UNSIGNED -HEX /tb_top_vcs/TOP/AXI/ARADDR_M0[31:0]
-addSignal -h 15 -holdScope ARREADY_M0
-addSignal -h 15 -holdScope ARVALID_M0
-addSignal -h 15 -UNSIGNED -HEX -holdScope RDATA_M0[31:0]
-addSignal -h 15 -holdScope RREADY_M0
-addSignal -h 15 -holdScope RVALID_M0
+addSignal -h 15 /tb_top_vcs/TOP/core_0/core_0/mem_disasm
+addSignal -h 15 -UNSIGNED -HEX /tb_top_vcs/TOP/core_0/AWADDR_M1[31:0]
+addSignal -h 15 -holdScope AWREADY_M1
+addSignal -h 15 -holdScope AWVALID_M1
+addSignal -h 15 -UNSIGNED -HEX -holdScope WDATA_M1[31:0]
+addSignal -h 15 -UNSIGNED -HEX -holdScope WSTRB_M1[3:0]
+addSignal -h 15 -holdScope WVALID_M1
+addSignal -h 15 -holdScope WREADY_M1
+addSignal -h 15 -holdScope BREADY_M1
+addSignal -h 15 -holdScope BVALID_M1
+addSignal -h 15 -UNSIGNED -HEX -holdScope BRESP_M1[1:0]
 addGroup "memory"
-addSignal -h 15 -UNSIGNED -HEX /tb_top_vcs/TOP/mem0/mem0/imem_addr[31:0]
-addSignal -h 15 -UNSIGNED -HEX -holdScope valid_imem_addr[14:0]
-addSignal -h 15 -holdScope imem_ren
-addSignal -expanded -h 15 -UNSIGNED -HEX -holdScope imem_rdata[31:0]
-addSignal -h 15 -UNSIGNED -HEX -holdScope dmem_addr[31:0]
+addSignal -h 15 -UNSIGNED -HEX /tb_top_vcs/TOP/mem0/mem0/dmem_addr[31:0]
 addSignal -h 15 -UNSIGNED -HEX -holdScope valid_dmem_addr[14:0]
 addSignal -h 15 -holdScope dmem_ren
 addSignal -h 15 -UNSIGNED -HEX -holdScope dmem_rdata[31:0]
@@ -81,16 +81,12 @@ addSignal -h 15 -holdScope jump_en
 addSignal -h 15 -UNSIGNED -HEX -holdScope jump_addr_i[31:0]
 addSignal -h 15 -UNSIGNED -HEX -holdScope pc_o[31:0]
 addSignal -h 15 -UNSIGNED -HEX -holdScope pc_next_o[31:0]
-addSignal -h 15 /tb_top_vcs/TOP/core_0/core_0/IF2ID_buffer/if_id_bus_in.inst
 addGroup "IF_ID"
 addSignal -h 15 /tb_top_vcs/TOP/core_0/core_0/IF2ID_buffer/flush_en
 addSignal -h 15 -holdScope stall_en
 addGroup "ID"
 addSignal -h 15 /tb_top_vcs/TOP/core_0/core_0/IF2ID_buffer/if_id_bus_out_trace.inst
 addSignal -h 15 /tb_top_vcs/TOP/core_0/core_0/id_disasm
-addSignal -h 15 -UNSIGNED -HEX /tb_top_vcs/TOP/core_0/core_0/IF2ID_buffer/if_id_bus_out_trace.rd_idx[4:0]
-addSignal -h 15 /tb_top_vcs/TOP/core_0/core_0/id_rd_abi
-addSignal -h 15 -UNSIGNED -HEX /tb_top_vcs/TOP/core_0/core_0/IF2ID_buffer/if_id_bus_out_trace.pc[0:30]
 addSignal -h 15 -UNSIGNED -HEX /tb_top_vcs/TOP/core_0/core_0/ID_stage/rd_idx_o[4:0]
 addSignal -h 15 -UNSIGNED -HEX -holdScope rs1_idx_o[4:0]
 addSignal -h 15 -UNSIGNED -HEX -holdScope rs2_idx_o[4:0]
@@ -99,22 +95,25 @@ addSignal -h 15 /tb_top_vcs/TOP/core_0/core_0/ID2EX_buffer/flush_en
 addSignal -h 15 -holdScope stall_en
 addGroup "EX"
 addSignal -h 15 /tb_top_vcs/TOP/core_0/core_0/ID2EX_buffer/id_ex_bus_out_trace.inst
-addSignal -h 15 -UNSIGNED -HEX -holdScope id_ex_bus_out_trace.pc[0:30]
-addSignal -h 15 -UNSIGNED /tb_top_vcs/TOP/core_0/core_0/EX_stage/alu_op_i[3:0]
-addSignal -h 15 -UNSIGNED -UDEC -holdScope alu_result_o[31:0]
-addSignal -h 15 -UNSIGNED -UDEC -holdScope src1_data[31:0]
-addSignal -h 15 -UNSIGNED -UDEC -holdScope src2_data[31:0]
-addSignal -h 15 -holdScope branch_taken_o
+addSignal -h 15 /tb_top_vcs/TOP/core_0/core_0/ex_disasm
+addSignal -h 15 -UNSIGNED -HEX /tb_top_vcs/TOP/core_0/core_0/ID2EX_buffer/id_ex_bus_out_trace.pc[0:30]
+addSignal -h 15 -UNSIGNED -UDEC /tb_top_vcs/TOP/core_0/core_0/EX_stage/alu_result_o[31:0]
+addSignal -h 15 -UNSIGNED -HEX -holdScope src1_data[31:0]
+addSignal -h 15 -UNSIGNED -HEX -holdScope imm_i[31:0]
+addSignal -h 15 -UNSIGNED -HEX -holdScope src2_data[31:0]
+addSignal -h 15 -UNSIGNED -holdScope alu_src2_sel_i
+addSignal -h 15 -UNSIGNED -HEX -holdScope rs2_data_mem_forward_i[31:0]
+addSignal -h 15 -UNSIGNED -holdScope alu_rs2_data_sel_i[1:0]
+addSignal -h 15 /tb_top_vcs/TOP/core_0/core_0/EX2MEM_buffer/ex_mem_bus_in.mem.mem_wen
+addSignal -h 15 -UNSIGNED -HEX -holdScope ex_mem_bus_in.mem.mem_wdata[31:0]
+addSignal -h 15 /tb_top_vcs/TOP/core_0/core_0/EX_stage/branch_taken_o
 addSignal -h 15 -UNSIGNED -HEX -holdScope pc_target_o[31:0]
 addGroup "EX-MEM"
 addSignal -h 15 /tb_top_vcs/TOP/core_0/core_0/EX2MEM_buffer/stall_en
-addSignal -h 15 -holdScope ex_mem_bus_in
 addGroup "MEM"
 addSignal -h 15 /tb_top_vcs/TOP/core_0/core_0/EX2MEM_buffer/ex_mem_bus_out_trace.inst
-addSignal -h 15 -UNSIGNED -HEX -holdScope ex_mem_bus_out_trace.pc[0:30]
+addSignal -h 15 /tb_top_vcs/TOP/core_0/core_0/mem_disasm
 addSignal -h 15 -UNSIGNED -HEX /tb_top_vcs/TOP/core_0/core_0/MEM_stage/mem_addr_o[31:0]
-addSignal -h 15 -holdScope mem_ren_o
-addSignal -h 15 -UNSIGNED -HEX -holdScope mem_rdata_i[31:0]
 addSignal -h 15 -holdScope mem_wen_o
 addSignal -h 15 -UNSIGNED -HEX -holdScope mem_wstrb_o[3:0]
 addSignal -h 15 -UNSIGNED -HEX -holdScope mem_wdata_o[31:0]
@@ -123,9 +122,13 @@ addSignal -h 15 /tb_top_vcs/TOP/core_0/core_0/MEM2WB_buffer/stall_en
 addSignal -h 15 -holdScope mem_wb_bus_in
 addGroup "WB"
 addSignal -h 15 /tb_top_vcs/TOP/core_0/core_0/MEM2WB_buffer/mem_wb_bus_out_trace.inst
-addSignal -h 15 -UNSIGNED -HEX -holdScope mem_wb_bus_out_trace.pc[0:30]
+addSignal -h 15 /tb_top_vcs/TOP/core_0/core_0/wb_disasm
 addSignal -h 15 -UNSIGNED -HEX /tb_top_vcs/TOP/core_0/core_0/WB_stage/rd_wdata_o[31:0]
-addGroup "G13"
+addGroup "WB-Reg"
+addSignal -h 15 -UNSIGNED -HEX /tb_top_vcs/TOP/core_0/core_0/RegFile_u/rd_idx[4:0]
+addSignal -h 15 -holdScope wen
+addSignal -h 15 -UNSIGNED -HEX -holdScope rd_wdata[31:0]
+addGroup "G14"
 
 ; getSignalForm Scope Hierarchy Status
 ; active file of getSignalForm
@@ -147,6 +150,7 @@ getSignalForm close
 "/tb_top_vcs/TOP/core_0/core_0/IF_stage"
 "/tb_top_vcs/TOP/core_0/core_0/MEM2WB_buffer"
 "/tb_top_vcs/TOP/core_0/core_0/MEM_stage"
+"/tb_top_vcs/TOP/core_0/core_0/RegFile_u"
 "/tb_top_vcs/TOP/core_0/core_0/WB_stage"
 "/tb_top_vcs/TOP/mem0"
 
@@ -167,6 +171,7 @@ SCOPE_LIST_BEGIN
 "/tb_top_vcs/TOP/core_0/core_0/MEM_stage"
 "/tb_top_vcs/TOP/core_0/core_0/MEM2WB_buffer"
 "/tb_top_vcs/TOP/core_0/core_0/WB_stage"
+"/tb_top_vcs/TOP/core_0/core_0/RegFile_u"
 SCOPE_LIST_END
 
 GETSIGNALFORM_SCOPE_HIERARCHY_END

@@ -22,10 +22,10 @@ module EX
 
     // output
     output logic [XLEN-1:0] alu_result_o,
+    output logic [XLEN-1:0] mem_wdata_o,
     output logic [XLEN-1:0] pc_target_o,
     output logic            branch_taken_o
 );
-
   logic [XLEN-1:0] rs1_data, rs2_data;
   always_comb begin
     unique case (alu_rs1_data_sel_i)
@@ -41,6 +41,7 @@ module EX
       default:     rs2_data = '0;
     endcase
   end
+  assign mem_wdata_o = rs2_data;
 
   logic [XLEN-1:0] src1_data;
   always_comb begin

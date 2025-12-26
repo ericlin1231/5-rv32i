@@ -18,7 +18,7 @@ module tb_top_vcs;
 
   initial begin
     $fsdbDumpfile("wave.fsdb");
-    $fsdbDumpvars("+struct", tb_top_vcs.TOP);
+    $fsdbDumpvars("+all", tb_top_vcs.TOP);
   end
 
   initial begin
@@ -26,6 +26,5 @@ module tb_top_vcs;
     $display("[TB] Timeout reached, finishing.");
     $finish;
   end
-
 endmodule
 

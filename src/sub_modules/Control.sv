@@ -37,6 +37,19 @@ module Control
         reg_wen_o      = 1'b1;
         wb_wdata_sel_o = mem_read;
       end
+      STORE: begin
+        // EX
+        jump_en_o      = 1'b0;
+        branch_en_o    = 1'b0;
+        alu_src1_sel_o = rs1;
+        alu_src2_sel_o = imm;
+        // MEM
+        mem_ren_o      = 1'b0;
+        mem_wen_o      = 1'b1;
+        // WB
+        reg_wen_o      = 1'b0;
+        wb_wdata_sel_o = WB_WDATA_SEL_UNKNOWN;
+      end
       ARITHMETIC_IMM: begin
         // EX
         jump_en_o      = 1'b0;
@@ -146,7 +159,7 @@ module Control
 
   always_comb begin
     unique case (opcode_i)
-      LOAD:    alu_op_o = ADD;
+      LOAD, STORE:    alu_op_o = ADD;
       ARITHMETIC_IMM: begin
         unique case (arithmetic_imm_funct3_e'(funct3_i))
           FUNCT3_ADDI:  alu_op_o = ADD;

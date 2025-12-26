@@ -57,6 +57,42 @@ module cpu
   assign ex_trace = id_ex_bus_out_trace;
   assign mem_trace = ex_mem_bus_out_trace;
   assign wb_trace = mem_wb_bus_out_trace;
+
+  string id_disasm;
+  string id_rd_abi;
+  string id_rs1_abi;
+  string id_rs2_abi;
+  assign id_disasm  = rv32i_disasm(if_id_bus_out_trace.inst, if_id_bus_out_trace.pc);
+  assign id_rd_abi  = reg_idx2abi(if_id_bus_out_trace.rd_idx);
+  assign id_rs1_abi = reg_idx2abi(if_id_bus_out_trace.rs1_idx);
+  assign id_rs2_abi = reg_idx2abi(if_id_bus_out_trace.rs2_idx);
+
+  string ex_disasm;
+  string ex_rd_abi;
+  string ex_rs1_abi;
+  string ex_rs2_abi;
+  assign ex_disasm  = rv32i_disasm(id_ex_bus_out_trace.inst, id_ex_bus_out_trace.pc);
+  assign ex_rd_abi  = reg_idx2abi(id_ex_bus_out_trace.rd_idx);
+  assign ex_rs1_abi = reg_idx2abi(id_ex_bus_out_trace.rs1_idx);
+  assign ex_rs2_abi = reg_idx2abi(id_ex_bus_out_trace.rs2_idx);
+
+  string mem_disasm;
+  string mem_rd_abi;
+  string mem_rs1_abi;
+  string mem_rs2_abi;
+  assign mem_disasm  = rv32i_disasm(ex_mem_bus_out_trace.inst, ex_mem_bus_out_trace.pc);
+  assign mem_rd_abi  = reg_idx2abi(ex_mem_bus_out_trace.rd_idx);
+  assign mem_rs1_abi = reg_idx2abi(ex_mem_bus_out_trace.rs1_idx);
+  assign mem_rs2_abi = reg_idx2abi(ex_mem_bus_out_trace.rs2_idx);
+
+  string wb_disasm;
+  string wb_rd_abi;
+  string wb_rs1_abi;
+  string wb_rs2_abi;
+  assign wb_disasm  = rv32i_disasm(mem_wb_bus_out_trace.inst, mem_wb_bus_out_trace.pc);
+  assign wb_rd_abi  = reg_idx2abi(mem_wb_bus_out_trace.rd_idx);
+  assign wb_rs1_abi = reg_idx2abi(mem_wb_bus_out_trace.rs1_idx);
+  assign wb_rs2_abi = reg_idx2abi(mem_wb_bus_out_trace.rs2_idx);
 `endif
 
   // interconnect wire declaration
@@ -129,7 +165,10 @@ module cpu
   /********** IF-ID Buffer *****************************/
 `ifdef TRACE
   assign if_id_bus_in_trace.inst = if_id_bus_in.inst;
-  assign if_id_bus_in_trace.pc   = if_id_bus_in.ex.pc;
+  assign if_id_bus_in_trace.rd_idx = if_id_bus_in.inst.rd_idx;
+  assign if_id_bus_in_trace.rs1_idx = if_id_bus_in.inst.rs1_idx;
+  assign if_id_bus_in_trace.rs2_idx = if_id_bus_in.inst.rs2_idx;
+  assign if_id_bus_in_trace.pc = if_id_bus_in.ex.pc;
 `endif
   IF2ID IF2ID_buffer (
       .ACLK,
@@ -238,13 +277,13 @@ module cpu
 
       // output
       .alu_result_o  (ex_mem_bus_in.alu_result),
+      .mem_wdata_o   (ex_mem_bus_in.mem.mem_wdata),
       .branch_taken_o(branch_taken_en_ex),
       .pc_target_o   (pc_target_ex)
   );
   assign jump_en_ex = (id_ex_bus_out.ex.branch_en & branch_taken_en_ex) | id_ex_bus_out.ex.jump_en;
   assign ex_mem_bus_in.mem.mem_ren = id_ex_bus_out.mem.mem_ren;
   assign ex_mem_bus_in.mem.mem_wen = id_ex_bus_out.mem.mem_wen;
-  assign ex_mem_bus_in.mem.mem_wdata = id_ex_bus_out.ex.rs2_data;
   assign ex_mem_bus_in.wb.rd_idx = id_ex_bus_out.wb.rd_idx;
   assign ex_mem_bus_in.wb.reg_wen = id_ex_bus_out.wb.reg_wen;
   assign ex_mem_bus_in.wb.wb_wdata_sel = id_ex_bus_out.wb.wb_wdata_sel;

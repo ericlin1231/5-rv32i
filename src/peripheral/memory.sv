@@ -32,11 +32,33 @@ module memory
   end
 
   final begin
-    int unsigned base = 32'h10000;
-    int unsigned size = 32'd16;
-    for (int unsigned i = base; i < base + size; i += 4) begin
-      $display("mem[%0h]: %0h", i, mem[i]);
+    int fd;
+    string golden_str;
+    int golden_value;
+    int error = 0;
+    logic [XLEN-1:0] base = 32'h10000;
+
+    fd = $fopen("golden/golden.txt", "r");
+    if (fd) $display("open golden.txt successfully");
+    else $error("open golden.txt fail");
+
+    while (!$feof(
+        fd
+    )) begin
+      void'($fgets(golden_str, fd));
+      if (golden_str.len() == 0) continue;
+      void'($sscanf(golden_str, "%08h", golden_value));
+      if (mem[base[XLEN-1:2]] != golden_value) begin
+        $display("Mismatch at [%08h], mem = 0x%08h, golden = 0x%08h", base, mem[base[XLEN-1:2]],
+                 golden_value);
+        error++;
+      end
+      base += 32'd4;
     end
+    $fclose(fd);
+
+    if (error) $display("there has %d error", error);
+    else $display("simulation successfully");
   end
 
   /* effective address */
