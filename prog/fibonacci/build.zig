@@ -41,14 +41,15 @@ fn addVariant(
     });
 
     const exe = b.addExecutable(.{
-        .name = b.fmt("copy_arr_{s}", .{ ld_mode }),
+        .name = b.fmt("fibonacci_{s}", .{ld_mode}),
         .root_module = root_module,
     });
 
     exe.entry = .disabled; // use self define entry _start
     exe.addAssemblyFile(b.path("../share/_start.s"));
+    exe.addAssemblyFile(b.path("src/write_u32.S"));
 
-    const script_rel = b.fmt("../share/{s}_linker.ld", .{ ld_mode });
+    const script_rel = b.fmt("../share/{s}_linker.ld", .{ld_mode});
     exe.setLinkerScript(b.path(script_rel));
 
     b.installArtifact(exe);
@@ -56,13 +57,12 @@ fn addVariant(
     const bin = b.addObjCopy(exe.getEmittedBin(), .{ .format = .bin });
     const install_bin = b.addInstallBinFile(
         bin.getOutput(),
-        b.fmt("copy_arr_{s}.bin", .{ ld_mode }),
+        b.fmt("fibonacci_{s}.bin", .{ld_mode}),
     );
 
-    const step = b.step(b.fmt("install_{s}", .{ ld_mode }), "internal install step");
+    const step = b.step(b.fmt("install_{s}", .{ld_mode}), "internal install step");
     step.dependOn(&exe.step);
     step.dependOn(&install_bin.step);
 
     return .{ .install_step = step };
 }
-

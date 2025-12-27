@@ -1,0 +1,11 @@
+.{
+    .name = .copy_arr,
+    .fingerprint = 0xc0217ec561941b4e,
+    .version = "0.0.0",
+    .minimum_zig_version = "0.15.2",
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "src",
+    },
+}

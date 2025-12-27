@@ -1,8 +1,9 @@
 ISA := rv32i
 SIM_DEBUG_BASE := 00020000 # memory dump address to compare with golden
 
-PROG_SRCS := bit_operation \
-			 copy_arr
+PROG_SRCS := bitwise    \
+			 arithmetic \
+			 fibonacci
 
 TB  := tb/tb_top.sv
 TOP := src/top_axi.sv

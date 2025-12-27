@@ -1,6 +1,8 @@
 ISA = rv32i
 
-SRCS       := bit_operation copy_arr
+SRCS := bitwise    \
+		arithmetic \
+		fibonacci
 SIM_DIR    := sims
 SPIKE_DIR  := spikes
 GOLDEN_DIR := golden

@@ -1,4 +1,4 @@
-PROG      := bit_operation
+PROG      := bitwise
 BIN       := zig-out/bin
 SIM_ELF   := $(BIN)/$(PROG)_sim
 SIM_HEX   := $(PROG)_sim.hex

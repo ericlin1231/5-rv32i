@@ -41,7 +41,7 @@ fn addVariant(
     });
 
     const exe = b.addExecutable(.{
-        .name = b.fmt("bit_operation_{s}", .{ld_mode}),
+        .name = b.fmt("bitwise_{s}", .{ld_mode}),
         .root_module = root_module,
     });
 
@@ -69,7 +69,7 @@ fn addVariant(
     const bin = b.addObjCopy(exe.getEmittedBin(), .{ .format = .bin });
     const install_bin = b.addInstallBinFile(
         bin.getOutput(),
-        b.fmt("bit_operation_{s}.bin", .{ld_mode}),
+        b.fmt("bitwise_{s}.bin", .{ld_mode}),
     );
 
     const step = b.step(b.fmt("install_{s}", .{ld_mode}), "internal install step");
