@@ -48,10 +48,18 @@ fn addVariant(
     exe.entry = .disabled; // use self define entry _start
     exe.addAssemblyFile(b.path("../share/_start.s"));
     exe.addAssemblyFile(b.path("src/write_u32.S"));
+    exe.addAssemblyFile(b.path("src/or_u32.S"));
+    exe.addAssemblyFile(b.path("src/ori_u32.S"));
+    exe.addAssemblyFile(b.path("src/and_u32.S"));
+    exe.addAssemblyFile(b.path("src/andi_u32.S"));
     exe.addAssemblyFile(b.path("src/xor_u32.S"));
+    exe.addAssemblyFile(b.path("src/xori_u32.S"));
     exe.addAssemblyFile(b.path("src/sra_u32.S"));
+    exe.addAssemblyFile(b.path("src/srai_u32.S"));
     exe.addAssemblyFile(b.path("src/srl_u32.S"));
+    exe.addAssemblyFile(b.path("src/srli_u32.S"));
     exe.addAssemblyFile(b.path("src/sll_u32.S"));
+    exe.addAssemblyFile(b.path("src/slli_u32.S"));
 
     const script_rel = b.fmt("../share/{s}_linker.ld", .{ld_mode});
     exe.setLinkerScript(b.path(script_rel));

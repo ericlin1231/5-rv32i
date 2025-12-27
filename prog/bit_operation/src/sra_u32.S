@@ -5,7 +5,7 @@
 /* a0: ptr_ref: **volatile u32
  * a1: val: u32
  * a2: shift_width: usize
- * a3: amount: u32
+ * a3: times: u32
  */
 
 sra_u32:
