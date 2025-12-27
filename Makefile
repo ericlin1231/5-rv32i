@@ -1,27 +1,28 @@
 ISA := rv32i
 SIM_DEBUG_BASE := 00020000 # memory dump address to compare with golden
-SPIKE_ELF_BASE := 0x80000000
-PROG_MAX_SIZE  := 0x50000
+
+PROG_SRCS := bit_operation \
+			 copy_arr
 
 TB  := tb/tb_top.sv
 TOP := src/top_axi.sv
-SRCS := src/pkgs/CPU_profile.sv
-SRCS += src/pkgs/decode.sv
-SRCS += src/pkgs/CPU_buffer_bus.sv
-SRCS += src/pkgs/AXI_define.sv
-SRCS += src/pkgs/tracer.sv
-SRCS += $(wildcard src/axi/*.sv)
-SRCS += $(wildcard src/stages/*.sv)
-SRCS += $(wildcard src/buffers/*.sv)
-SRCS += $(wildcard src/sub_modules/*.sv)
-SRCS += $(wildcard src/peripheral/*.sv)
-SRCS += src/cpu.sv
-SRCS += $(TB) $(TOP)
+SRCS := src/pkgs/CPU_profile.sv          \
+		src/pkgs/decode.sv               \
+		src/pkgs/CPU_buffer_bus.sv       \
+		src/pkgs/AXI_define.sv           \
+		src/pkgs/tracer.sv               \
+		$(wildcard src/axi/*.sv)         \
+		$(wildcard src/stages/*.sv)      \
+		$(wildcard src/buffers/*.sv)     \
+		$(wildcard src/sub_modules/*.sv) \
+		$(wildcard src/peripheral/*.sv)  \
+		src/cpu.sv                       \
+		$(TB) $(TOP)
 
 SIMULATOR := vcs
-COMPILE_OPTS := -q -R -sverilog $(SRCS) -debug_access+all -full64
-COMPILE_OPTS += +IMEM=prog/sims/copy_arr_sim.hex +DEBUG_BASE=$(SIM_DEBUG_BASE) +define+TRACE
-COMPILE_OPTS += +notimingcheck
+COMPILE_OPTS := -q -R -sverilog $(SRCS) -debug_access+all -full64 \
+				+DEBUG_BASE=$(SIM_DEBUG_BASE) +define+TRACE       \
+				+notimingcheck +fsdb+no_logo
 
 VIEWER := verdi
 WAVE := wave.fsdb
@@ -34,20 +35,28 @@ GDB     := gdb
 GDBINIT := gdbinit
 
 all: sim
+	@echo ""
+	@echo "---------------------------------------------------"
+	@echo "verdi log"
+	@echo "---------------------------------------------------"
+	@echo ""
 	@$(VIEWER) $(VIEWER_OPTS) $(WAVE)
 
 .PHONY: sim
 sim: golden
-	$(SIMULATOR) $(COMPILE_OPTS)
+	@$(MAKE) $(addsuffix .sim, $(PROG_SRCS))
+
+%.sim:
+	@echo ""
+	@echo "---------------------------------------------------"
+	@echo "simulation with program $*"
+	@echo "---------------------------------------------------"
+	@echo ""
+	@$(SIMULATOR) $(COMPILE_OPTS) +TESTCASE=$*
 
 .PHONY: golden
 golden: prog
-	@spike -l -m$(SPIKE_ELF_BASE):$(PROG_MAX_SIZE) --isa=$(ISA) +signature=golden.sig --signature=golden.sig prog/spikes/copy_arr_spike
-	@xxd -r -p golden.sig sig.raw
-	@xxd -p -c 4 sig.raw > golden.txt
-	@rm golden.sig sig.raw
-	@mkdir -p golden
-	@mv golden.txt golden
+	$(MAKE) -C prog golden
 
 .PHONY: debug
 debug: prog
@@ -62,8 +71,8 @@ gdb:
 
 .PHONY: prog
 prog:
-	@make -C prog
+	@$(MAKE) -C prog
 
 .PHONY: clean
 clean:
-	@rm -rf golden
+	@$(MAKE) -C prog clean

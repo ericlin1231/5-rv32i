@@ -3,7 +3,9 @@ module tb_top;
 
   logic  ACLK;
   logic  ARESETn;
+  string testcase;
   string mem_file;
+  string golden_file;
 
   top_axi TOP (
       .ACLK,
@@ -11,14 +13,26 @@ module tb_top;
   );
 
   /************************************************************/
-  /* initialize memory with testcase program */
+  /* initialize memory and golden data */
   /************************************************************/
   initial begin
-    if (!$value$plusargs("IMEM=%s", mem_file)) $display("Unified memory didn't load program file");
-    if (mem_file != "") begin
+    $display("\n");
+    $display("\n");
+    $display("---------------------------------------------------");
+    $display("initialize memory and golden data");
+    $display("---------------------------------------------------");
+    if (!$value$plusargs("TESTCASE=%s", testcase))
+      $display("unified memory didn't load program file");
+    if (testcase != "") begin
+      mem_file = $sformatf("prog/sims/%s_sim.hex", testcase);
+      golden_file = $sformatf("prog/golden/%s_golden.txt", testcase);
       $display("[%m] load %s to unified memory", mem_file);
       $readmemh(mem_file, TOP.mem0.mem0.mem);
+      $display("use %s as golden data", golden_file);
     end
+    $display("---------------------------------------------------");
+    $display("\n");
+    $display("\n");
   end
 
   /************************************************************/
@@ -56,15 +70,15 @@ module tb_top;
 
     $display("\n");
     $display("\n");
-    $display("/************************************************************/");
-    $display("/* Simulation result report");
-    $display("/************************************************************/");
+    $display("---------------------------------------------------");
+    $display("%s simulation result report", testcase);
+    $display("---------------------------------------------------");
 
     if (!$value$plusargs("DEBUG_BASE=%h", debug_base))
       $display("should provide debug base address !");
 
-    fd = $fopen("golden/golden.txt", "r");
-    if (fd) $display("open golden.txt successfully");
+    fd = $fopen(golden_file, "r");
+    if (fd) $display("open %s successfully", golden_file);
     else file_exist = 0;
 
     while (!$feof(

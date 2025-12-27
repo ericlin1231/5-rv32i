@@ -3,6 +3,8 @@
 *.fsdb
 
 # prog
+sims/
+spikes/
 golden/
 zig-out/
 .zig-cache/

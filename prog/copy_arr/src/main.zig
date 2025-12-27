@@ -1,12 +1,11 @@
 extern var begin_signature: usize;
 extern var end_signature: usize;
 
-pub export var tohost: u64 linksection(".tohost") = 0;
-pub export var fromhost: u64 linksection(".fromhost") = 0;
+pub export var tohost: u32 linksection(".tohost") = 0;
+pub export var fromhost: u32 linksection(".fromhost") = 0;
 
-fn spike_exit(status: usize) noreturn {
-    const ptr: *volatile u64 = @ptrCast(&tohost);
-    ptr.* = @as(u64, status);
+fn spike_exit(status: u32) noreturn {
+    tohost = status;
     while (true) {}
 }
 

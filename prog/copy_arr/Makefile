@@ -4,8 +4,8 @@ SIM_ELF   := $(BIN)/$(PROG)_sim
 SIM_HEX   := $(PROG)_sim.hex
 SPIKE_ELF := $(BIN)/$(PROG)_spike
 
-SIM_DIR   := ../sims
-SPIKE_DIR := ../spikes
+SIM_DIR   ?= ../sims
+SPIKE_DIR ?= ../spikes
 
 CROSS   := riscv32-unknown-elf-
 OBJCOPY := $(CROSS)objcopy -O verilog --verilog-data-width 4
