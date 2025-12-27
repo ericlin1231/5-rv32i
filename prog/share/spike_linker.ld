@@ -2,6 +2,7 @@ OUTPUT_ARCH("riscv")
 ENTRY(_start)
 
 _STACK_SIZE = 0x1000;
+_SIGNATURE_SIZE = 0x100;
 
 MEMORY {
   imem (rx) : ORIGIN = 0x80000000, LENGTH = 0x00010000
@@ -13,6 +14,7 @@ SECTIONS
 {
     .text : ALIGN(16) {
         *(.text.start)
+        *(.text.main)
         *(.text)
         *(.text.*)
     } > imem
@@ -51,7 +53,7 @@ SECTIONS
 
     .signature (NOLOAD): ALIGN(16) {
         PROVIDE(begin_signature = .);
-        . = . + 16;
+        . = . + _SIGNATURE_SIZE;
         PROVIDE(end_signature = .);
     } > debug
 }
