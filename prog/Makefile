@@ -2,7 +2,8 @@ ISA = rv32i
 
 SRCS := bitwise    \
 		arithmetic \
-		fibonacci
+		fibonacci  \
+		sort
 SIM_DIR    := sims
 SPIKE_DIR  := spikes
 GOLDEN_DIR := golden
