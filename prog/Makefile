@@ -2,6 +2,7 @@ ISA = rv32i
 
 SRCS := bitwise    \
 		arithmetic \
+		load_store \
 		fibonacci  \
 		sort
 SIM_DIR    := sims

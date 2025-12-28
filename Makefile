@@ -1,8 +1,9 @@
 ISA := rv32i
 SIM_DEBUG_BASE := 00020000 # memory dump address to compare with golden
 
-PROG_SRCS := bitwise    \
+PROG_SRCS ?= bitwise    \
 			 arithmetic \
+			 load_store \
 			 fibonacci  \
 			 sort
 

@@ -1,11 +1,14 @@
 module tb_top;
   import CPU_profile::*;
 
-  logic  ACLK;
-  logic  ARESETn;
+  logic ACLK;
+  logic ARESETn;
   string testcase;
   string mem_file;
   string golden_file;
+
+  int unsigned idx;
+  logic [XLEN-1:0] GOLDEN[1024];
 
   top_axi TOP (
       .ACLK,
@@ -81,20 +84,27 @@ module tb_top;
     if (fd) $display("open %s successfully", golden_file);
     else file_exist = 0;
 
+    idx = 0;
     while (!$feof(
         fd
     )) begin
-      void'($fgets(golden_str, fd));
-      if (golden_str.len() == 0) continue;  /* ignore empty line */
-      void'($sscanf(golden_str, "%08h", golden_value));
-      if (TOP.mem0.mem0.mem[debug_base[XLEN-1:2]] != golden_value) begin
+      $fscanf(fd, "%h\n", GOLDEN[idx]);
+      idx++;
+      if (idx == 1024) break;
+    end
+    $fclose(fd);
+
+    for (idx = 0; idx < 1024; idx++) begin
+      if (TOP.mem0.mem0.mem[debug_base[XLEN-1:2]] != GOLDEN[idx]) begin
         $display("Mismatch at [%08h], mem = 0x%08h, golden = 0x%08h", debug_base,
-                 TOP.mem0.mem0.mem[debug_base[XLEN-1:2]], golden_value);
+                 TOP.mem0.mem0.mem[debug_base[XLEN-1:2]], GOLDEN[idx]);
         error++;
+      end else begin
+        $display("Match at [%08h], mem = 0x%08h, golden = 0x%08h", debug_base,
+                 TOP.mem0.mem0.mem[debug_base[XLEN-1:2]], GOLDEN[idx]);
       end
       debug_base += 32'd4;
     end
-    $fclose(fd);
 
     if (!file_exist) begin
       $display("\n");
