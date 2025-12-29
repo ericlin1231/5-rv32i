@@ -22,10 +22,10 @@ module cpu
     input  logic [           XLEN-1:0] dmem_rdata,
     output logic                       dmem_wen,
     output       [AXI_DATA_BITS/8-1:0] dmem_wstrb,
-    output logic [           XLEN-1:0] dmem_wdata,
+    output logic [           XLEN-1:0] dmem_wdata
 
     /********** pipeline signal trace output ***********/
-`ifdef TRACE
+`ifdef TRACE,
     output tracer_bus_t if_trace,
     output tracer_bus_t id_trace,
     output tracer_bus_t ex_trace,
@@ -54,10 +54,15 @@ module cpu
   assign id_ex_bus_in_trace.rs1_idx = if_id_bus_out_trace.rs1_idx;
   assign id_ex_bus_in_trace.rs2_idx = if_id_bus_out_trace.rs2_idx;
   assign id_ex_bus_in_trace.pc = if_id_bus_out_trace.pc;
-  // imm, rs1_data and rs2_data is known at ID
+  /* known at ID
+   * imm
+   * rs1_data and rs2_data
+   * alu_op
+   */
   assign id_ex_bus_in_trace.imm = id_ex_bus_in.ex.imm;
   assign id_ex_bus_in_trace.rs1_data = id_ex_bus_in.ex.rs1_data;
   assign id_ex_bus_in_trace.rs2_data = id_ex_bus_in.ex.rs2_data;
+  assign id_ex_bus_in_trace.alu_op = id_ex_bus_in.ex.alu_op;
 
   assign ex_mem_bus_in_trace = id_ex_bus_out_trace;
   assign mem_wb_bus_in_trace = ex_mem_bus_out_trace;
@@ -153,8 +158,8 @@ module cpu
       .stall_en(stall_en_if2id | global_stall_en),
       .flush_en(flush_en_if2id | jump_penalty),
       .if_id_bus_in,
-      .if_id_bus_out,
-`ifdef TRACE
+      .if_id_bus_out
+`ifdef TRACE,
       .if_id_bus_in_trace,
       .if_id_bus_out_trace
 `endif
@@ -226,8 +231,8 @@ module cpu
       .stall_en(global_stall_en),
       .flush_en(flush_en_id2ex),
       .id_ex_bus_in,
-      .id_ex_bus_out,
-`ifdef TRACE
+      .id_ex_bus_out
+`ifdef TRACE,
       .id_ex_bus_in_trace,
       .id_ex_bus_out_trace
 `endif
@@ -274,8 +279,8 @@ module cpu
       .ARESETn,
       .stall_en(global_stall_en),
       .ex_mem_bus_in,
-      .ex_mem_bus_out,
-`ifdef TRACE
+      .ex_mem_bus_out
+`ifdef TRACE,
       .ex_mem_bus_in_trace,
       .ex_mem_bus_out_trace
 `endif
@@ -322,8 +327,8 @@ module cpu
       .ARESETn,
       .stall_en(global_stall_en),
       .mem_wb_bus_in,
-      .mem_wb_bus_out,
-`ifdef TRACE
+      .mem_wb_bus_out
+`ifdef TRACE,
       .mem_wb_bus_in_trace,
       .mem_wb_bus_out_trace
 `endif

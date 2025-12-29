@@ -7,8 +7,8 @@ module IF2ID
     input  logic        stall_en,
     input  logic        flush_en,
     input  if_id_bus_t  if_id_bus_in,
-    output if_id_bus_t  if_id_bus_out,
-`ifdef TRACE
+    output if_id_bus_t  if_id_bus_out
+`ifdef TRACE,
     input  tracer_bus_t if_id_bus_in_trace,
     output tracer_bus_t if_id_bus_out_trace
 `endif

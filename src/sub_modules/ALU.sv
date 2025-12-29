@@ -14,7 +14,7 @@ module ALU
       SUB:     alu_result_o = data1_i - data2_i;
       SLL:     alu_result_o = data1_i << data2_i[4:0];
       SRL:     alu_result_o = data1_i >> data2_i[4:0];
-      SRA:     alu_result_o = data1_i >>> data2_i[4:0];
+      SRA:     alu_result_o = $signed(data1_i) >>> data2_i[4:0];
       AND:     alu_result_o = data1_i & data2_i;
       OR:      alu_result_o = data1_i | data2_i;
       XOR:     alu_result_o = data1_i ^ data2_i;

@@ -6,8 +6,8 @@ module MEM2WB
     input  logic        ARESETn,
     input  logic        stall_en,
     input  mem_wb_bus_t mem_wb_bus_in,
-    output mem_wb_bus_t mem_wb_bus_out,
-`ifdef TRACE
+    output mem_wb_bus_t mem_wb_bus_out
+`ifdef TRACE,
     input  tracer_bus_t mem_wb_bus_in_trace,
     output tracer_bus_t mem_wb_bus_out_trace
 `endif

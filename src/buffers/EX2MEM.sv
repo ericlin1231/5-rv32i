@@ -6,8 +6,8 @@ module EX2MEM
     input  logic        ARESETn,
     input  logic        stall_en,
     input  ex_mem_bus_t ex_mem_bus_in,
-    output ex_mem_bus_t ex_mem_bus_out,
-`ifdef TRACE
+    output ex_mem_bus_t ex_mem_bus_out
+`ifdef TRACE,
     input  tracer_bus_t ex_mem_bus_in_trace,
     output tracer_bus_t ex_mem_bus_out_trace
 `endif

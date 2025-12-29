@@ -1,7 +1,9 @@
 module Debug
   import CPU_profile::*;
+  import decode::*;
   import tracer::*;
 (
+    input logic ACLK,
     input tracer_bus_t if_trace,
     input tracer_bus_t id_trace,
     input tracer_bus_t ex_trace,
@@ -47,7 +49,13 @@ module Debug
   assign ex_rs1_data = ex_trace.rs1_data;
   assign ex_rs2_data = ex_trace.rs2_data;
   assign ex_imm = ex_trace.imm;
-
+  always_ff @(posedge ACLK) begin
+    if (ex_trace.inst.opcode == 7'b0010011 && ex_trace.inst.funct3 == 3'd5 && ex_trace.inst.funct7 == 7'b0100000) begin
+      $display("pc: 0x%h inst: %s opcode: %b funct3: %b funct7: %b alu_op: %s", ex_trace.pc,
+               rv32i_disasm(ex_trace.inst, ex_trace.pc), ex_trace.inst.opcode,
+               ex_trace.inst.funct3, ex_trace.inst.funct7, ex_trace.alu_op.name);
+    end
+  end
 
   string mem_disasm;
   string mem_rd_abi;

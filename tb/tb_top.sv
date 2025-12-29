@@ -98,8 +98,8 @@ module tb_top;
 
     for (idx = 0; idx < 1024; idx++) begin
       if (TOP.mem0.mem0.mem[debug_base[XLEN-1:2]] !== GOLDEN[idx]) begin
-        $display("Mismatch at [%08h], mem = 0x%08h, golden = 0x%08h", debug_base,
-                 TOP.mem0.mem0.mem[debug_base[XLEN-1:2]], GOLDEN[idx]);
+        $display("Mismatch at [%08h], mem = 0x%08h, golden = 0x%08h GOLDEN idx = %d", debug_base,
+                 TOP.mem0.mem0.mem[debug_base[XLEN-1:2]], GOLDEN[idx], idx + 1);
         error++;
       end
       debug_base += 32'd4;

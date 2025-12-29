@@ -7,8 +7,8 @@ module ID2EX
     input  logic        stall_en,
     input  logic        flush_en,
     input  id_ex_bus_t  id_ex_bus_in,
-    output id_ex_bus_t  id_ex_bus_out,
-`ifdef TRACE
+    output id_ex_bus_t  id_ex_bus_out
+`ifdef TRACE,
     input  tracer_bus_t id_ex_bus_in_trace,
     output tracer_bus_t id_ex_bus_out_trace
 `endif

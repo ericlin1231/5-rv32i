@@ -26,7 +26,8 @@ SRCS := src/pkgs/CPU_profile.sv          \
 
 SIMULATOR := vcs
 COMPILE_OPTS := -q -R -sverilog $(SRCS) -debug_access+all -full64 \
-				+DEBUG_BASE=$(SIM_DEBUG_BASE) +notimingcheck
+				+DEBUG_BASE=$(SIM_DEBUG_BASE) +notimingcheck      \
+				+define+TRACE
 
 VIEWER := verdi
 WAVE := wave.fsdb
@@ -58,7 +59,7 @@ sim_dump_wave: golden
 	@echo "dump waveform for Verdi debugging"
 	@echo "---------------------------------------------------"
 	@echo ""
-	@$(SIMULATOR) $(COMPILE_OPTS) +TESTCASE=$* +define+WAVE +define+TRACE
+	@$(SIMULATOR) $(COMPILE_OPTS) +TESTCASE=$* +define+WAVE
 
 .PHONY: sim
 sim: golden

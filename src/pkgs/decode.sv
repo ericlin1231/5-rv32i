@@ -68,7 +68,7 @@ package decode;
   /*
  * Standard
  * ADD, SRL, SRLI
- * 
+ *
  * Alternative
  * SUB  (Correspond to ADD)
  * SRA  (Correspond to SRL)

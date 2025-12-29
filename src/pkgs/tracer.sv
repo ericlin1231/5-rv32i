@@ -1,5 +1,6 @@
 package tracer;
   import CPU_profile::*;
+  import decode::*;
 
   typedef struct packed {
     inst_t inst;
@@ -10,6 +11,7 @@ package tracer;
     logic [XLEN-1:0] imm;
     logic [XLEN-1:0] rs1_data;
     logic [XLEN-1:0] rs2_data;
+    alu_op_e alu_op;
     logic [XLEN-1:0] alu_result;
   } tracer_bus_t;
 

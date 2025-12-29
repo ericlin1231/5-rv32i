@@ -91,11 +91,12 @@ module axi_cpu_wrapper
   tracer_bus_t wb_trace;
 
   Debug debug_core_0 (
-      .if_trace (if_trace),
-      .id_trace (id_trace),
-      .ex_trace (ex_trace),
+      .ACLK(ACLK),
+      .if_trace(if_trace),
+      .id_trace(id_trace),
+      .ex_trace(ex_trace),
       .mem_trace(mem_trace),
-      .wb_trace (wb_trace)
+      .wb_trace(wb_trace)
   );
 `endif
 
@@ -112,15 +113,15 @@ module axi_cpu_wrapper
       .imem_rdata_handshake(imem_rdata_handshake),
 
       /********** DMEM Master 1 Interface **************/
-      .dmem_addr (imem_addr),
+      .dmem_addr (dmem_addr),
       .dmem_ren  (dmem_ren),
       .dmem_rdata(dmem_rdata),
       .dmem_wen  (dmem_wen),
       .dmem_wstrb(dmem_wstrb),
-      .dmem_wdata(dmem_wdata),
+      .dmem_wdata(dmem_wdata)
 
       /********** pipeline signal trace output ***********/
-`ifdef TRACE
+`ifdef TRACE,
       .if_trace (if_trace),
       .id_trace (id_trace),
       .ex_trace (ex_trace),
@@ -166,20 +167,13 @@ module axi_cpu_wrapper
   assign RREADY_M0  = rready_M0;
 
   /*----------------------- Data port (Master 1) -----------------------*/
-  /* while AXI read next instruction
-   * need 4 cycle to fetch 
-   * AXI read transaction only need 3 cycle
-   * block dmem read port to prevent double read
-   */
-  logic dmem_read_block;
-  assign dmem_read_block = (ARADDR_M1 == dmem_addr);
   always_ff @(posedge ACLK or negedge ARESETn) begin
     if (!ARESETn) begin
       ARVALID_M1        <= 1'b0;
       ARADDR_M1         <= '0;
       dmem_read_pending <= 1'b0;
     end else begin
-      if (!dmem_read_pending && dmem_ren && !dmem_read_block) begin
+      if (!dmem_read_pending && dmem_ren) begin
         ARVALID_M1 <= 1'b1;
         ARADDR_M1  <= dmem_addr;
       end
@@ -206,7 +200,7 @@ module axi_cpu_wrapper
   end
 
   /* while AXI read next instruction
-   * need 4 cycle to fetch 
+   * need 4 cycle to fetch
    * AXI write transaction only need 3 cycle
    * block dmem write port to prevent double write
    */
