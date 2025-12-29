@@ -16,18 +16,22 @@ signalSpacing 5
 
 ; windowTimeUnit is used for zoom, cursor & marker
 ; waveform viewport range
-zoom 288773.363127 289180.766728
-cursor 287764.44269106427
+zoom 326354.620039 326762.023640
+cursor 326484.97151664336
 marker 0.000000
 
 ; user define markers
 ; userMarker time_pos marker_name color linestyle
+userMarker 324444.76 "42 ori" ID_GREEN5 long_dashed
+userMarker 325244.544 "43 ori" ID_GREEN5 long_dashed
+userMarker 326004.913 "44 ori" ID_GREEN5 long_dashed
+userMarker 326802.764 "45 ori" ID_GREEN5 long_dashed
 userMarker 287764.443 Main ID_GREEN5 long_dashed
 
 ; visible top row signal index
-top 57
+top 8
 ; marker line index
-markerPos 61
+markerPos 19
 
 ; event list
 ; addEvent event_name event_expression
@@ -56,15 +60,21 @@ addGroup "AXI-IMEM"
 addSignal -h 15 -UNSIGNED -HEX /tb_top/TOP/AXI/ARADDR_M0[31:0]
 addSignal -h 15 -holdScope ARVALID_M0
 addSignal -h 15 -UNSIGNED -HEX -holdScope RDATA_M0[31:0]
-addSignal -h 15 -holdScope RVALID_M0
+addSignal -h 15 /tb_top/TOP/core_0/debug_core_0/imem_inst
+addSignal -h 15 /tb_top/TOP/AXI/RVALID_M0
 addGroup "IF"
 addSignal -h 15 /tb_top/TOP/core_0/core_0/IF_stage/stall_en
-addSignal -h 15 -holdScope jump_en
+addSignal -h 15 /tb_top/TOP/core_0/core_0/Hazard_u/load_stall
+addSignal -h 15 /tb_top/TOP/core_0/core_0/IF_stage/jump_en
 addSignal -h 15 -UNSIGNED -HEX -holdScope jump_addr_i[31:0]
 addSignal -h 15 -UNSIGNED -holdScope hold_pc_for_next_rvalid[1:0]
 addSignal -h 15 -holdScope jump_penalty
+addSignal -h 15 -UNSIGNED -HEX /tb_top/TOP/core_0/core_0/counter[1:0]
+addSignal -h 15 -holdScope current_inst
+addSignal -h 15 -holdScope if_inst_cache
 addSignal -h 15 /tb_top/TOP/core_0/debug_core_0/if_disasm
 addSignal -h 15 -UNSIGNED -HEX /tb_top/TOP/core_0/core_0/IF2ID_buffer/if_id_bus_in.ex.pc[31:0]
+addSignal -h 15 -UNSIGNED -HEX /tb_top/TOP/core_0/core_0/IF_stage/pc_o[31:0]
 addGroup "IF2ID"
 addSignal -h 15 /tb_top/TOP/core_0/core_0/IF2ID_buffer/flush_en
 addSignal -h 15 -holdScope stall_en
@@ -143,6 +153,7 @@ getSignalForm close
 "/tb_top/TOP/core_0/core_0"
 "/tb_top/TOP/core_0/core_0/EX2MEM_buffer"
 "/tb_top/TOP/core_0/core_0/EX_stage"
+"/tb_top/TOP/core_0/core_0/Hazard_u"
 "/tb_top/TOP/core_0/core_0/ID2EX_buffer"
 "/tb_top/TOP/core_0/core_0/ID_stage"
 "/tb_top/TOP/core_0/core_0/IF2ID_buffer"
@@ -192,6 +203,7 @@ SCOPE_LIST_BEGIN
 "/tb_top/TOP/mem0"
 "/tb_top/TOP/core_0/core_0/EX_stage/ALU_u"
 "/tb_top/TOP/mem0/mem0"
+"/tb_top/TOP/core_0/core_0/Hazard_u"
 SCOPE_LIST_END
 
 GETSIGNALFORM_SCOPE_HIERARCHY_END

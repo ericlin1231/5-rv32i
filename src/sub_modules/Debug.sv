@@ -4,12 +4,21 @@ module Debug
   import tracer::*;
 (
     input logic ACLK,
+    input tracer_axi_t imem_trace,
     input tracer_bus_t if_trace,
     input tracer_bus_t id_trace,
     input tracer_bus_t ex_trace,
     input tracer_bus_t mem_trace,
     input tracer_bus_t wb_trace
 );
+  /************************************************************/
+  /* trace AXI signal */
+  /************************************************************/
+  inst_t imem_rdata;
+  string imem_inst;
+  assign imem_rdata = inst_t'(imem_trace.rdata);
+  assign imem_inst  = rv32i_disasm(imem_rdata, 32'h0);
+
   /********** pipeline traced signal for testbench *****/
   string if_disasm;
   string if_rd_abi;
@@ -49,13 +58,21 @@ module Debug
   assign ex_rs1_data = ex_trace.rs1_data;
   assign ex_rs2_data = ex_trace.rs2_data;
   assign ex_imm = ex_trace.imm;
-  always_ff @(posedge ACLK) begin
-    if (ex_trace.inst.opcode == 7'b0010011 && ex_trace.inst.funct3 == 3'd5 && ex_trace.inst.funct7 == 7'b0100000) begin
-      $display("pc: 0x%h inst: %s opcode: %b funct3: %b funct7: %b alu_op: %s", ex_trace.pc,
-               rv32i_disasm(ex_trace.inst, ex_trace.pc), ex_trace.inst.opcode,
-               ex_trace.inst.funct3, ex_trace.inst.funct7, ex_trace.alu_op.name);
-    end
-  end
+
+  // opcode_e ex_opcode_e;
+  // arithmetic_imm_funct3_e ex_funct3_e;
+  // arithmetic_funct7_e ex_funct7_e;
+
+  // assign ex_opcode_e = opcode_e'(ex_trace.inst.opcode);
+  // assign ex_funct3_e = arithmetic_imm_funct3_e'(ex_trace.inst.funct3);
+  // assign ex_funct7_e = arithmetic_funct7_e'(ex_trace.inst.funct7);
+  // always_ff @(posedge ACLK) begin
+  //   if (ex_trace.inst.opcode == 7'b0010011 && ex_trace.inst.funct3 == 3'd5 && ex_trace.inst.funct7 == 7'b0100000) begin
+  //     $display("pc: 0x%h inst: %s opcode: %s funct3: %s funct7: %s alu_op: %s", ex_trace.pc,
+  //              rv32i_disasm(ex_trace.inst, ex_trace.pc), ex_opcode_e.name, ex_funct3_e.name,
+  //              ex_funct7_e.name, ex_trace.alu_op.name);
+  //   end
+  // end
 
   string mem_disasm;
   string mem_rd_abi;

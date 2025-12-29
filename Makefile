@@ -26,8 +26,11 @@ SRCS := src/pkgs/CPU_profile.sv          \
 
 SIMULATOR := vcs
 COMPILE_OPTS := -q -R -sverilog $(SRCS) -debug_access+all -full64 \
-				+DEBUG_BASE=$(SIM_DEBUG_BASE) +notimingcheck      \
-				+define+TRACE
+				+DEBUG_BASE=$(SIM_DEBUG_BASE)                     \
+				+DUMP_BASE=$(SIM_DEBUG_BASE) +DUMP_SIZE=0x1000    \
+				+notimingcheck +define+TRACE
+				
+
 
 VIEWER := verdi
 WAVE := wave.fsdb
@@ -63,6 +66,10 @@ sim_dump_wave: golden
 
 .PHONY: sim
 sim: golden
+	@$(MAKE) $(TEST).sim
+
+.PHONY: sims
+sims: golden
 	@$(MAKE) $(addsuffix .sim, $(PROG))
 
 %.sim:

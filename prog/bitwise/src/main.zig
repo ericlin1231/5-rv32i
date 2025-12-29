@@ -43,19 +43,22 @@ pub export fn main() linksection(".text.main") noreturn {
     for (0..32) |_| {
         or_mask = or_mask >> 1;
         or_u32(&raw, 0x00000000, or_mask);
+        // golden 1 - 32
     }
-    write_u32(&raw, sep);
+    write_u32(&raw, sep); // golden 33
     var ori_mask: u32 = magic;
     for (0..12) |_| {
         ori_mask = ori_mask >> 1;
         ori_u32(&raw, ori_mask); // ori_mask | 0 = ori_mask
+        // golden 34 - 45
     }
-    write_u32(&raw, sep);
+    write_u32(&raw, sep); // golden 46
     // and & andi operation
     var and_mask: u32 = magic;
     for (0..32) |_| {
         and_mask = and_mask >> 1;
         and_u32(&raw, magic, and_mask);
+        // golden 47 - 78
     }
     write_u32(&raw, sep);
     var andi_mask: u32 = magic;

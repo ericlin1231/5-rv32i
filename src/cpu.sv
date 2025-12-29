@@ -77,6 +77,7 @@ module cpu
 
   // interconnect wire declaration
   /********** IF ***************************************/
+  inst_t current_inst;
   logic                  [XLEN-1:0] current_pc;
   logic                  [XLEN-1:0] pc_keep;
   /* until valid instuction after jump coming
@@ -84,6 +85,7 @@ module cpu
    */
   logic                             jump_penalty;
   jump_inst_read_delay_e            hold_pc_for_next_rvalid;
+  logic load_stall;
   /********** IF-ID Buffer *****************************/
   if_id_bus_t                       if_id_bus_in;
   if_id_bus_t                       if_id_bus_out;
@@ -127,9 +129,29 @@ module cpu
       .jump_addr_i(pc_target_ex),
 
       // output
-      .inst_o(if_id_bus_in.inst),
+      .inst_o(current_inst),
       .pc_o  (current_pc)
   );
+  inst_t if_inst_cache;
+  logic [1:0] counter;
+  always_ff @(posedge ACLK or negedge ARESETn) begin
+    if (!ARESETn) if_inst_cache <= inst_t'('0);
+    else if (load_stall) if_inst_cache <= current_inst;
+  end
+  always_ff @(posedge ACLK or negedge ARESETn) begin
+    if (!ARESETn) counter <= 0;
+    else if (load_stall && counter == 0) counter <= 1;
+    else if (imem_rdata_handshake)begin
+      unique case (counter)
+      1: counter <= 2;
+      2: counter <= 3;
+      3: counter <= 0;
+      default counter <= 0;
+      endcase
+    end
+  end
+  assign if_id_bus_in.inst = (counter == 3) ? if_inst_cache : current_inst;
+
   /********** IMEM Master 0 Interface ******************/
   assign imem_addr = current_pc;
   assign imem_ren  = 1'b1;
@@ -369,7 +391,8 @@ module cpu
       .flush_en_if2id,
       .flush_en_id2ex,
       .alu_rs1_data_sel_ex,
-      .alu_rs2_data_sel_ex
+      .alu_rs2_data_sel_ex,
+      .load_stall(load_stall)
   );
 
 endmodule

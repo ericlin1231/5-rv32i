@@ -84,6 +84,7 @@ module axi_cpu_wrapper
   logic dmem_write_pending;
 
 `ifdef TRACE
+  tracer_axi_t imem_trace;
   tracer_bus_t if_trace;
   tracer_bus_t id_trace;
   tracer_bus_t ex_trace;
@@ -92,12 +93,15 @@ module axi_cpu_wrapper
 
   Debug debug_core_0 (
       .ACLK(ACLK),
+      .imem_trace(imem_trace),
       .if_trace(if_trace),
       .id_trace(id_trace),
       .ex_trace(ex_trace),
       .mem_trace(mem_trace),
       .wb_trace(wb_trace)
   );
+
+  assign imem_trace.rdata = RDATA_M0;
 `endif
 
   cpu core_0 (

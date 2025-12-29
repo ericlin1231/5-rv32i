@@ -187,6 +187,7 @@ module Control
               default:    alu_op_o = ALU_OP_UNKNOWN;
             endcase
           end
+          default: alu_op_o = ALU_OP_UNKNOWN;
         endcase
       end
       ARITHMETIC_REG: begin
@@ -211,6 +212,7 @@ module Control
               default:    alu_op_o = ALU_OP_UNKNOWN;
             endcase
           end
+          default: alu_op_o = ALU_OP_UNKNOWN;
         endcase
       end
       BRANCH:      alu_op_o = ADD;

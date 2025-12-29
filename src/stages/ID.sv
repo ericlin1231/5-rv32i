@@ -38,7 +38,7 @@ module ID
         imm_sel   = IMM_S_TYPE;
       end
       ARITHMETIC_IMM: begin
-        funct7_o  = '0;
+        funct7_o  = inst_i.funct7;
         rs2_idx_o = '0;
         rs1_idx_o = inst_i.rs1_idx;
         funct3_o  = inst_i.funct3;

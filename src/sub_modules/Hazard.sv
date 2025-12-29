@@ -21,7 +21,8 @@ module Hazard
     output logic          flush_en_if2id,
     output logic          flush_en_id2ex,
     output alu_data_sel_e alu_rs1_data_sel_ex,
-    output alu_data_sel_e alu_rs2_data_sel_ex
+    output alu_data_sel_e alu_rs2_data_sel_ex,
+    output logic          load_stall
 );
 
   /********** forwarding logic *************************/
@@ -40,15 +41,15 @@ module Hazard
   end
 
   /********** stall and flush logic ********************/
-  logic load_stall;
   logic flush_en_for_jump;
   always_comb begin
-    load_stall    = wb_wdata_sel_ex[0] & (rd_idx_ex != 0) & ((rs1_idx_id == rd_idx_ex) | (rs2_idx_id == rd_idx_ex));
+    load_stall    = wb_wdata_sel_ex[0] && (rd_idx_ex != 0) && ((rs1_idx_id == rd_idx_ex) || (rs2_idx_id == rd_idx_ex));
     flush_en_for_jump = (hold_pc_for_next_rvalid == WAIT) ? 1'b1 : 1'b0;
     stall_en_if = load_stall;
     stall_en_if2id = load_stall;
     flush_en_if2id = flush_en_for_jump;
-    flush_en_id2ex = (flush_en_for_jump | load_stall);
+    // flush_en_id2ex = (flush_en_for_jump | load_stall);
+    flush_en_id2ex = flush_en_for_jump;
   end
 
 endmodule

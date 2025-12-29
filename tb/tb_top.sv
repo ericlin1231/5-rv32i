@@ -72,6 +72,16 @@ module tb_top;
     int golden_value;
     int error = 0;
     bit [XLEN-1:0] debug_base;
+    bit [XLEN-1:0] mem_dump_base;
+    bit [XLEN-1:0] mem_dump_end;
+    bit [XLEN-1:0] mem_dump_size;
+
+    if (!$value$plusargs("DUMP_BASE=%h", mem_dump_base))
+      $display("no provide memory dump base addr");
+
+    if (!$value$plusargs("DUMP_SIZE=%h", mem_dump_size)) $display("no provide memory dump size");
+
+    assign mem_dump_end = mem_dump_base + mem_dump_size - 32'd4;
 
     $display("\n");
     $display("\n");
@@ -104,6 +114,8 @@ module tb_top;
       end
       debug_base += 32'd4;
     end
+
+    $writememh("mem.txt", TOP.mem0.mem0.mem, mem_dump_base[XLEN-1:2], mem_dump_end[XLEN-1:2]);
 
     if (!file_exist) begin
       $display("\n");
