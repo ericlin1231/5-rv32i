@@ -18,11 +18,11 @@ module cpu
 
     /********** DMEM Master 1 Interface ******************/
     output logic [           XLEN-1:0] dmem_addr,
+    output logic                       dmem_ren,
+    input  logic [           XLEN-1:0] dmem_rdata,
     output logic                       dmem_wen,
     output       [AXI_DATA_BITS/8-1:0] dmem_wstrb,
     output logic [           XLEN-1:0] dmem_wdata,
-    output logic                       dmem_ren,
-    input  logic [           XLEN-1:0] dmem_rdata,
 
     /********** pipeline signal trace output ***********/
 `ifdef TRACE

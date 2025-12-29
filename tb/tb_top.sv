@@ -55,10 +55,12 @@ module tb_top;
   /************************************************************/
   /* dump waveform */
   /************************************************************/
+`ifdef WAVE
   initial begin
     $fsdbDumpfile("wave.fsdb");
     $fsdbDumpvars("+all", tb_top.TOP);
   end
+`endif
 
   /************************************************************/
   /* verify simulation result */

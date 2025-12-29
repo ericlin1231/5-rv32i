@@ -1,6 +1,7 @@
 ISA := rv32i
 SIM_DEBUG_BASE := 00020000 # memory dump address to compare with golden
 
+TEST ?= write_single_u32
 PROG ?= write_single_u32 \
 	    bitwise          \
 	    arithmetic       \
@@ -25,8 +26,7 @@ SRCS := src/pkgs/CPU_profile.sv          \
 
 SIMULATOR := vcs
 COMPILE_OPTS := -q -R -sverilog $(SRCS) -debug_access+all -full64 \
-				+DEBUG_BASE=$(SIM_DEBUG_BASE) +define+TRACE       \
-				+notimingcheck
+				+DEBUG_BASE=$(SIM_DEBUG_BASE) +notimingcheck
 
 VIEWER := verdi
 WAVE := wave.fsdb
@@ -38,13 +38,27 @@ QFLAGS := -nographic -smp 1 -machine virt -bios none
 GDB     := gdb
 GDBINIT := gdbinit
 
-all: sim
+.PHONY: wave
+wave: sim_dump_wave
 	@echo ""
 	@echo "---------------------------------------------------"
-	@echo "verdi log"
+	@echo "debug waveform with Verdi"
 	@echo "---------------------------------------------------"
 	@echo ""
 	@$(VIEWER) $(VIEWER_OPTS) $(WAVE)
+
+.PHONY: sim_dump_wave
+sim_dump_wave: golden
+	@$(MAKE) $(TEST).sim_dump_wave
+
+%.sim_dump_wave:
+	@echo ""
+	@echo "---------------------------------------------------"
+	@echo "simulation with program $*"
+	@echo "dump waveform for Verdi debugging"
+	@echo "---------------------------------------------------"
+	@echo ""
+	@$(SIMULATOR) $(COMPILE_OPTS) +TESTCASE=$* +define+WAVE +define+TRACE
 
 .PHONY: sim
 sim: golden

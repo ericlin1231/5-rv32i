@@ -91,41 +91,41 @@ module axi_cpu_wrapper
   tracer_bus_t wb_trace;
 
   Debug debug_core_0 (
-      .if_trace,
-      .id_trace,
-      .ex_trace,
-      .mem_trace,
-      .wb_trace
+      .if_trace (if_trace),
+      .id_trace (id_trace),
+      .ex_trace (ex_trace),
+      .mem_trace(mem_trace),
+      .wb_trace (wb_trace)
   );
 `endif
 
   cpu core_0 (
-      .ACLK,
-      .ARESETn,
-      .global_stall_en,
+      .ACLK(ACLK),
+      .ARESETn(ARESETn),
+      .global_stall_en(global_stall_en),
 
       /********** IMEM Master 0 Interface **************/
-      .imem_addr,
-      .imem_ren,
-      .imem_rdata,
-      .imem_raddr_handshake,
-      .imem_rdata_handshake,
+      .imem_addr(imem_addr),
+      .imem_ren(imem_ren),
+      .imem_rdata(imem_rdata),
+      .imem_raddr_handshake(imem_raddr_handshake),
+      .imem_rdata_handshake(imem_rdata_handshake),
 
       /********** DMEM Master 1 Interface **************/
-      .dmem_addr,
-      .dmem_ren,
-      .dmem_rdata,
-      .dmem_wen,
-      .dmem_wstrb,
-      .dmem_wdata,
+      .dmem_addr (imem_addr),
+      .dmem_ren  (dmem_ren),
+      .dmem_rdata(dmem_rdata),
+      .dmem_wen  (dmem_wen),
+      .dmem_wstrb(dmem_wstrb),
+      .dmem_wdata(dmem_wdata),
 
       /********** pipeline signal trace output ***********/
 `ifdef TRACE
-      .if_trace,
-      .id_trace,
-      .ex_trace,
-      .mem_trace,
-      .wb_trace
+      .if_trace (if_trace),
+      .id_trace (id_trace),
+      .ex_trace (ex_trace),
+      .mem_trace(mem_trace),
+      .wb_trace (wb_trace)
 `endif
   );
 
