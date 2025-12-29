@@ -1,9 +1,10 @@
 ISA = rv32i
 
-SRCS := bitwise    \
-		arithmetic \
-		load_store \
-		fibonacci  \
+SRCS := write_single_u32 \
+		bitwise          \
+		arithmetic       \
+		load_store       \
+		fibonacci        \
 		sort
 SIM_DIR    := sims
 SPIKE_DIR  := spikes

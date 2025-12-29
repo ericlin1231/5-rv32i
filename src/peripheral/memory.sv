@@ -20,7 +20,7 @@ module memory
     input  logic [     3:0] dmem_wstrb,
     input  logic [XLEN-1:0] dmem_wdata
 );
-  localparam int unsigned ADDR_BITS = $clog2(MEM_SIZE);
+  localparam int unsigned ADDR_BITS = $clog2(512 * 1024);
   localparam int unsigned ADDR_MSB = ADDR_BITS + ADDR_SHIFT - 1;
   localparam int unsigned ADDR_LSB = ADDR_SHIFT;
 

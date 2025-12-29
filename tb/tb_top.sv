@@ -47,7 +47,7 @@ module tb_top;
     ARESETn = 1'b0;
     repeat (20) @(posedge ACLK);
     ARESETn = 1'b1;
-    repeat (1000) @(posedge ACLK);
+    repeat (1000000) @(posedge ACLK);
     $display("[TB] Timeout reached, finishing.");
     $finish;
   end
@@ -88,20 +88,17 @@ module tb_top;
     while (!$feof(
         fd
     )) begin
-      $fscanf(fd, "%h\n", GOLDEN[idx]);
+      void'($fscanf(fd, "%h\n", GOLDEN[idx]));
       idx++;
       if (idx == 1024) break;
     end
     $fclose(fd);
 
     for (idx = 0; idx < 1024; idx++) begin
-      if (TOP.mem0.mem0.mem[debug_base[XLEN-1:2]] != GOLDEN[idx]) begin
+      if (TOP.mem0.mem0.mem[debug_base[XLEN-1:2]] !== GOLDEN[idx]) begin
         $display("Mismatch at [%08h], mem = 0x%08h, golden = 0x%08h", debug_base,
                  TOP.mem0.mem0.mem[debug_base[XLEN-1:2]], GOLDEN[idx]);
         error++;
-      end else begin
-        $display("Match at [%08h], mem = 0x%08h, golden = 0x%08h", debug_base,
-                 TOP.mem0.mem0.mem[debug_base[XLEN-1:2]], GOLDEN[idx]);
       end
       debug_base += 32'd4;
     end

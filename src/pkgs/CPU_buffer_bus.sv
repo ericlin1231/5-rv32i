@@ -15,16 +15,17 @@ package CPU_buffer_bus;
 
   /********** ID-EX ****************************************/
   typedef struct packed {
-    logic [XLEN-1:0] pc;
-    logic [XLEN-1:0] rs1_data;
-    logic [XLEN-1:0] rs2_data;
-    logic [XLEN-1:0] imm;
-    logic            jump_en;
-    logic            branch_en;
-    alu_op_e         alu_op;
-    alu_src1_sel_e   alu_src1_sel;
-    alu_src2_sel_e   alu_src2_sel;
-    cmp_op_e         cmp_op;
+    logic [XLEN-1:0]     pc;
+    logic [XLEN-1:0]     rs1_data;
+    logic [XLEN-1:0]     rs2_data;
+    logic [XLEN-1:0]     imm;
+    logic                jump_en;
+    logic                branch_en;
+    alu_op_e             alu_op;
+    alu_src1_sel_e       alu_src1_sel;
+    alu_src2_sel_e       alu_src2_sel;
+    cmp_op_e             cmp_op;
+    jump_addr_base_sel_e jump_addr_base_sel;
   } ex_signal_t;
 
   typedef struct packed {

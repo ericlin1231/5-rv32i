@@ -26,6 +26,7 @@ module cpu
 
     /********** pipeline signal trace output ***********/
 `ifdef TRACE
+    output tracer_bus_t if_trace,
     output tracer_bus_t id_trace,
     output tracer_bus_t ex_trace,
     output tracer_bus_t mem_trace,
@@ -48,88 +49,63 @@ module cpu
   tracer_bus_t mem_wb_bus_out_trace;
 
   /********** pipeline signal for tracing propagation **/
-  assign id_ex_bus_in_trace = if_id_bus_out_trace;
+  assign id_ex_bus_in_trace.inst = if_id_bus_out_trace.inst;
+  assign id_ex_bus_in_trace.rd_idx = if_id_bus_out_trace.rd_idx;
+  assign id_ex_bus_in_trace.rs1_idx = if_id_bus_out_trace.rs1_idx;
+  assign id_ex_bus_in_trace.rs2_idx = if_id_bus_out_trace.rs2_idx;
+  assign id_ex_bus_in_trace.pc = if_id_bus_out_trace.pc;
+  // imm, rs1_data and rs2_data is known at ID
+  assign id_ex_bus_in_trace.imm = id_ex_bus_in.ex.imm;
+  assign id_ex_bus_in_trace.rs1_data = id_ex_bus_in.ex.rs1_data;
+  assign id_ex_bus_in_trace.rs2_data = id_ex_bus_in.ex.rs2_data;
+
   assign ex_mem_bus_in_trace = id_ex_bus_out_trace;
   assign mem_wb_bus_in_trace = ex_mem_bus_out_trace;
 
   /********** pipeline traced signal for testbench *****/
+  assign if_trace = if_id_bus_in_trace;
   assign id_trace = if_id_bus_out_trace;
   assign ex_trace = id_ex_bus_out_trace;
   assign mem_trace = ex_mem_bus_out_trace;
   assign wb_trace = mem_wb_bus_out_trace;
-
-  string id_disasm;
-  string id_rd_abi;
-  string id_rs1_abi;
-  string id_rs2_abi;
-  assign id_disasm  = rv32i_disasm(if_id_bus_out_trace.inst, if_id_bus_out_trace.pc);
-  assign id_rd_abi  = reg_idx2abi(if_id_bus_out_trace.rd_idx);
-  assign id_rs1_abi = reg_idx2abi(if_id_bus_out_trace.rs1_idx);
-  assign id_rs2_abi = reg_idx2abi(if_id_bus_out_trace.rs2_idx);
-
-  string ex_disasm;
-  string ex_rd_abi;
-  string ex_rs1_abi;
-  string ex_rs2_abi;
-  assign ex_disasm  = rv32i_disasm(id_ex_bus_out_trace.inst, id_ex_bus_out_trace.pc);
-  assign ex_rd_abi  = reg_idx2abi(id_ex_bus_out_trace.rd_idx);
-  assign ex_rs1_abi = reg_idx2abi(id_ex_bus_out_trace.rs1_idx);
-  assign ex_rs2_abi = reg_idx2abi(id_ex_bus_out_trace.rs2_idx);
-
-  string mem_disasm;
-  string mem_rd_abi;
-  string mem_rs1_abi;
-  string mem_rs2_abi;
-  assign mem_disasm  = rv32i_disasm(ex_mem_bus_out_trace.inst, ex_mem_bus_out_trace.pc);
-  assign mem_rd_abi  = reg_idx2abi(ex_mem_bus_out_trace.rd_idx);
-  assign mem_rs1_abi = reg_idx2abi(ex_mem_bus_out_trace.rs1_idx);
-  assign mem_rs2_abi = reg_idx2abi(ex_mem_bus_out_trace.rs2_idx);
-
-  string wb_disasm;
-  string wb_rd_abi;
-  string wb_rs1_abi;
-  string wb_rs2_abi;
-  assign wb_disasm  = rv32i_disasm(mem_wb_bus_out_trace.inst, mem_wb_bus_out_trace.pc);
-  assign wb_rd_abi  = reg_idx2abi(mem_wb_bus_out_trace.rd_idx);
-  assign wb_rs1_abi = reg_idx2abi(mem_wb_bus_out_trace.rs1_idx);
-  assign wb_rs2_abi = reg_idx2abi(mem_wb_bus_out_trace.rs2_idx);
 `endif
 
   // interconnect wire declaration
   /********** IF ***************************************/
-  logic          [XLEN-1:0] current_pc;
-  logic          [XLEN-1:0] pc_keep;
+  logic                  [XLEN-1:0] current_pc;
+  logic                  [XLEN-1:0] pc_keep;
   /* until valid instuction after jump coming
    * the IF-ID buffer should always flush
    */
-  logic                     jump_penalty;
+  logic                             jump_penalty;
+  jump_inst_read_delay_e            hold_pc_for_next_rvalid;
   /********** IF-ID Buffer *****************************/
-  if_id_bus_t               if_id_bus_in;
-  if_id_bus_t               if_id_bus_out;
+  if_id_bus_t                       if_id_bus_in;
+  if_id_bus_t                       if_id_bus_out;
   /********** Control **********************************/
-  control_t                 control;
+  control_t                         control;
   /********** ID-EX Buffer *****************************/
-  id_ex_bus_t               id_ex_bus_in;
-  id_ex_bus_t               id_ex_bus_out;
+  id_ex_bus_t                       id_ex_bus_in;
+  id_ex_bus_t                       id_ex_bus_out;
   /********** EX ***************************************/
-  logic                     jump_en_ex;
-  logic                     branch_taken_en_ex;
-  logic          [XLEN-1:0] pc_target_ex;
+  logic                             jump_en_ex;
+  logic                             branch_taken_en_ex;
+  logic                  [XLEN-1:0] pc_target_ex;
   /********** EX-MEM Buffer ****************************/
-  ex_mem_bus_t              ex_mem_bus_in;
-  ex_mem_bus_t              ex_mem_bus_out;
+  ex_mem_bus_t                      ex_mem_bus_in;
+  ex_mem_bus_t                      ex_mem_bus_out;
   /********** MEM-WB Buffer ****************************/
-  mem_wb_bus_t              mem_wb_bus_in;
-  mem_wb_bus_t              mem_wb_bus_out;
+  mem_wb_bus_t                      mem_wb_bus_in;
+  mem_wb_bus_t                      mem_wb_bus_out;
   /********** WB ***************************************/
-  logic          [XLEN-1:0] rd_wdata;
+  logic                  [XLEN-1:0] rd_wdata;
   /********** Hazard detection *************************/
-  logic                     stall_en_if;
-  logic                     stall_en_if2id;
-  logic                     flush_en_if2id;
-  logic                     flush_en_id2ex;
-  alu_data_sel_e            alu_rs1_data_sel_ex;
-  alu_data_sel_e            alu_rs2_data_sel_ex;
+  logic                             stall_en_if;
+  logic                             stall_en_if2id;
+  logic                             flush_en_if2id;
+  logic                             flush_en_id2ex;
+  alu_data_sel_e                    alu_rs1_data_sel_ex;
+  alu_data_sel_e                    alu_rs2_data_sel_ex;
 
   /********** IF ***************************************/
   IF IF_stage (
@@ -139,15 +115,15 @@ module cpu
       .jump_en (jump_en_ex),
       .imem_rdata_handshake,
       .jump_penalty,
+      .hold_pc_for_next_rvalid,
 
       // input
       .inst_i     (imem_rdata),
       .jump_addr_i(pc_target_ex),
 
       // output
-      .inst_o   (if_id_bus_in.inst),
-      .pc_o     (current_pc),
-      .pc_next_o(if_id_bus_in.wb.pc_next)
+      .inst_o(if_id_bus_in.inst),
+      .pc_o  (current_pc)
   );
   /********** IMEM Master 0 Interface ******************/
   assign imem_addr = current_pc;
@@ -159,6 +135,7 @@ module cpu
     end
     if (imem_rdata_handshake) begin
       if_id_bus_in.ex.pc <= pc_keep;
+      if_id_bus_in.wb.pc_next <= pc_keep + 32'd4;
     end
   end
 
@@ -227,18 +204,19 @@ module cpu
 
       // output
       /********** EX ***********************************/
-      .jump_en_o     (id_ex_bus_in.ex.jump_en),
-      .branch_en_o   (id_ex_bus_in.ex.branch_en),
-      .alu_op_o      (id_ex_bus_in.ex.alu_op),
-      .alu_src1_sel_o(id_ex_bus_in.ex.alu_src1_sel),
-      .alu_src2_sel_o(id_ex_bus_in.ex.alu_src2_sel),
-      .cmp_op_o      (id_ex_bus_in.ex.cmp_op),
+      .jump_en_o           (id_ex_bus_in.ex.jump_en),
+      .branch_en_o         (id_ex_bus_in.ex.branch_en),
+      .alu_op_o            (id_ex_bus_in.ex.alu_op),
+      .alu_src1_sel_o      (id_ex_bus_in.ex.alu_src1_sel),
+      .alu_src2_sel_o      (id_ex_bus_in.ex.alu_src2_sel),
+      .cmp_op_o            (id_ex_bus_in.ex.cmp_op),
+      .jump_addr_base_sel_o(id_ex_bus_in.ex.jump_addr_base_sel),
       /********** MEM **********************************/
-      .mem_ren_o     (id_ex_bus_in.mem.mem_ren),
-      .mem_wen_o     (id_ex_bus_in.mem.mem_wen),
+      .mem_ren_o           (id_ex_bus_in.mem.mem_ren),
+      .mem_wen_o           (id_ex_bus_in.mem.mem_wen),
       /********** WB ***********************************/
-      .reg_wen_o     (id_ex_bus_in.wb.reg_wen),
-      .wb_wdata_sel_o(id_ex_bus_in.wb.wb_wdata_sel)
+      .reg_wen_o           (id_ex_bus_in.wb.reg_wen),
+      .wb_wdata_sel_o      (id_ex_bus_in.wb.wb_wdata_sel)
   );
 
   /********** ID-EX Buffer *****************************/
@@ -274,6 +252,7 @@ module cpu
       .alu_src1_sel_i        (id_ex_bus_out.ex.alu_src1_sel),
       .alu_src2_sel_i        (id_ex_bus_out.ex.alu_src2_sel),
       .cmp_op_i              (id_ex_bus_out.ex.cmp_op),
+      .jump_addr_base_sel_i  (id_ex_bus_out.ex.jump_addr_base_sel),
 
       // output
       .alu_result_o  (ex_mem_bus_in.alu_result),
@@ -303,6 +282,16 @@ module cpu
   );
 
   /********** MEM **************************************/
+  /* while data memory read AXI transaction
+   * need 4 cycle to get data
+   * but after 4 cycle the instruction in MEM
+   * is next instruction
+   * by pass mem read data to WB directly
+   * at WB there is only load data instruction
+   * will select mem read data as rd_wdata
+   * so it will be correct
+   */
+  logic [XLEN-1:0] mem_rdata_pass;
   MEM MEM_stage (
       // input
       .mem_addr_i (ex_mem_bus_out.alu_result),
@@ -314,7 +303,8 @@ module cpu
       // output
       .mem_addr_o (dmem_addr),
       .mem_ren_o  (dmem_ren),
-      .mem_rdata_o(mem_wb_bus_in.mem_rdata),
+      // .mem_rdata_o(mem_wb_bus_in.mem_rdata),
+      .mem_rdata_o(mem_rdata_pass),
       .mem_wen_o  (dmem_wen),
       .mem_wstrb_o(dmem_wstrb),
       .mem_wdata_o(dmem_wdata)
@@ -344,7 +334,8 @@ module cpu
       // input
       .wb_wdata_sel_i(mem_wb_bus_out.wb_wdata_sel),
       .alu_result_i  (mem_wb_bus_out.alu_result),
-      .mem_rdata_i   (mem_wb_bus_out.mem_rdata),
+      // .mem_rdata_i   (mem_wb_bus_out.mem_rdata),
+      .mem_rdata_i   (mem_rdata_pass),
       .pc_next_i     (mem_wb_bus_out.pc_next),
 
       // output
@@ -365,6 +356,7 @@ module cpu
       .reg_wen_mem    (ex_mem_bus_out.wb.reg_wen),
       .rd_idx_wb      (mem_wb_bus_out.rd_idx),
       .reg_wen_wb     (mem_wb_bus_out.reg_wen),
+      .hold_pc_for_next_rvalid,
 
       // output
       .stall_en_if,

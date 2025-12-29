@@ -3,8 +3,8 @@ package CPU_profile;
   parameter int unsigned XLEN = 32;
   parameter int unsigned ADDR_SHIFT = 2;
 
-  parameter int unsigned IMEM_BYTES = 64 * 1024;  /* 64 KiB */
-  parameter int unsigned DMEM_BYTES = 64 * 1024;  /* 64 KiB */
+  parameter int unsigned IMEM_BYTES = 256 * 1024;  /* 256 KiB */
+  parameter int unsigned DMEM_BYTES = 256 * 1024;  /* 256 KiB */
   parameter int unsigned IMEM_SIZE = IMEM_BYTES >> ADDR_SHIFT;
   parameter int unsigned DMEM_SIZE = DMEM_BYTES >> ADDR_SHIFT;
   parameter int unsigned MEM_SIZE = IMEM_SIZE + DMEM_SIZE;

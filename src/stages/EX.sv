@@ -3,22 +3,23 @@ module EX
   import decode::*;
 (
     // input
-    input logic          [XLEN-1:0] pc_i,
-    input logic          [XLEN-1:0] rs1_data_i,
-    input logic          [XLEN-1:0] rs2_data_i,
-    input logic          [XLEN-1:0] imm_i,
+    input logic                [XLEN-1:0] pc_i,
+    input logic                [XLEN-1:0] rs1_data_i,
+    input logic                [XLEN-1:0] rs2_data_i,
+    input logic                [XLEN-1:0] imm_i,
     /********** data forward from MEM and WB *********/
-    input logic          [XLEN-1:0] rs1_data_mem_forward_i,
-    input logic          [XLEN-1:0] rs2_data_mem_forward_i,
-    input logic          [XLEN-1:0] rs1_data_wb_forward_i,
-    input logic          [XLEN-1:0] rs2_data_wb_forward_i,
+    input logic                [XLEN-1:0] rs1_data_mem_forward_i,
+    input logic                [XLEN-1:0] rs2_data_mem_forward_i,
+    input logic                [XLEN-1:0] rs1_data_wb_forward_i,
+    input logic                [XLEN-1:0] rs2_data_wb_forward_i,
     /********** Control ******************************/
-    input alu_op_e                  alu_op_i,
-    input alu_data_sel_e            alu_rs1_data_sel_i,
-    input alu_data_sel_e            alu_rs2_data_sel_i,
-    input alu_src1_sel_e            alu_src1_sel_i,
-    input alu_src2_sel_e            alu_src2_sel_i,
-    input cmp_op_e                  cmp_op_i,
+    input alu_op_e                        alu_op_i,
+    input alu_data_sel_e                  alu_rs1_data_sel_i,
+    input alu_data_sel_e                  alu_rs2_data_sel_i,
+    input alu_src1_sel_e                  alu_src1_sel_i,
+    input alu_src2_sel_e                  alu_src2_sel_i,
+    input cmp_op_e                        cmp_op_i,
+    input jump_addr_base_sel_e            jump_addr_base_sel_i,
 
     // output
     output logic [XLEN-1:0] alu_result_o,
@@ -75,6 +76,6 @@ module EX
       .branch_taken_o(branch_taken_o)
   );
 
-  always_comb pc_target_o = pc_i + imm_i;
-
+  always_comb pc_target_o = (jump_addr_base_sel_i == PC) ? pc_i + imm_i : alu_result_o;
+  // always_comb pc_target_o = alu_result_o;
 endmodule

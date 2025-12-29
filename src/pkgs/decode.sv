@@ -103,6 +103,17 @@ package decode;
   } cmp_op_e;
 
   typedef enum logic [1:0] {
+    IDLE = 2'd0,
+    INVALID = 2'd1,
+    WAIT = 2'd2
+  } jump_inst_read_delay_e;
+
+  typedef enum logic {
+    PC  = 1'b0,  /* branch and jal */
+    RS1 = 1'b1   /* jalr */
+  } jump_addr_base_sel_e;
+
+  typedef enum logic [1:0] {
     id2ex_buf   = 2'd0,
     mem_forward = 2'd1,
     wb_forward  = 2'd2
@@ -127,6 +138,7 @@ package decode;
   parameter imm_sel_e IMM_SEL_UNKNOWN = imm_sel_e'('0);
   parameter alu_op_e ALU_OP_UNKNOWN = alu_op_e'('0);
   parameter cmp_op_e CMP_OP_UNKNOWN = cmp_op_e'('0);
+  parameter jump_addr_base_sel_e JUMP_ADDR_BASE_SEL_UNKNOWN = jump_addr_base_sel_e'('0);
   parameter alu_data_sel_e ALU_DATA_SEL_UNKNOWN = alu_data_sel_e'('0);
   parameter alu_src1_sel_e ALU_SRC1_SEL_UNKNOWN = alu_src1_sel_e'('0);
   parameter alu_src2_sel_e ALU_SRC2_SEL_UNKNOWN = alu_src2_sel_e'('0);

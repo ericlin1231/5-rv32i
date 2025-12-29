@@ -6,7 +6,11 @@ package tracer;
     logic [4:0] rd_idx;
     logic [4:0] rs1_idx;
     logic [4:0] rs2_idx;
-    logic [XLEN-1] pc;
+    logic [XLEN-1:0] pc;
+    logic [XLEN-1:0] imm;
+    logic [XLEN-1:0] rs1_data;
+    logic [XLEN-1:0] rs2_data;
+    logic [XLEN-1:0] alu_result;
   } tracer_bus_t;
 
   /***** helper ****************************************/

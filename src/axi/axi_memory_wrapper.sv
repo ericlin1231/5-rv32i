@@ -125,6 +125,7 @@ module axi_memory_wrapper
     WREADY_S1  = 1'b1;
 
     dmem_addr  = ARVALID_S1 ? ARADDR_S1 : AWADDR_S1;
+    dmem_ren   = ARVALID_S1 && ARREADY_S1;
     dmem_wdata = WDATA_S1;
     dmem_wstrb = WSTRB_S1;
     dmem_wen   = (AWVALID_S1 && AWREADY_S1 && WVALID_S1 && WREADY_S1);
@@ -132,7 +133,6 @@ module axi_memory_wrapper
 
   always_ff @(posedge ACLK or negedge ARESETn) begin
     if (!ARESETn) begin
-      dmem_ren        <= 1'b0;
       dmem_resp_valid <= 1'b0;
       RVALID_S1       <= 1'b0;
       RDATA_S1        <= '0;
@@ -140,7 +140,6 @@ module axi_memory_wrapper
       BRESP_S1        <= AXI_RESP_OKAY;
       BVALID_S1       <= 1'b0;
     end else begin
-      dmem_ren        <= ARVALID_S1 && ARREADY_S1;
       dmem_resp_valid <= dmem_ren;
 
       if (dmem_resp_valid) begin

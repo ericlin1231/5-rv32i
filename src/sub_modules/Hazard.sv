@@ -2,17 +2,18 @@ module Hazard
   import decode::*;
 (
     // input
-    input logic          [4:0] rs1_idx_id,
-    input logic          [4:0] rs2_idx_id,
-    input logic          [4:0] rs1_idx_ex,
-    input logic          [4:0] rs2_idx_ex,
-    input logic          [4:0] rd_idx_ex,
-    input logic                jump_en_ex,
-    input wb_wdata_sel_e       wb_wdata_sel_ex,
-    input logic          [4:0] rd_idx_mem,
-    input logic                reg_wen_mem,
-    input logic          [4:0] rd_idx_wb,
-    input logic                reg_wen_wb,
+    input logic                  [4:0] rs1_idx_id,
+    input logic                  [4:0] rs2_idx_id,
+    input logic                  [4:0] rs1_idx_ex,
+    input logic                  [4:0] rs2_idx_ex,
+    input logic                  [4:0] rd_idx_ex,
+    input logic                        jump_en_ex,
+    input wb_wdata_sel_e               wb_wdata_sel_ex,
+    input logic                  [4:0] rd_idx_mem,
+    input logic                        reg_wen_mem,
+    input logic                  [4:0] rd_idx_wb,
+    input logic                        reg_wen_wb,
+    input jump_inst_read_delay_e       hold_pc_for_next_rvalid,
 
     // output
     output logic          stall_en_if,
@@ -40,12 +41,14 @@ module Hazard
 
   /********** stall and flush logic ********************/
   logic load_stall;
+  logic flush_en_for_jump;
   always_comb begin
     load_stall    = wb_wdata_sel_ex[0] & (rd_idx_ex != 0) & ((rs1_idx_id == rd_idx_ex) | (rs2_idx_id == rd_idx_ex));
+    flush_en_for_jump = (hold_pc_for_next_rvalid == WAIT) ? 1'b1 : 1'b0;
     stall_en_if = load_stall;
     stall_en_if2id = load_stall;
-    flush_en_if2id = jump_en_ex;
-    flush_en_id2ex = (jump_en_ex | load_stall);
+    flush_en_if2id = flush_en_for_jump;
+    flush_en_id2ex = (flush_en_for_jump | load_stall);
   end
 
 endmodule

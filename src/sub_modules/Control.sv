@@ -8,158 +8,169 @@ module Control
 
     // output
     /********** EX ***********************************/
-    output logic          jump_en_o,
-    output logic          branch_en_o,
-    output alu_op_e       alu_op_o,
-    output alu_src1_sel_e alu_src1_sel_o,
-    output alu_src2_sel_e alu_src2_sel_o,
-    output cmp_op_e       cmp_op_o,
+    output logic                jump_en_o,
+    output logic                branch_en_o,
+    output alu_op_e             alu_op_o,
+    output alu_src1_sel_e       alu_src1_sel_o,
+    output alu_src2_sel_e       alu_src2_sel_o,
+    output cmp_op_e             cmp_op_o,
+    output jump_addr_base_sel_e jump_addr_base_sel_o,
     /********** MEM **********************************/
-    output logic          mem_wen_o,
-    output logic          mem_ren_o,
+    output logic                mem_wen_o,
+    output logic                mem_ren_o,
     /********** WB ***********************************/
-    output logic          reg_wen_o,
-    output wb_wdata_sel_e wb_wdata_sel_o
+    output logic                reg_wen_o,
+    output wb_wdata_sel_e       wb_wdata_sel_o
 );
 
   always_comb begin
     unique case (opcode_i)
       LOAD: begin
         // EX
-        jump_en_o      = 1'b0;
-        branch_en_o    = 1'b0;
-        alu_src1_sel_o = rs1;
-        alu_src2_sel_o = imm;
+        jump_en_o            = 1'b0;
+        branch_en_o          = 1'b0;
+        alu_src1_sel_o       = rs1;
+        alu_src2_sel_o       = imm;
+        jump_addr_base_sel_o = JUMP_ADDR_BASE_SEL_UNKNOWN;
         // MEM
-        mem_ren_o      = 1'b1;
-        mem_wen_o      = 1'b0;
+        mem_ren_o            = 1'b1;
+        mem_wen_o            = 1'b0;
         // WB
-        reg_wen_o      = 1'b1;
-        wb_wdata_sel_o = mem_read;
+        reg_wen_o            = 1'b1;
+        wb_wdata_sel_o       = mem_read;
       end
       STORE: begin
         // EX
-        jump_en_o      = 1'b0;
-        branch_en_o    = 1'b0;
-        alu_src1_sel_o = rs1;
-        alu_src2_sel_o = imm;
+        jump_en_o            = 1'b0;
+        branch_en_o          = 1'b0;
+        alu_src1_sel_o       = rs1;
+        alu_src2_sel_o       = imm;
+        jump_addr_base_sel_o = JUMP_ADDR_BASE_SEL_UNKNOWN;
         // MEM
-        mem_ren_o      = 1'b0;
-        mem_wen_o      = 1'b1;
+        mem_ren_o            = 1'b0;
+        mem_wen_o            = 1'b1;
         // WB
-        reg_wen_o      = 1'b0;
-        wb_wdata_sel_o = WB_WDATA_SEL_UNKNOWN;
+        reg_wen_o            = 1'b0;
+        wb_wdata_sel_o       = WB_WDATA_SEL_UNKNOWN;
       end
       ARITHMETIC_IMM: begin
         // EX
-        jump_en_o      = 1'b0;
-        branch_en_o    = 1'b0;
-        alu_src1_sel_o = rs1;
-        alu_src2_sel_o = imm;
+        jump_en_o            = 1'b0;
+        branch_en_o          = 1'b0;
+        alu_src1_sel_o       = rs1;
+        alu_src2_sel_o       = imm;
+        jump_addr_base_sel_o = JUMP_ADDR_BASE_SEL_UNKNOWN;
         // MEM
-        mem_ren_o      = 1'b0;
-        mem_wen_o      = 1'b0;
+        mem_ren_o            = 1'b0;
+        mem_wen_o            = 1'b0;
         // WB
-        reg_wen_o      = 1'b1;
-        wb_wdata_sel_o = alu_result;
+        reg_wen_o            = 1'b1;
+        wb_wdata_sel_o       = alu_result;
       end
       ARITHMETIC_REG: begin
         // EX
-        jump_en_o      = 1'b0;
-        branch_en_o    = 1'b0;
-        alu_src1_sel_o = rs1;
-        alu_src2_sel_o = rs2;
+        jump_en_o            = 1'b0;
+        branch_en_o          = 1'b0;
+        alu_src1_sel_o       = rs1;
+        alu_src2_sel_o       = rs2;
+        jump_addr_base_sel_o = JUMP_ADDR_BASE_SEL_UNKNOWN;
         // MEM
-        mem_ren_o      = 1'b0;
-        mem_wen_o      = 1'b0;
+        mem_ren_o            = 1'b0;
+        mem_wen_o            = 1'b0;
         // WB
-        reg_wen_o      = 1'b1;
-        wb_wdata_sel_o = alu_result;
+        reg_wen_o            = 1'b1;
+        wb_wdata_sel_o       = alu_result;
       end
       BRANCH: begin
         // EX
-        jump_en_o      = 1'b0;
-        branch_en_o    = 1'b1;
-        alu_src1_sel_o = rs1;
-        alu_src2_sel_o = rs2;
+        jump_en_o            = 1'b0;
+        branch_en_o          = 1'b1;
+        alu_src1_sel_o       = rs1;
+        alu_src2_sel_o       = rs2;
+        jump_addr_base_sel_o = PC;
         // MEM
-        mem_ren_o      = 1'b0;
-        mem_wen_o      = 1'b0;
+        mem_ren_o            = 1'b0;
+        mem_wen_o            = 1'b0;
         // WB
-        reg_wen_o      = 1'b0;
-        wb_wdata_sel_o = WB_WDATA_SEL_UNKNOWN;
+        reg_wen_o            = 1'b0;
+        wb_wdata_sel_o       = WB_WDATA_SEL_UNKNOWN;
       end
       JAL: begin
         // EX
-        jump_en_o      = 1'b1;
-        branch_en_o    = 1'b0;
-        alu_src1_sel_o = ALU_SRC1_SEL_UNKNOWN;
-        alu_src2_sel_o = imm;
+        jump_en_o            = 1'b1;
+        branch_en_o          = 1'b0;
+        alu_src1_sel_o       = pc;
+        alu_src2_sel_o       = imm;
+        jump_addr_base_sel_o = PC;
         // MEM
-        mem_ren_o      = 1'b0;
-        mem_wen_o      = 1'b0;
+        mem_ren_o            = 1'b0;
+        mem_wen_o            = 1'b0;
         // WB
-        reg_wen_o      = 1'b1;
-        wb_wdata_sel_o = pc_next;
+        reg_wen_o            = 1'b1;
+        wb_wdata_sel_o       = pc_next;
       end
       JALR: begin
         // EX
-        jump_en_o      = 1'b1;
-        branch_en_o    = 1'b0;
-        alu_src1_sel_o = rs1;
-        alu_src2_sel_o = imm;
+        jump_en_o            = 1'b1;
+        branch_en_o          = 1'b0;
+        alu_src1_sel_o       = rs1;
+        alu_src2_sel_o       = imm;
+        jump_addr_base_sel_o = RS1;
         // MEM
-        mem_ren_o      = 1'b0;
-        mem_wen_o      = 1'b0;
+        mem_ren_o            = 1'b0;
+        mem_wen_o            = 1'b0;
         // WB
-        reg_wen_o      = 1'b1;
-        wb_wdata_sel_o = pc_next;
+        reg_wen_o            = 1'b1;
+        wb_wdata_sel_o       = pc_next;
       end
       LUI: begin
         // EX
-        jump_en_o      = 1'b0;
-        branch_en_o    = 1'b0;
-        alu_src1_sel_o = rs1;
-        alu_src2_sel_o = imm;
+        jump_en_o            = 1'b0;
+        branch_en_o          = 1'b0;
+        alu_src1_sel_o       = rs1;
+        alu_src2_sel_o       = imm;
+        jump_addr_base_sel_o = JUMP_ADDR_BASE_SEL_UNKNOWN;
         // MEM
-        mem_ren_o      = 1'b0;
-        mem_wen_o      = 1'b0;
+        mem_ren_o            = 1'b0;
+        mem_wen_o            = 1'b0;
         // WB
-        reg_wen_o      = 1'b1;
-        wb_wdata_sel_o = alu_result;
+        reg_wen_o            = 1'b1;
+        wb_wdata_sel_o       = alu_result;
       end
       AUIPC: begin
         // EX
-        jump_en_o      = 1'b0;
-        branch_en_o    = 1'b0;
-        alu_src1_sel_o = pc;
-        alu_src2_sel_o = imm;
+        jump_en_o            = 1'b0;
+        branch_en_o          = 1'b0;
+        alu_src1_sel_o       = pc;
+        alu_src2_sel_o       = imm;
+        jump_addr_base_sel_o = JUMP_ADDR_BASE_SEL_UNKNOWN;
         // MEM
-        mem_ren_o      = 1'b0;
-        mem_wen_o      = 1'b0;
+        mem_ren_o            = 1'b0;
+        mem_wen_o            = 1'b0;
         // WB
-        reg_wen_o      = 1'b1;
-        wb_wdata_sel_o = alu_result;
+        reg_wen_o            = 1'b1;
+        wb_wdata_sel_o       = alu_result;
       end
       default: begin
         // EX
-        jump_en_o      = 1'b0;
-        branch_en_o    = 1'b0;
-        alu_src1_sel_o = ALU_SRC1_SEL_UNKNOWN;
-        alu_src2_sel_o = ALU_SRC2_SEL_UNKNOWN;
+        jump_en_o            = 1'b0;
+        branch_en_o          = 1'b0;
+        alu_src1_sel_o       = ALU_SRC1_SEL_UNKNOWN;
+        alu_src2_sel_o       = ALU_SRC2_SEL_UNKNOWN;
+        jump_addr_base_sel_o = JUMP_ADDR_BASE_SEL_UNKNOWN;
         // MEM
-        mem_ren_o      = 1'b0;
-        mem_wen_o      = 1'b0;
+        mem_ren_o            = 1'b0;
+        mem_wen_o            = 1'b0;
         // WB
-        reg_wen_o      = 1'b0;
-        wb_wdata_sel_o = WB_WDATA_SEL_UNKNOWN;
+        reg_wen_o            = 1'b0;
+        wb_wdata_sel_o       = WB_WDATA_SEL_UNKNOWN;
       end
     endcase
   end
 
   always_comb begin
     unique case (opcode_i)
-      LOAD, STORE:    alu_op_o = ADD;
+      LOAD, STORE: alu_op_o = ADD;
       ARITHMETIC_IMM: begin
         unique case (arithmetic_imm_funct3_e'(funct3_i))
           FUNCT3_ADDI:  alu_op_o = ADD;
@@ -202,12 +213,12 @@ module Control
           end
         endcase
       end
-      BRANCH:  alu_op_o = ALU_OP_UNKNOWN;
-      JAL:     alu_op_o = ADD;
-      JALR:    alu_op_o = ADD;
-      LUI:     alu_op_o = PASS;
-      AUIPC:   alu_op_o = ADD;
-      default: alu_op_o = ALU_OP_UNKNOWN;
+      BRANCH:      alu_op_o = ADD;
+      JAL:         alu_op_o = ADD;
+      JALR:        alu_op_o = ADD;
+      LUI:         alu_op_o = PASS;
+      AUIPC:       alu_op_o = ADD;
+      default:     alu_op_o = ALU_OP_UNKNOWN;
     endcase
   end
 
