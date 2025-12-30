@@ -8,23 +8,25 @@ module Control
 
     // output
     /********** EX ***********************************/
-    output logic                jump_en_o,
-    output logic                branch_en_o,
-    output alu_op_e             alu_op_o,
-    output alu_src1_sel_e       alu_src1_sel_o,
-    output alu_src2_sel_e       alu_src2_sel_o,
-    output cmp_op_e             cmp_op_o,
-    output jump_addr_base_sel_e jump_addr_base_sel_o,
+    output logic                      jump_en_o,
+    output logic                      branch_en_o,
+    output alu_op_e                   alu_op_o,
+    output alu_src1_sel_e             alu_src1_sel_o,
+    output alu_src2_sel_e             alu_src2_sel_o,
+    output cmp_op_e                   cmp_op_o,
+    output jump_addr_base_sel_e       jump_addr_base_sel_o,
     /********** MEM **********************************/
-    output logic                mem_wen_o,
-    output logic                mem_ren_o,
+    output logic                      mem_ren_o,
+    output logic                [3:0] mem_rmask_o,
+    output logic                      mem_wen_o,
+    output logic                [3:0] mem_wstrb_o,
     /********** WB ***********************************/
-    output logic                reg_wen_o,
-    output wb_wdata_sel_e       wb_wdata_sel_o
+    output logic                      reg_wen_o,
+    output wb_wdata_sel_e             wb_wdata_sel_o
 );
 
   always_comb begin
-    unique case (opcode_i)
+    unique case (opcode_e'(opcode_i))
       LOAD: begin
         // EX
         jump_en_o            = 1'b0;
@@ -34,10 +36,17 @@ module Control
         jump_addr_base_sel_o = JUMP_ADDR_BASE_SEL_UNKNOWN;
         // MEM
         mem_ren_o            = 1'b1;
-        mem_wen_o            = 1'b0;
+        unique case (load_funct3_e'(funct3_i))
+          FUNCT3_LB, FUNCT3_LBU: mem_rmask_o = 4'b0001;
+          FUNCT3_LH, FUNCT3_LHU: mem_rmask_o = 4'b0011;
+          FUNCT3_LW: mem_rmask_o = 4'b1111;
+          default: mem_rmask_o = 4'b0000;
+        endcase
+        mem_wen_o      = 1'b0;
+        mem_wstrb_o    = 4'b0;
         // WB
-        reg_wen_o            = 1'b1;
-        wb_wdata_sel_o       = mem_read;
+        reg_wen_o      = 1'b1;
+        wb_wdata_sel_o = mem_read;
       end
       STORE: begin
         // EX
@@ -48,10 +57,17 @@ module Control
         jump_addr_base_sel_o = JUMP_ADDR_BASE_SEL_UNKNOWN;
         // MEM
         mem_ren_o            = 1'b0;
+        mem_rmask_o          = 4'b0;
         mem_wen_o            = 1'b1;
+        unique case (store_funct3_e'(funct3_i))
+          FUNCT3_SB: mem_wstrb_o = 4'b0001;
+          FUNCT3_SH: mem_wstrb_o = 4'b0011;
+          FUNCT3_SW: mem_wstrb_o = 4'b1111;
+          default:   mem_wstrb_o = 4'b0;
+        endcase
         // WB
-        reg_wen_o            = 1'b0;
-        wb_wdata_sel_o       = WB_WDATA_SEL_UNKNOWN;
+        reg_wen_o      = 1'b0;
+        wb_wdata_sel_o = WB_WDATA_SEL_UNKNOWN;
       end
       ARITHMETIC_IMM: begin
         // EX
@@ -62,7 +78,9 @@ module Control
         jump_addr_base_sel_o = JUMP_ADDR_BASE_SEL_UNKNOWN;
         // MEM
         mem_ren_o            = 1'b0;
+        mem_rmask_o          = 4'b0;
         mem_wen_o            = 1'b0;
+        mem_wstrb_o          = 4'b0;
         // WB
         reg_wen_o            = 1'b1;
         wb_wdata_sel_o       = alu_result;
@@ -76,7 +94,9 @@ module Control
         jump_addr_base_sel_o = JUMP_ADDR_BASE_SEL_UNKNOWN;
         // MEM
         mem_ren_o            = 1'b0;
+        mem_rmask_o          = 4'b0;
         mem_wen_o            = 1'b0;
+        mem_wstrb_o          = 4'b0;
         // WB
         reg_wen_o            = 1'b1;
         wb_wdata_sel_o       = alu_result;
@@ -90,7 +110,9 @@ module Control
         jump_addr_base_sel_o = PC;
         // MEM
         mem_ren_o            = 1'b0;
+        mem_rmask_o          = 4'b0;
         mem_wen_o            = 1'b0;
+        mem_wstrb_o          = 4'b0;
         // WB
         reg_wen_o            = 1'b0;
         wb_wdata_sel_o       = WB_WDATA_SEL_UNKNOWN;
@@ -104,7 +126,9 @@ module Control
         jump_addr_base_sel_o = PC;
         // MEM
         mem_ren_o            = 1'b0;
+        mem_rmask_o          = 4'b0;
         mem_wen_o            = 1'b0;
+        mem_wstrb_o          = 4'b0;
         // WB
         reg_wen_o            = 1'b1;
         wb_wdata_sel_o       = pc_next;
@@ -118,7 +142,9 @@ module Control
         jump_addr_base_sel_o = RS1;
         // MEM
         mem_ren_o            = 1'b0;
+        mem_rmask_o          = 4'b0;
         mem_wen_o            = 1'b0;
+        mem_wstrb_o          = 4'b0;
         // WB
         reg_wen_o            = 1'b1;
         wb_wdata_sel_o       = pc_next;
@@ -132,7 +158,9 @@ module Control
         jump_addr_base_sel_o = JUMP_ADDR_BASE_SEL_UNKNOWN;
         // MEM
         mem_ren_o            = 1'b0;
+        mem_rmask_o          = 4'b0;
         mem_wen_o            = 1'b0;
+        mem_wstrb_o          = 4'b0;
         // WB
         reg_wen_o            = 1'b1;
         wb_wdata_sel_o       = alu_result;
@@ -146,7 +174,9 @@ module Control
         jump_addr_base_sel_o = JUMP_ADDR_BASE_SEL_UNKNOWN;
         // MEM
         mem_ren_o            = 1'b0;
+        mem_rmask_o          = 4'b0;
         mem_wen_o            = 1'b0;
+        mem_wstrb_o          = 4'b0;
         // WB
         reg_wen_o            = 1'b1;
         wb_wdata_sel_o       = alu_result;
@@ -160,7 +190,9 @@ module Control
         jump_addr_base_sel_o = JUMP_ADDR_BASE_SEL_UNKNOWN;
         // MEM
         mem_ren_o            = 1'b0;
+        mem_rmask_o          = 4'b0;
         mem_wen_o            = 1'b0;
+        mem_wstrb_o          = 4'b0;
         // WB
         reg_wen_o            = 1'b0;
         wb_wdata_sel_o       = WB_WDATA_SEL_UNKNOWN;

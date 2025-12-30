@@ -6,6 +6,7 @@ SRCS := write_single_u32 \
 		load_store       \
 		fibonacci        \
 		sort
+
 SIM_DIR    := sims
 SPIKE_DIR  := spikes
 GOLDEN_DIR := golden

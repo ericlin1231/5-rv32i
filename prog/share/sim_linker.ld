@@ -20,6 +20,7 @@ SECTIONS
     } > imem
 
     .rodata : ALIGN(16) {
+        /* *(.rodata.arr_init) */
         *(.rodata)
         *(.rodata.*)
     } > imem

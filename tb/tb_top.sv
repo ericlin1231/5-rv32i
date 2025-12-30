@@ -47,7 +47,7 @@ module tb_top;
     ARESETn = 1'b0;
     repeat (20) @(posedge ACLK);
     ARESETn = 1'b1;
-    repeat (1000000) @(posedge ACLK);
+    repeat (100000) @(posedge ACLK);
     $display("[TB] Timeout reached, finishing.");
     $finish;
   end
@@ -114,6 +114,7 @@ module tb_top;
       end
       debug_base += 32'd4;
     end
+
 
     $writememh("mem.txt", TOP.mem0.mem0.mem, mem_dump_base[XLEN-1:2], mem_dump_end[XLEN-1:2]);
 

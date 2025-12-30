@@ -30,7 +30,9 @@ package CPU_buffer_bus;
 
   typedef struct packed {
     logic mem_ren;
+    logic [3:0] mem_rmask;
     logic mem_wen;
+    logic [3:0] mem_wstrb;
   } id_pass_mem_t;
 
   typedef struct packed {
@@ -51,7 +53,9 @@ package CPU_buffer_bus;
   /********** EX-MEM ***************************************/
   typedef struct packed {
     logic            mem_ren;
+    logic [3:0]      mem_rmask;
     logic            mem_wen;
+    logic [3:0]      mem_wstrb;
     logic [XLEN-1:0] mem_wdata;
   } mem_signal_t;
 
@@ -70,6 +74,18 @@ package CPU_buffer_bus;
 
   /********** MEM-WB ***************************************/
   typedef struct packed {
+    /* rmask shift should be remove
+     * after convert word width memory
+     * to byte width memory
+     */
+    logic [1:0]      mem_addr_low_2_bit;
+    /* currently in my design the data read
+     * from DMEM via AXI read transaction
+     * will valid when load instruction
+     * at WB stage so keep read data mask
+     * control signal to WB
+     */
+    logic [3:0]      mem_rmask;
     logic [4:0]      rd_idx;
     logic            reg_wen;
     wb_wdata_sel_e   wb_wdata_sel;

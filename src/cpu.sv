@@ -240,7 +240,9 @@ module cpu
       .jump_addr_base_sel_o(id_ex_bus_in.ex.jump_addr_base_sel),
       /********** MEM **********************************/
       .mem_ren_o           (id_ex_bus_in.mem.mem_ren),
+      .mem_rmask_o(id_ex_bus_in.mem.mem_rmask),
       .mem_wen_o           (id_ex_bus_in.mem.mem_wen),
+      .mem_wstrb_o(id_ex_bus_in.mem.mem_wstrb),
       /********** WB ***********************************/
       .reg_wen_o           (id_ex_bus_in.wb.reg_wen),
       .wb_wdata_sel_o      (id_ex_bus_in.wb.wb_wdata_sel)
@@ -289,7 +291,9 @@ module cpu
   );
   assign jump_en_ex = (id_ex_bus_out.ex.branch_en & branch_taken_en_ex) | id_ex_bus_out.ex.jump_en;
   assign ex_mem_bus_in.mem.mem_ren = id_ex_bus_out.mem.mem_ren;
+  assign ex_mem_bus_in.mem.mem_rmask = id_ex_bus_out.mem.mem_rmask;
   assign ex_mem_bus_in.mem.mem_wen = id_ex_bus_out.mem.mem_wen;
+  assign ex_mem_bus_in.mem.mem_wstrb = id_ex_bus_out.mem.mem_wstrb;
   assign ex_mem_bus_in.wb.rd_idx = id_ex_bus_out.wb.rd_idx;
   assign ex_mem_bus_in.wb.reg_wen = id_ex_bus_out.wb.reg_wen;
   assign ex_mem_bus_in.wb.wb_wdata_sel = id_ex_bus_out.wb.wb_wdata_sel;
@@ -323,8 +327,10 @@ module cpu
       // input
       .mem_addr_i (ex_mem_bus_out.alu_result),
       .mem_ren_i  (ex_mem_bus_out.mem.mem_ren),
+      // .mem_rmask_i(ex_mem_bus_out.mem.mem_rmask),
       .mem_rdata_i(dmem_rdata),
       .mem_wen_i  (ex_mem_bus_out.mem.mem_wen),
+      .mem_wstrb_i(ex_mem_bus_out.mem.mem_wstrb),
       .mem_wdata_i(ex_mem_bus_out.mem.mem_wdata),
 
       // output
@@ -336,6 +342,18 @@ module cpu
       .mem_wstrb_o(dmem_wstrb),
       .mem_wdata_o(dmem_wdata)
   );
+  /* rmask shift should be remove
+   * after convert word width memory
+   * to byte width memory
+   */
+  assign mem_wb_bus_in.mem_addr_low_2_bit = ex_mem_bus_out.alu_result[1:0];
+  /* currently in my design the data read
+   * from DMEM via AXI read transaction
+   * will valid when load instruction
+   * at WB stage so keep read data mask
+   * control signal to WB
+   */
+  assign mem_wb_bus_in.mem_rmask = ex_mem_bus_out.mem.mem_rmask;
   assign mem_wb_bus_in.rd_idx       = ex_mem_bus_out.wb.rd_idx;
   assign mem_wb_bus_in.reg_wen      = ex_mem_bus_out.wb.reg_wen;
   assign mem_wb_bus_in.wb_wdata_sel = ex_mem_bus_out.wb.wb_wdata_sel;
@@ -362,6 +380,12 @@ module cpu
       .wb_wdata_sel_i(mem_wb_bus_out.wb_wdata_sel),
       .alu_result_i  (mem_wb_bus_out.alu_result),
       // .mem_rdata_i   (mem_wb_bus_out.mem_rdata),
+      /* rmask shift should be remove
+       * after convert word width memory
+       * to byte width memory
+       */
+      .mem_rmask_shift_i(mem_wb_bus_out.mem_addr_low_2_bit),
+      .mem_rmask_i(mem_wb_bus_out.mem_rmask),
       .mem_rdata_i   (mem_rdata_pass),
       .pc_next_i     (mem_wb_bus_out.pc_next),
 

@@ -67,7 +67,7 @@ module axi_memory_wrapper
   logic [XLEN-1:0] dmem_wdata;
   logic dmem_resp_valid;
   memory mem0 (
-      .clk(ACLK),
+      .ACLK,
 
       /********** IMEM slave 0 interface ***************/
       .imem_addr,

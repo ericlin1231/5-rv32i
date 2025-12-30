@@ -5,8 +5,10 @@ module MEM
     // input
     input logic [XLEN-1:0] mem_addr_i,
     input logic            mem_ren_i,
+    // input logic [     3:0] mem_rmask_i,
     input logic [XLEN-1:0] mem_rdata_i,
     input logic            mem_wen_i,
+    input logic [     3:0] mem_wstrb_i,
     input logic [XLEN-1:0] mem_wdata_i,
 
     // output
@@ -22,7 +24,7 @@ module MEM
     mem_addr_o  = mem_addr_i;
     mem_wdata_o = mem_wdata_i;
     mem_wen_o   = mem_wen_i;
-    mem_wstrb_o = 4'b1111;
+    mem_wstrb_o = mem_wstrb_i;
     mem_ren_o   = mem_ren_i;
     mem_rdata_o = mem_rdata_i;
   end
